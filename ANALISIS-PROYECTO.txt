@@ -1,0 +1,147 @@
+================================================================================
+ANÁLISIS DEL PROYECTO CHILEAN SOUTH VISUALS
+================================================================================
+
+¿QUÉ ES EL PROYECTO?
+--------------------
+Es un marketplace/directorio premium centrado en el sur de Chile: perfiles por 
+ciudad, búsqueda por ubicación y ficha de perfil con galería. La idea es 
+"Descubre el Sur de Chile" y conectar con perfiles en ciudades como Rancagua, 
+Talca, Chillán, Concepción, Temuco, Valdivia, Osorno y Puerto Montt. El diseño 
+es oscuro, con acentos dorados y aspecto "premium".
+
+
+STACK TECNOLÓGICO
+-----------------
+Build / Dev    → Vite 5 con SWC (@vitejs/plugin-react-swc)
+Lenguaje       → TypeScript 5.8
+UI             → React 18
+Routing        → React Router DOM 6
+Estilos        → Tailwind CSS 3 + variables CSS (tema oscuro)
+Componentes    → shadcn/ui (Radix UI + utilidades)
+Animaciones    → Framer Motion 12
+Carousel       → Embla Carousel (galería en perfil)
+Estado/datos   → TanStack React Query 5 (configurado; datos actuales estáticos)
+Formularios    → React Hook Form + Zod + @hookform/resolvers (disponibles)
+Iconos         → Lucide React
+Notificaciones → Sonner + Toaster (shadcn)
+Testing        → Vitest + Testing Library + jsdom
+Linting        → ESLint 9 + typescript-eslint
+Origen         → Proyecto generado/gestioneado con Lovable
+
+Resumen: React + TypeScript + Vite + Tailwind + shadcn/ui + Framer Motion + 
+React Router. Sin backend propio; datos en src/lib/data.ts.
+
+
+DISEÑO Y SISTEMA VISUAL
+-----------------------
+
+Paleta y tema
+- Fondo: Negro muy oscuro (--background: 0 0% 4%)
+- Superficies: Grises oscuros (--card, --surface, --surface-light)
+- Acento principal: Dorado (--gold: 38 38% 60%) para badges, botones, iconos
+- Acento secundario: Rojo vino (--accent: 350 55% 34%) para chips/filtros activos
+- Texto: Claro (--foreground) y gris (--muted-foreground)
+- Bordes/inputs: Grises (--border, --input)
+
+Tipografía
+- Display/títulos: Playfair Display (serif)
+- Cuerpo/UI: Inter (sans-serif)
+Definidas en index.css y tailwind.config.ts (font-display, font-sans)
+
+Efectos y utilidades (Tailwind / CSS)
+- Glassmorphism: clase .glass (bg-white/5 backdrop-blur-xl border border-white/10)
+  y .glass-strong
+- Dorado: .text-gold, .bg-gold, .border-gold, .glow-gold
+- Gradientes: .gradient-dark (hero), .gradient-card (overlay en cards)
+- Shimmer: animación para skeletons (.shimmer)
+- Bordes redondeados: --radius: 1rem; uso consistente de rounded-2xl
+
+Animaciones
+- Framer Motion: variantes stagger + fadeUp en listas y secciones
+- Scroll reveal: whileInView con viewport={{ once: true }}
+- Hover: scale en imágenes (ProfileCard, CityCard), glow sutil en cards
+- Indicador de scroll: animación vertical en el hero
+- Keyframes en Tailwind: fade-up, fade-in, scale-in, slide-up, accordion
+
+En conjunto: diseño oscuro, "premium", con mucho uso de dorado, cristal y 
+animaciones suaves.
+
+
+ESTRUCTURA DE LA APLICACIÓN
+---------------------------
+
+Rutas (App.tsx)
+- /              → Index (home)
+- /ciudad/:cityId → CityPage (perfiles por ciudad)
+- /perfil/:profileId → ProfilePage (ficha de perfil)
+- *              → NotFound (404)
+
+AnimatePresence envuelve las rutas; BottomNav siempre visible.
+
+Páginas
+1. Index (Home)
+   Hero con título "Descubre el Sur de Chile", buscador, selector de ciudad,
+   secciones "Destacadas", "Ciudades Disponibles" (cards horizontales) y
+   "Recién Llegadas". Footer incluido.
+
+2. CityPage
+   Cabecera con imagen de ciudad, breadcrumb, filtros por categoría (Todas,
+   Premium, VIP, etc.) y edad (18-22, 23-26, …). Grid de ProfileCard y bloque
+   de skeletons al final (placeholder de "cargar más").
+
+3. ProfilePage
+   Galería con Embla (swipe en móvil), indicadores y thumbnails en desktop;
+   nombre, edad, ciudad, badge, estado "Disponible/Verificada", descripción,
+   grid de detalles (horario, zona, experiencia, etc.) y CTA fijo "Contactar"
+   + botón calendario.
+
+4. NotFound
+   Mensaje 404 y enlace a home.
+
+Componentes propios (fuera de ui/)
+- ProfileCard: card de perfil (imagen, badge, "Online", nombre, edad, ciudad);
+  enlace a /perfil/:id
+- CityCard: card de ciudad (imagen, nombre, número de perfiles);
+  enlace a /ciudad/:id
+- BottomNav: navegación inferior (Inicio, Buscar, Ciudades, Perfil);
+  solo visible en móvil (md:hidden)
+- Footer: columnas (marca "Sur Premium", Ciudades, Soporte, Legal) y copyright
+- NavLink: existe en el árbol; en el flujo principal se usa Link y BottomNav
+
+Datos (src/lib/data.ts)
+- cities: 8 ciudades con id, name, profiles, image (Unsplash)
+- featuredProfiles: 8 perfiles con id, name, age, city, badge, image, available
+- profileGallery: 5 URLs de imágenes para la galería del perfil
+- filterCategories, filterAges, filterAvailability: opciones para filtros
+
+Todo estático en memoria; no hay API ni persistencia.
+
+
+DETALLES TÉCNICOS
+-----------------
+- Alias: @ → src/ (imports tipo @/components/..., @/lib/data)
+- React Query: QueryClient y QueryClientProvider están; no hay useQuery/useMutation
+  todavía
+- Responsive: mobile first; grids 2 cols móvil y 3-4 desktop; bottom nav solo
+  móvil; CTA sticky en perfil en móvil
+- Accesibilidad: Uso de Radix/shadcn (teclado, ARIA) en componentes ui/
+- Tests: Vitest + setup en src/test/; hay un test de ejemplo
+
+
+RESUMEN
+-------
+Stack: React + TypeScript + Vite + Tailwind + shadcn/ui + Framer Motion +
+React Router (+ React Query y form libs listos pero sin uso en flujos principales).
+
+Diseño: Oscuro, dorado, glassmorphism, Playfair + Inter, animaciones con
+Framer Motion y utilidades Tailwind.
+
+Contenido: Home (hero, destacadas, ciudades, recién llegadas), página por
+ciudad con filtros y grid de perfiles, y página de perfil con galería y CTA.
+
+Datos: Todo estático en data.ts; listo para conectar después a una API o backend.
+
+================================================================================
+Generado a partir del análisis del proyecto chilean-south-visuals-main
+================================================================================

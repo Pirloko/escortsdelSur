@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /registro
+Disallow: /registro-cliente
+Disallow: /completar-perfil
+Disallow: /cambiar-contrasena
+Disallow: /cuenta
+Disallow: /cuenta/
+Disallow: /admin
+Disallow: /admin/
+
+Sitemap: https://puntocachero.cl/sitemap.xml

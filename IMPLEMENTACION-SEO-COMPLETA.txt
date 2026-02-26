@@ -1,0 +1,320 @@
+================================================================================
+DOCUMENTACIÓN COMPLETA: IMPLEMENTACIÓN SEO - MARKETPLACE SUR DE CHILE
+Dominio en uso: puntocachero.cl
+================================================================================
+Fecha de implementación: Febrero 2026
+Proyecto: chilean-south-visuals-main (Vite + React + TypeScript + Tailwind + shadcn/ui)
+================================================================================
+
+
+1. DOMINIO
+----------
+Dominio configurado: https://puntocachero.cl
+- Usado en: src/components/JsonLd.tsx (const SITE_URL = "https://puntocachero.cl")
+- Todas las URLs absolutas en JSON-LD (BreadcrumbList, ItemList, Person) usan este dominio.
+- Ejemplos de URLs generadas:
+  - Inicio: https://puntocachero.cl/
+  - Ciudad: https://puntocachero.cl/rancagua, https://puntocachero.cl/temuco, etc.
+  - Perfil: https://puntocachero.cl/perfil/1
+
+
+2. ESTRATEGIA DE PALABRAS CLAVE (DESDE LA ARQUITECTURA)
+-------------------------------------------------------
+Proyecto: Marketplace premium por ciudades del sur de Chile (desde Rancagua hacia el sur).
+
+Ciudades prioritarias Fase 1:
+- Rancagua
+- Talca
+- Chillán
+- Concepción
+- Temuco
+
+Otras ciudades con estructura SEO (contenido más breve por ahora):
+- Valdivia
+- Osorno
+- Puerto Montt
+
+Para cada ciudad:
+- Keyword principal: "escorts en [ciudad]" (ej: "escorts en Rancagua", "escorts en Temuco").
+- Variaciones semánticas naturales usadas en títulos, descripciones y contenido:
+  * perfiles en [ciudad]
+  * acompañantes en [ciudad]
+  * servicio premium en [ciudad]
+  * disponibles en [ciudad]
+
+Reglas aplicadas:
+- NO keyword stuffing.
+- NO repetición forzada.
+- Lenguaje natural en todo el contenido.
+
+
+3. FASE SEO ESTRUCTURAL - URLS
+------------------------------
+Las URLs reflejan la keyword principal (slug de ciudad).
+
+URLs implementadas:
+- Home: https://puntocachero.cl/
+- Ciudad: https://puntocachero.cl/rancagua/ , /talca/ , /chillan/ , /concepcion/ , /temuco/ , /valdivia/ , /osorno/ , /puerto-montt/
+- Perfil: https://puntocachero.cl/perfil/[id]  (ej: /perfil/1)
+
+Ya NO se usa:
+- /ciudad/rancagua
+- /ciudad/temuco
+- etc.
+
+Orden de rutas en App.tsx (importante para que no se capture "perfil" como ciudad):
+1. path="/"           -> Index (Home)
+2. path="/perfil/:profileId" -> ProfilePage
+3. path="/:citySlug" -> CityRoute (solo si citySlug es válido)
+4. path="*"          -> NotFound
+
+Si alguien entra a una URL que no es un slug de ciudad válido (ej: /xyz), se muestra la página 404 (NotFound). Esto evita doorway pages y URLs inventadas.
+
+
+4. ARCHIVO: src/lib/seo.ts
+--------------------------
+Contenido y propósito:
+
+- CITY_SLUGS: array de slugs válidos para rutas de ciudad.
+  ["rancagua", "talca", "chillan", "concepcion", "temuco", "valdivia", "osorno", "puerto-montt"]
+
+- CitySlug: tipo TypeScript derivado de CITY_SLUGS.
+
+- cityNameToSlug: objeto que mapea nombre de ciudad (display) a slug para URL.
+  Ej: "Temuco" -> "temuco", "Concepción" -> "concepcion", "Puerto Montt" -> "puerto-montt".
+
+- getCitySlugFromName(name: string): string
+  Devuelve el slug para una ciudad por su nombre. Usado en ProfilePage para el enlace "volver a ciudad".
+
+- isValidCitySlug(slug: string): slug is CitySlug
+  Comprueba si el slug es uno de los permitidos. Usado en CityRoute para decidir si mostrar CityPage o NotFound.
+
+- Interfaces: CitySeo (seo_title, seo_description, seo_content, keyword_primary), CityWithSeo (extiende ciudad con esos campos).
+
+
+5. META DINÁMICOS (generateMetadata equivalente en SPA)
+-----------------------------------------------------
+Se usa react-helmet-async. La app está envuelta en HelmetProvider (en main.tsx). En cada página se usa <Helmet> para title y meta description.
+
+Home (Index.tsx):
+- Title: "Escorts en el Sur de Chile | Perfiles Premium por Ciudad"
+- Description: "Descubre perfiles y acompañantes premium en las principales ciudades del sur de Chile: Rancagua, Talca, Chillán, Concepción, Temuco y más. Servicio verificado y discreto."
+
+Ciudad (CityPage.tsx):
+- Title: viene de cities-seo-data (seo_title) o fallback "Escorts en [Ciudad] | Perfiles Premium en el Sur de Chile".
+- Description: viene de seo_description o fallback "Perfiles y acompañantes en [Ciudad]. Servicio premium en el sur de Chile."
+- Ejemplos por ciudad (desde cities-seo-data):
+  * Rancagua: "Escorts en Rancagua | Perfiles Premium en el Sur de Chile" / "Encuentra perfiles premium y acompañantes en Rancagua. Servicio discreto y verificado en la capital de la Región de O'Higgins."
+  * Talca, Chillán, Concepción, Temuco: mismo patrón con texto único por ciudad.
+
+Perfil (ProfilePage.tsx):
+- Title: "[Nombre], Escort en [Ciudad] | Perfil Disponible"   (ej: "Valentina, Escort en Temuco | Perfil Disponible")
+- Description: "[Nombre], [edad] años. Perfil verificado y disponible en [Ciudad]. Conecta con acompañantes premium en el sur de Chile."
+
+
+6. CONTENIDO SEO EN PÁGINA DE CIUDAD
+------------------------------------
+Debajo del grid de perfiles se agrega un bloque de contenido único (componente CitySeoBlock).
+
+Ubicación del dato: src/lib/cities-seo-data.ts
+
+Para cada ciudad se define:
+- keyword_primary: "escorts en [Ciudad]"
+- seo_title
+- seo_description
+- seo_content: texto largo en lenguaje natural
+- nearbyLinks: array de { path, text } para enlaces internos con anchor natural
+
+Fase 1 (contenido largo 600–900 palabras):
+- Rancagua, Talca, Chillán, Concepción, Temuco.
+
+En el contenido:
+- Keyword principal aparece 1–2 veces como máximo.
+- Variaciones semánticas: "perfiles en [ciudad]", "acompañantes en [ciudad]", "servicio premium en [ciudad]", "disponibles en [ciudad]", etc.
+- Contexto geográfico real (región, ruta 5 Sur, ciudades cercanas).
+- Enlaces internos a ciudades cercanas con texto natural (ej: "Ver más perfiles en Temuco", "Explorar escorts en Talca").
+
+Ciudades Valdivia, Osorno, Puerto Montt tienen seo_content más breve; se puede ampliar más adelante.
+
+En la UI, el bloque incluye:
+- Párrafos del seo_content (prose, texto muted).
+- Sección "Explora otras ciudades" con los nearbyLinks como enlaces <Link> a las rutas correspondientes.
+
+
+7. INTERLINKING INTERNO
+------------------------
+Anclas naturales (sin keyword stuffing):
+
+En CitySeoBlock (debajo del contenido):
+- "Ver más perfiles en Temuco", "Explorar acompañantes en Chillán", "Ver perfiles en Rancagua", etc.
+- Cada enlace apunta a /[slug] (ej: /temuco, /chillan).
+
+En Footer:
+- Título de columna "Ciudades".
+- Enlaces: "Ver perfiles en Temuco", "Ver perfiles en Concepción", "Ver perfiles en Valdivia", "Ver perfiles en Puerto Montt".
+- Destino: /temuco, /concepcion, /valdivia, /puerto-montt.
+
+En Index:
+- Enlace "Ver todas" en sección Destacadas -> /temuco.
+
+En ProfilePage:
+- Botón atrás (flecha) -> vuelve a la página de la ciudad del perfil: /[citySlug] (ej: /temuco) usando getCitySlugFromName(profile.city).
+
+En CityCard (grid de ciudades en Home):
+- Cada card enlaza a /[city.id] (ej: /rancagua, /talca).
+
+
+8. JSON-LD ESTRUCTURADO DINÁMICO
+---------------------------------
+Archivo: src/components/JsonLd.tsx
+Dominio base: https://puntocachero.cl
+
+Ciudad (JsonLdCity):
+- BreadcrumbList:
+  * position 1: Inicio -> https://puntocachero.cl/
+  * position 2: [Nombre ciudad] -> https://puntocachero.cl/[slug]
+- ItemList:
+  * name: "Perfiles en [Ciudad]"
+  * description: "Listado de perfiles disponibles en [Ciudad]"
+  * numberOfItems: cantidad de perfiles mostrados
+  * itemListElement: hasta 10 ítems con nombre del perfil (ListItem).
+
+Perfil (JsonLdProfile):
+- BreadcrumbList:
+  * position 1: Inicio -> https://puntocachero.cl/
+  * position 2: [Ciudad] -> https://puntocachero.cl/[citySlug]
+  * position 3: [Nombre perfil] -> https://puntocachero.cl/perfil/[id]
+- Person:
+  * @type: Person
+  * name, url, description (y image si está disponible).
+
+
+9. BASE DE DATOS SUPABASE (ESCALABILIDAD SEO)
+---------------------------------------------
+Migración: supabase/migrations/20260224000000_create_cities_seo.sql
+
+Tabla: cities
+- id: UUID, primary key, gen_random_uuid()
+- slug: TEXT NOT NULL UNIQUE  (ej: rancagua, temuco)
+- name: TEXT NOT NULL
+- profiles: INTEGER NOT NULL DEFAULT 0
+- image: TEXT (nullable)
+- keyword_primary: TEXT NOT NULL
+- seo_title: TEXT NOT NULL
+- seo_description: TEXT NOT NULL
+- seo_content: TEXT NOT NULL
+- created_at, updated_at: TIMESTAMPTZ
+
+Índice: idx_cities_slug ON cities(slug)
+
+RLS: habilitado. Política "Cities are viewable by everyone" para SELECT.
+
+Tipos TypeScript: src/types/supabase-cities.ts
+- DbCity: interfaz para fila de cities
+- DbCityInsert: para inserciones
+
+Cuando se conecte Supabase, se puede cargar SEO por ciudad desde la API y opcionalmente reemplazar o complementar src/lib/cities-seo-data.ts para que el contenido venga de la base de datos.
+
+
+10. ARCHIVOS CREADOS
+--------------------
+- src/lib/seo.ts                          Constantes y funciones SEO, tipos CitySeo/CityWithSeo
+- src/lib/cities-seo-data.ts              Contenido SEO por ciudad (títulos, descripciones, texto largo, nearbyLinks)
+- src/components/JsonLd.tsx               JsonLdCity y JsonLdProfile (BreadcrumbList, ItemList, Person)
+- src/components/CitySeoBlock.tsx         Bloque de contenido SEO + enlaces "Explora otras ciudades"
+- src/pages/CityRoute.tsx                 Wrapper que valida citySlug y renderiza CityPage o NotFound
+- supabase/migrations/20260224000000_create_cities_seo.sql   Creación tabla cities
+- src/types/supabase-cities.ts            DbCity, DbCityInsert
+- SEO-ESTRATEGIA.md                       Resumen de estrategia (ya existía; se puede alinear con este doc)
+
+
+11. ARCHIVOS MODIFICADOS
+-------------------------
+- package.json
+  * Añadida dependencia: "react-helmet-async": "^2.0.4"
+
+- src/main.tsx
+  * Import de HelmetProvider desde react-helmet-async
+  * App envuelto en <HelmetProvider>
+
+- src/App.tsx
+  * Ruta /ciudad/:cityId eliminada
+  * Ruta /:citySlug añadida con element <CityRoute />
+  * Orden: /, /perfil/:profileId, /:citySlug, *
+
+- src/lib/data.ts
+  * Añadida función getCityBySlug(slug: string) que devuelve la ciudad con id === slug o null
+
+- src/pages/CityPage.tsx
+  * useParams<{ citySlug: string }> (ya no cityId)
+  * city = getCityBySlug(citySlug)
+  * seo = getCitySeo(citySlug) desde cities-seo-data
+  * Helmet con title y meta description (desde seo o fallback)
+  * JsonLdCity con cityName, citySlug, profileCount, profileNames
+  * CitySeoBlock al final con citySlug={city.id}
+  * Breadcrumb en header: "Inicio" en lugar de "Home" (enlace a /)
+
+- src/pages/ProfilePage.tsx
+  * Import Helmet, getCitySlugFromName, JsonLdProfile
+  * citySlug = getCitySlugFromName(profile.city)
+  * Helmet con title "[Nombre], Escort en [Ciudad] | Perfil Disponible" y description natural
+  * JsonLdProfile con profileName, profileId, cityName, citySlug, image, description
+  * Botón atrás: Link to={`/${citySlug}`} (antes /ciudad/${profile.city.toLowerCase()})
+
+- src/pages/Index.tsx
+  * Helmet con title y description del home
+  * Link "Ver todas" apunta a /temuco (antes /ciudad/temuco)
+
+- src/components/CityCard.tsx
+  * Link to={`/${city.id}`} (antes to={`/ciudad/${city.id}`})
+
+- src/components/Footer.tsx
+  * footerCities: array con { name, slug } para Temuco, Concepción, Valdivia, Puerto Montt
+  * Enlaces con Link to={`/${slug}`} y texto "Ver perfiles en {name}"
+
+- src/components/BottomNav.tsx
+  * Import CITY_SLUGS desde @/lib/seo
+  * path "Ciudades" = /temuco
+  * Detección isCityPage: si el pathname es /[slug] y slug está en CITY_SLUGS
+  * active para el ítem "Ciudades" cuando pathname === path O (label === "Ciudades" y isCityPage)
+
+- src/components/JsonLd.tsx
+  * SITE_URL = "https://puntocachero.cl" (configurado para tu dominio)
+
+
+12. BUENAS PRÁCTICAS APLICADAS
+-------------------------------
+- Evitar doorway pages: una URL por ciudad, contenido único por ciudad.
+- Evitar contenido duplicado: texto distinto en seo_content para cada ciudad.
+- Estructura escalable: añadir una ciudad = añadir slug en CITY_SLUGS, entrada en cities (data.ts), entrada en citiesSeoData (o en Supabase), y opcionalmente en footerCities si quieres destacarla en el footer.
+- Keywords naturales, sin stuffing.
+- Internal linking con anchors descriptivos.
+
+
+13. CÓMO AÑADIR UNA NUEVA CIUDAD EN EL FUTURO
+----------------------------------------------
+1. Añadir el slug en src/lib/seo.ts (CITY_SLUGS y cityNameToSlug).
+2. Añadir la ciudad en src/lib/data.ts (array cities) con id = slug.
+3. Añadir entrada en src/lib/cities-seo-data.ts con keyword_primary, seo_title, seo_description, seo_content y nearbyLinks.
+4. Si usas Supabase: insertar fila en tabla cities con los mismos datos.
+5. Opcional: añadir en footer (footerCities en Footer.tsx) si quieres que aparezca en el pie.
+
+
+14. RESUMEN DE URLs CON DOMINIO PUNTOCACHERO.CL
+------------------------------------------------
+- https://puntocachero.cl/                    Home
+- https://puntocachero.cl/rancagua             Rancagua
+- https://puntocachero.cl/talca                Talca
+- https://puntocachero.cl/chillan              Chillán
+- https://puntocachero.cl/concepcion           Concepción
+- https://puntocachero.cl/temuco               Temuco
+- https://puntocachero.cl/valdivia             Valdivia
+- https://puntocachero.cl/osorno               Osorno
+- https://puntocachero.cl/puerto-montt          Puerto Montt
+- https://puntocachero.cl/perfil/1             Perfil (ejemplo id 1)
+- Cualquier otra ruta no definida -> 404 (NotFound)
+
+
+================================================================================
+Fin del documento. Dominio actual: puntocachero.cl
+================================================================================

@@ -1,0 +1,15 @@
+# Configuración del proyecto Supabase (Edge Functions, etc.)
+# Ver: https://supabase.com/docs/guides/functions/function-configuration
+
+# La verificación JWT en el gateway puede fallar con las nuevas JWT Signing Keys.
+# Desactivamos verify_jwt aquí y validamos el token dentro de la función.
+[functions.create-escort-user]
+verify_jwt = false
+
+# Solo para desarrollo: registro sin validación estricta de email. Protegido por SIGNUP_SECRET.
+[functions.signup-no-validate]
+verify_jwt = false
+
+# Eliminar cuenta: requiere JWT del usuario.
+[functions.delete-account]
+verify_jwt = true
