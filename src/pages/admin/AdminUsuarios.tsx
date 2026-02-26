@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CalendarPlus, Pause, UserPlus, ExternalLink, MapPin } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Pencil, Trash2, CalendarPlus, Pause, UserPlus, ExternalLink, MapPin, Search } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +34,10 @@ export default function AdminUsuarios() {
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<EscortProfilesRow | null>(null);
   const [darAcceso, setDarAcceso] = useState<EscortRow | null>(null);
+  const [filterNombre, setFilterNombre] = useState("");
+  const [filterCiudad, setFilterCiudad] = useState<string>("all");
+  const [filterCelular, setFilterCelular] = useState("");
+  const [filterCategoria, setFilterCategoria] = useState<string>("all");
   const queryClient = useQueryClient();
 
   const { data: escorts, isLoading } = useQuery({
@@ -40,6 +53,38 @@ export default function AdminUsuarios() {
     },
     enabled: !!supabase,
   });
+
+  const { citiesOpts, categoriasOpts } = useMemo(() => {
+    const list = escorts ?? [];
+    const cities = [...new Set(list.map((e) => e.cities?.name).filter(Boolean))] as string[];
+    cities.sort((a, b) => a.localeCompare(b));
+    const badges = [...new Set(list.map((e) => e.badge).filter(Boolean))] as string[];
+    badges.sort((a, b) => (a ?? "").localeCompare(b ?? ""));
+    return { citiesOpts: cities, categoriasOpts: badges };
+  }, [escorts]);
+
+  const filteredEscorts = useMemo(() => {
+    const list = escorts ?? [];
+    return list.filter((e) => {
+      if (filterNombre.trim()) {
+        const q = filterNombre.trim().toLowerCase();
+        if (!e.name.toLowerCase().includes(q)) return false;
+      }
+      if (filterCiudad !== "all") {
+        if (e.cities?.name !== filterCiudad) return false;
+      }
+      if (filterCelular.trim()) {
+        const digits = filterCelular.replace(/\D/g, "");
+        const whatsapp = (e.whatsapp ?? "").replace(/\D/g, "");
+        if (!whatsapp.includes(digits) && !(e.whatsapp ?? "").toLowerCase().includes(filterCelular.trim().toLowerCase()))
+          return false;
+      }
+      if (filterCategoria !== "all") {
+        if ((e.badge ?? "") !== filterCategoria) return false;
+      }
+      return true;
+    });
+  }, [escorts, filterNombre, filterCiudad, filterCelular, filterCategoria]);
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -93,7 +138,7 @@ export default function AdminUsuarios() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-display font-bold">Usuarios registrados</h1>
+        <h1 className="text-2xl font-display font-bold">Perfiles</h1>
         <Button className="bg-gold text-primary-foreground hover:bg-gold/90 shrink-0 w-full sm:w-auto" onClick={() => setCreating(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Nuevo perfil
@@ -103,6 +148,68 @@ export default function AdminUsuarios() {
         Crea perfiles públicos (escorts). Luego puedes dar acceso de login a cada uno desde &quot;Dar acceso&quot; (requiere Edge Function de Supabase).
       </p>
 
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <Search className="w-4 h-4" />
+          Filtros
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="filter-nombre" className="text-xs text-muted-foreground">Nombre</Label>
+            <Input
+              id="filter-nombre"
+              placeholder="Buscar por nombre..."
+              value={filterNombre}
+              onChange={(e) => setFilterNombre(e.target.value)}
+              className="h-9"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="filter-ciudad" className="text-xs text-muted-foreground">Ciudad</Label>
+            <Select value={filterCiudad} onValueChange={setFilterCiudad}>
+              <SelectTrigger id="filter-ciudad" className="h-9">
+                <SelectValue placeholder="Todas las ciudades" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las ciudades</SelectItem>
+                {citiesOpts.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="filter-celular" className="text-xs text-muted-foreground">Celular / WhatsApp</Label>
+            <Input
+              id="filter-celular"
+              placeholder="Número o parte..."
+              value={filterCelular}
+              onChange={(e) => setFilterCelular(e.target.value)}
+              className="h-9"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="filter-categoria" className="text-xs text-muted-foreground">Categoría</Label>
+            <Select value={filterCategoria} onValueChange={setFilterCategoria}>
+              <SelectTrigger id="filter-categoria" className="h-9">
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las categorías</SelectItem>
+                {categoriasOpts.map((b) => (
+                  <SelectItem key={b} value={b}>{b}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        {(filterNombre || filterCiudad !== "all" || filterCelular || filterCategoria !== "all") && (
+          <p className="text-xs text-muted-foreground">
+            Mostrando {filteredEscorts.length} de {(escorts ?? []).length} perfiles
+          </p>
+        )}
+      </div>
+
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -111,9 +218,13 @@ export default function AdminUsuarios() {
         </div>
       ) : (escorts ?? []).length === 0 ? (
         <p className="text-muted-foreground text-center py-12 rounded-2xl border border-border bg-card">Aún no hay perfiles. Crea uno con &quot;Nuevo perfil&quot;.</p>
+      ) : filteredEscorts.length === 0 ? (
+        <p className="text-muted-foreground text-center py-12 rounded-2xl border border-border bg-card">
+          Ningún perfil coincide con los filtros. Prueba a cambiar nombre, ciudad, celular o categoría.
+        </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {(escorts ?? []).map((e) => {
+          {filteredEscorts.map((e) => {
             const cityName = e.cities?.name ?? "—";
             const isHidden = e.active_until != null && new Date(e.active_until) < new Date();
             const canPause = e.active_until == null || new Date(e.active_until) >= new Date();

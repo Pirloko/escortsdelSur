@@ -3,15 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Trash2, MessageSquare, User } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,69 +69,67 @@ export default function AdminComentarios() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-display font-bold">Comentarios</h1>
-      </div>
+      <h1 className="text-2xl font-display font-bold">Comentarios</h1>
       <p className="text-muted-foreground text-sm">
         Comentarios que dejan los usuarios visitantes/clientes en los perfiles. Puedes visualizarlos y eliminarlos.
       </p>
+
       {isLoading ? (
-        <p>Cargando…</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-2xl border border-border bg-card p-4 h-40 animate-pulse" />
+          ))}
+        </div>
+      ) : (comments ?? []).length === 0 ? (
+        <p className="text-muted-foreground text-center py-12 rounded-2xl border border-border bg-card">
+          No hay comentarios.
+        </p>
       ) : (
-        <div className="rounded-xl border border-border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Perfil</TableHead>
-                <TableHead>Autor</TableHead>
-                <TableHead className="max-w-[280px]">Comentario</TableHead>
-                <TableHead>Fecha</TableHead>
-                <TableHead className="w-[80px]">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(comments ?? []).length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No hay comentarios.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                (comments ?? []).map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">
-                      {c.escort_profiles ? (
-                        <Link to={`/perfil/${c.escort_profile_id}`} className="text-gold hover:underline">
-                          {c.escort_profiles.name}
-                          {c.escort_profiles.cities?.name ? ` (${c.escort_profiles.cities.name})` : ""}
-                        </Link>
-                      ) : (
-                        c.escort_profile_id
-                      )}
-                    </TableCell>
-                    <TableCell>{c.author_name ?? "—"}</TableCell>
-                    <TableCell className="max-w-[280px] text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">
-                      {c.body}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
-                      {new Date(c.created_at).toLocaleDateString("es-CL", { dateStyle: "short" })}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:bg-destructive/10"
-                        onClick={() => setDeleting(c)}
-                        aria-label="Eliminar comentario"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(comments ?? []).map((c) => (
+            <article
+              key={c.id}
+              className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col"
+            >
+              <div className="p-4 flex-1 flex flex-col min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-semibold text-foreground min-w-0">
+                    {c.escort_profiles ? (
+                      <Link
+                        to={`/perfil/${c.escort_profile_id}`}
+                        className="text-gold hover:underline truncate block"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                        {c.escort_profiles.name}
+                        {c.escort_profiles.cities?.name ? ` · ${c.escort_profiles.cities.name}` : ""}
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground truncate block">{c.escort_profile_id}</span>
+                    )}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 text-destructive hover:bg-destructive/10"
+                    onClick={() => setDeleting(c)}
+                    aria-label="Eliminar comentario"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-2">
+                  <User className="w-3.5 h-3.5 flex-shrink-0" />
+                  {c.author_name ?? "—"}
+                </p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-4 flex-1">
+                  {c.body}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">
+                  <MessageSquare className="w-3 h-3 flex-shrink-0" />
+                  {new Date(c.created_at).toLocaleDateString("es-CL", { dateStyle: "short" })}
+                </p>
+              </div>
+            </article>
+          ))}
         </div>
       )}
 

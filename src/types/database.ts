@@ -12,6 +12,8 @@ export interface ProfilesRow {
   city_id: string | null;
   created_at: string;
   updated_at: string;
+  is_blocked?: boolean;
+  email?: string | null;
 }
 
 export interface EscortProfilesRow {

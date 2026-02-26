@@ -25,8 +25,8 @@ const PoliticaPrivacidad = lazy(() => import("./pages/PoliticaPrivacidad"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
-const AdminEscortsRegistrados = lazy(() => import("./pages/admin/AdminEscortsRegistrados"));
 const AdminComentarios = lazy(() => import("./pages/admin/AdminComentarios"));
+const AdminVisitantes = lazy(() => import("./pages/admin/AdminVisitantes"));
 const AdminCiudades = lazy(() => import("./pages/admin/AdminCiudades"));
 
 const queryClient = new QueryClient();
@@ -94,8 +94,8 @@ const App = () => (
                 }
               >
                 <Route index element={<AdminDashboard />} />
-                <Route path="usuarios" element={<AdminUsuarios />} />
-                <Route path="escorts-registrados" element={<AdminEscortsRegistrados />} />
+                <Route path="perfiles" element={<AdminUsuarios />} />
+                <Route path="visitantes" element={<AdminVisitantes />} />
                 <Route path="comentarios" element={<AdminComentarios />} />
                 <Route path="ciudades" element={<AdminCiudades />} />
               </Route>

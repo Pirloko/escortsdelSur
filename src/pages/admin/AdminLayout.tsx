@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, MapPin, MessageSquare, LogOut, UserCheck, Menu } from "lucide-react";
+import { LayoutDashboard, UserCircle, MapPin, MessageSquare, LogOut, Users, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/admin/usuarios", label: "Usuarios registrados", icon: Users },
-  { to: "/admin/escorts-registrados", label: "Escorts registrados", icon: UserCheck },
+  { to: "/admin/perfiles", label: "Perfiles", icon: UserCircle },
+  { to: "/admin/visitantes", label: "Visitantes / Clientes", icon: Users },
   { to: "/admin/comentarios", label: "Comentarios", icon: MessageSquare },
   { to: "/admin/ciudades", label: "Ciudades", icon: MapPin },
 ];
