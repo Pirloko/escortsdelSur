@@ -1,16 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CalendarPlus, Pause } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Plus, Pencil, Trash2, CalendarPlus, Pause, UserPlus, ExternalLink, MapPin } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -99,9 +92,9 @@ export default function AdminUsuarios() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-display font-bold">Usuarios registrados</h1>
-        <Button className="bg-gold text-primary-foreground hover:bg-gold/90" onClick={() => setCreating(true)}>
+        <Button className="bg-gold text-primary-foreground hover:bg-gold/90 shrink-0 w-full sm:w-auto" onClick={() => setCreating(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Nuevo perfil
         </Button>
@@ -109,87 +102,123 @@ export default function AdminUsuarios() {
       <p className="text-muted-foreground text-sm">
         Crea perfiles públicos (escorts). Luego puedes dar acceso de login a cada uno desde &quot;Dar acceso&quot; (requiere Edge Function de Supabase).
       </p>
+
       {isLoading ? (
-        <p>Cargando…</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-2xl border border-border overflow-hidden bg-card aspect-[3/4] animate-pulse" />
+          ))}
+        </div>
+      ) : (escorts ?? []).length === 0 ? (
+        <p className="text-muted-foreground text-center py-12 rounded-2xl border border-border bg-card">Aún no hay perfiles. Crea uno con &quot;Nuevo perfil&quot;.</p>
       ) : (
-        <div className="rounded-xl border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Edad</TableHead>
-                <TableHead>Ciudad</TableHead>
-                <TableHead>Badge</TableHead>
-                <TableHead>Disponible</TableHead>
-                <TableHead>Visible hasta</TableHead>
-                <TableHead>Acceso</TableHead>
-                <TableHead className="w-[180px]">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(escorts ?? []).map((e) => (
-                <TableRow key={e.id}>
-                  <TableCell className="font-medium">{e.name}</TableCell>
-                  <TableCell>{e.age}</TableCell>
-                  <TableCell>{(e as EscortRow).cities?.name ?? "—"}</TableCell>
-                  <TableCell>{e.badge ?? "—"}</TableCell>
-                  <TableCell>{e.available ? "Sí" : "No"}</TableCell>
-                  <TableCell>
-                    {e.active_until
-                      ? new Date(e.active_until) < new Date()
-                        ? <span className="text-amber-500">Oculto</span>
-                        : new Date(e.active_until).toLocaleDateString("es-CL", { dateStyle: "short" })
-                      : "—"}
-                  </TableCell>
-                  <TableCell>{e.user_id ? "Sí" : "No"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2 flex-wrap items-center">
-                      {(e.active_until == null || new Date(e.active_until) >= new Date()) && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-amber-500 border-amber-500/50 hover:bg-amber-500/10 shrink-0"
-                          onClick={() => pauseMutation.mutate(e.id)}
-                          disabled={pauseMutation.isPending}
-                          title="Pausar / ocultar perfil en listados"
-                        >
-                          <Pause className="w-4 h-4 mr-1" />
-                          Pausar
-                        </Button>
-                      )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {(escorts ?? []).map((e) => {
+            const cityName = e.cities?.name ?? "—";
+            const isHidden = e.active_until != null && new Date(e.active_until) < new Date();
+            const canPause = e.active_until == null || new Date(e.active_until) >= new Date();
+            return (
+              <article
+                key={e.id}
+                className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col"
+              >
+                {/* Imagen tipo perfil */}
+                <div className="relative aspect-[3/4] bg-surface">
+                  <img
+                    src={e.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80"}
+                    alt={e.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1.5">
+                    {e.badge && e.badge !== "Perfil" && (
+                      <span className="px-2 py-0.5 rounded-lg bg-white/20 text-xs font-medium backdrop-blur-sm">
+                        {e.badge}
+                      </span>
+                    )}
+                    {e.available && !isHidden && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-green-500/80 text-xs font-medium backdrop-blur-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        Disponible
+                      </span>
+                    )}
+                    {isHidden && (
+                      <span className="px-2 py-0.5 rounded-lg bg-amber-500/80 text-xs font-medium backdrop-blur-sm">
+                        Oculto
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Info y acciones */}
+                <div className="p-3 flex-1 flex flex-col min-w-0">
+                  <h3 className="font-semibold text-foreground truncate">{e.name}, {e.age}</h3>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
+                    <MapPin className="w-3 h-3 flex-shrink-0" />
+                    {cityName}
+                  </p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-2 text-[11px] text-muted-foreground">
+                    <span>Visible: {e.active_until ? (isHidden ? "Oculto" : new Date(e.active_until).toLocaleDateString("es-CL", { dateStyle: "short" })) : "—"}</span>
+                    <span>Acceso: {e.user_id ? "Sí" : "No"}</span>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link to={`/perfil/${e.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex">
+                      <Button variant="outline" size="sm" className="gap-1 text-gold border-gold/50 hover:bg-gold/10 h-8 text-xs">
+                        <ExternalLink className="w-3 h-3" />
+                        Ver
+                      </Button>
+                    </Link>
+                    {canPause && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-gold border-gold/50 hover:bg-gold/10 shrink-0"
-                        onClick={() => add7DaysMutation.mutate(e.id)}
-                        disabled={add7DaysMutation.isPending}
-                        title="Añadir 7 días de visibilidad"
+                        className="text-amber-500 border-amber-500/50 hover:bg-amber-500/10 h-8 text-xs"
+                        onClick={() => pauseMutation.mutate(e.id)}
+                        disabled={pauseMutation.isPending}
+                        title="Pausar perfil"
                       >
-                        <CalendarPlus className="w-4 h-4 mr-1" />
-                        7 días
+                        <Pause className="w-3 h-3" />
                       </Button>
-                      {!e.user_id && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-gold border-gold/50 hover:bg-gold/10"
-                          onClick={() => setDarAcceso(e)}
-                        >
-                          Dar acceso
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="icon" onClick={() => setEditing(e)}>
-                        <Pencil className="w-4 h-4" />
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-gold border-gold/50 hover:bg-gold/10 h-8 text-xs"
+                      onClick={() => add7DaysMutation.mutate(e.id)}
+                      disabled={add7DaysMutation.isPending}
+                      title="+7 días"
+                    >
+                      <CalendarPlus className="w-3 h-3" />
+                    </Button>
+                    {!e.user_id && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-gold border-gold/50 hover:bg-gold/10 h-8 text-xs gap-1"
+                        onClick={() => setDarAcceso(e)}
+                      >
+                        <UserPlus className="w-3 h-3" />
+                        Acceso
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleting(e)}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    )}
+                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setEditing(e)} aria-label="Editar">
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-destructive hover:bg-destructive/10"
+                      onClick={() => setDeleting(e)}
+                      aria-label="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
 
