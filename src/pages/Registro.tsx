@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +15,7 @@ export default function Registro() {
   const [numero, setNumero] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,13 +28,35 @@ export default function Registro() {
       age: !Number.isNaN(ageNum) && ageNum > 0 ? ageNum : undefined,
       whatsapp: numero.trim() || undefined,
     };
-    const { error: err } = await signUp(email, password, meta);
-    setLoading(false);
+    const { error: err } = await signUp(email.trim(), password, meta);
     if (err) {
       setError(err.message || "Error al registrarse");
+      setLoading(false);
       return;
     }
-    navigate("/completar-perfil", { replace: true });
+    try {
+      const { data: { session } } = await supabase?.auth.getSession() ?? { data: { session: null } };
+      const userId = session?.user?.id;
+      if (userId && supabase) {
+        await supabase
+          .from("profiles")
+          // @ts-expect-error actualizar role/email/contact_phone al crear cuenta publicador
+          .update({
+            role: "registered_user",
+            display_name: nombre.trim() || null,
+            email: email.trim() || null,
+            contact_phone: numero.trim() || null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", userId);
+        await refreshProfile();
+      }
+      navigate(userId ? "/cuenta" : "/completar-perfil", { replace: true });
+    } catch {
+      navigate("/completar-perfil", { replace: true });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,7 +69,7 @@ export default function Registro() {
             Solo para acompañantes que quieren publicar su perfil
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Después te pediremos completar tu perfil para aparecer en el sitio.
+            Después entrarás a tu panel y podrás crear tu primer anuncio para aparecer en el sitio.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

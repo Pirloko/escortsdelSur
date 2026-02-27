@@ -24,6 +24,7 @@ const TerminosYCondiciones = lazy(() => import("./pages/TerminosYCondiciones"));
 const PoliticaPrivacidad = lazy(() => import("./pages/PoliticaPrivacidad"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminPublicadores = lazy(() => import("./pages/admin/AdminPublicadores"));
 const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
 const AdminComentarios = lazy(() => import("./pages/admin/AdminComentarios"));
 const AdminVisitantes = lazy(() => import("./pages/admin/AdminVisitantes"));
@@ -94,6 +95,7 @@ const App = () => (
                 }
               >
                 <Route index element={<AdminDashboard />} />
+                <Route path="publicadores" element={<AdminPublicadores />} />
                 <Route path="perfiles" element={<AdminUsuarios />} />
                 <Route path="visitantes" element={<AdminVisitantes />} />
                 <Route path="comentarios" element={<AdminComentarios />} />

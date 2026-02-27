@@ -4,7 +4,6 @@ import { SeoHead } from "@/components/SeoHead";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { TIME_SLOTS } from "@/lib/franjas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,10 +88,7 @@ export default function CompletarPerfil() {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [timeSlot, setTimeSlot] = useState("09-12");
-  const [subidasPerDay, setSubidasPerDay] = useState(5);
   const [badge, setBadge] = useState("");
-  const [promotion, setPromotion] = useState("");
   const [image, setImage] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
   const [description, setDescription] = useState("");
@@ -125,14 +121,6 @@ export default function CompletarPerfil() {
     },
     enabled: !!user?.id && !!supabase,
   });
-
-  useEffect(() => {
-    if (!user?.user_metadata) return;
-    const meta = user.user_metadata as Record<string, unknown>;
-    if (meta.display_name && !name) setName(String(meta.display_name));
-    if (meta.age != null && !age) setAge(String(meta.age));
-    if (meta.whatsapp && !whatsapp) setWhatsapp(String(meta.whatsapp));
-  }, [user?.user_metadata, name, age, whatsapp]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -254,17 +242,28 @@ export default function CompletarPerfil() {
       whatsapp: whatsapp.trim() || null,
       available: true,
       active_until: activeUntil,
-      time_slot: timeSlot,
-      subidas_per_day: subidasPerDay,
-      promotion: promotion.trim() === "galeria" ? "galeria" : promotion.trim() === "destacada" ? "destacada" : null,
+      time_slot: "09-12",
+      subidas_per_day: 5,
+      promotion: null,
     });
     if (insertErr) {
       setError(insertErr.message || "Error al crear perfil");
       setSaving(false);
       return;
     }
-    // @ts-expect-error Supabase generated types
-    const { error: updateErr } = await supabase.from("profiles").update({ role: "registered_user", updated_at: new Date().toISOString() }).eq("id", user.id);
+    // Marcar como usuario publicador y sincronizar email/contacto para el listado de admin
+    const meta = (user.user_metadata ?? {}) as { whatsapp?: string };
+    const contactPhone = whatsapp.trim() || meta.whatsapp || null;
+    const { error: updateErr } = await supabase
+      .from("profiles")
+      // @ts-expect-error update role/email/contact_phone permitido en DB
+      .update({
+        role: "registered_user",
+        email: user.email ?? null,
+        contact_phone: contactPhone,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
     if (updateErr) {
       setError(updateErr.message || "Error al actualizar");
       setSaving(false);
@@ -376,20 +375,6 @@ export default function CompletarPerfil() {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="promotion">Promoción</Label>
-            <select
-              id="promotion"
-              value={promotion}
-              onChange={(e) => setPromotion(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
-            >
-              <option value="">Selecciona una promoción</option>
-              <option value="galeria">Galeria</option>
-              <option value="destacada">Destacada</option>
-            </select>
-            <p className="text-xs text-muted-foreground">Galeria: carrusel en la página de tu ciudad (orden según tus subidas 5 o 10). Destacada: prioridad en el listado.</p>
           </div>
           <div className="space-y-2">
             <Label>Servicios incluidos</Label>
@@ -524,39 +509,6 @@ export default function CompletarPerfil() {
                 </label>
               )}
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="time_slot">Franja horaria para subidas</Label>
-            <select
-              id="time_slot"
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
-            >
-              {TIME_SLOTS.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-muted-foreground">
-              Tu perfil aparecerá entre los primeros del listado dentro de esta franja (según las subidas que elijas abajo).
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="subidas_per_day">Subidas por día</Label>
-            <select
-              id="subidas_per_day"
-              value={subidasPerDay}
-              onChange={(e) => setSubidasPerDay(Number(e.target.value))}
-              className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
-            >
-              <option value={5}>5 subidas al día</option>
-              <option value={10}>10 subidas al día</option>
-            </select>
-            <p className="text-xs text-muted-foreground">
-              Tu perfil aparecerá entre los primeros del listado {subidasPerDay} veces al día, repartidas al azar en la franja elegida.
-            </p>
           </div>
           <Button type="submit" className="w-full bg-gold text-primary-foreground hover:bg-gold/90" disabled={saving}>
             {saving ? "Creando…" : "Crear mi perfil"}

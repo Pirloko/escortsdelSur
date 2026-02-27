@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/admin/publicadores", label: "Usuarios publicador", icon: Users },
   { to: "/admin/perfiles", label: "Perfiles", icon: UserCircle },
   { to: "/admin/visitantes", label: "Visitantes / Clientes", icon: Users },
   { to: "/admin/comentarios", label: "Comentarios", icon: MessageSquare },

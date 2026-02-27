@@ -17,6 +17,7 @@ interface Profile {
   avatar_url: string | null;
   age: number | null;
   city_id: string | null;
+  is_blocked?: boolean;
 }
 
 interface AuthState {
@@ -24,6 +25,7 @@ interface AuthState {
   session: Session | null;
   profile: Profile | null;
   role: UserRole | null;
+  isBlocked: boolean;
   mustChangePassword: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null; profile?: Profile | null; user?: User | null }>;
@@ -44,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) return null;
     const { data } = await supabase
       .from("profiles")
-      .select("id, role, display_name, avatar_url, age, city_id")
+      .select("id, role, display_name, avatar_url, age, city_id, is_blocked")
       .eq("id", userId)
       .single();
     return data as Profile | null;
@@ -179,6 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     profile,
     role: profile?.role ?? null,
+    isBlocked: profile?.is_blocked === true,
     mustChangePassword: user?.user_metadata?.must_change_password === true,
     isLoading,
     signIn,

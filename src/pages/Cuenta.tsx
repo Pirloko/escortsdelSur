@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -23,9 +23,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus } from "lucide-react";
-import type { EscortProfilesRow } from "@/types/database";
-import type { CitiesRow } from "@/types/database";
+import type { EscortProfilesRow, CitiesRow, CreditTransactionsRow } from "@/types/database";
 import { TIME_SLOTS } from "@/lib/franjas";
 
 /** Palabras clave para el botón "Texto aleatorio" en Descripción. Edita estos arrays manualmente. */
@@ -109,9 +117,10 @@ type ProfileWithCity = EscortProfilesRow & { cities: CitiesRow | null };
 
 export default function Cuenta() {
   const { profileId } = useParams<{ profileId?: string }>();
-  const { user, role, isLoading, signOut } = useAuth();
+  const { user, role, isLoading, signOut, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<ProfileWithCity | null>(null);
+  const [searchParams] = useSearchParams();
+  const [profileData, setProfileData] = useState<ProfileWithCity | null>(null);
   const [profilesList, setProfilesList] = useState<ProfileWithCity[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [renewingProfileId, setRenewingProfileId] = useState<string | null>(null);
@@ -142,7 +151,63 @@ export default function Cuenta() {
   const [activeUntil, setActiveUntil] = useState<string | null>(null);
   const [activating, setActivating] = useState(false);
   const [pausing, setPausing] = useState(false);
+  const [promoDialogOpen, setPromoDialogOpen] = useState(false);
+  const [promoSaving, setPromoSaving] = useState(false);
+  const [promoMessage, setPromoMessage] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+  const [creditTransactions, setCreditTransactions] = useState<CreditTransactionsRow[]>([]);
+  const [editingAccount, setEditingAccount] = useState(false);
+  const [accountNameInput, setAccountNameInput] = useState("");
+  const [accountPhoneInput, setAccountPhoneInput] = useState("");
+  const [accountSaving, setAccountSaving] = useState(false);
+  const [deleteFromListProfile, setDeleteFromListProfile] = useState<ProfileWithCity | null>(null);
+  const [deletingFromList, setDeletingFromList] = useState(false);
+
+  const handleSaveAccountData = async () => {
+    if (!supabase || !user) return;
+    setAccountSaving(true);
+    try {
+      const currentMeta = (user.user_metadata ?? {}) as Record<string, unknown>;
+      const nextMeta = {
+        ...currentMeta,
+        display_name: accountNameInput.trim() || null,
+        whatsapp: accountPhoneInput.trim() || null,
+      };
+      await supabase.auth.updateUser({ data: nextMeta });
+      // Sincronizar también con profiles (display_name, email, contact_phone para admin)
+      await supabase
+        .from("profiles")
+        // @ts-expect-error tipos generados pueden estar desfasados
+        .update({
+          display_name: accountNameInput.trim() || null,
+          email: user.email ?? null,
+          contact_phone: accountPhoneInput.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+      await refreshProfile();
+      setEditingAccount(false);
+    } finally {
+      setAccountSaving(false);
+    }
+  };
+
+  const handleDeleteFromList = async () => {
+    const p = deleteFromListProfile;
+    if (!p || !supabase || !user?.id) return;
+    setDeletingFromList(true);
+    const { error } = await supabase.from("escort_profiles").delete().eq("id", p.id);
+    setDeletingFromList(false);
+    setDeleteFromListProfile(null);
+    if (error) return;
+    const { data: remaining } = await supabase
+      .from("escort_profiles")
+      .select("*, cities(*)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    const list = (remaining ?? []) as ProfileWithCity[];
+    setProfilesList(list);
+  };
 
   useEffect(() => {
     if (!supabase || !user?.id || role !== "registered_user") return;
@@ -154,15 +219,15 @@ export default function Cuenta() {
         .single()
         .then(({ data, error }) => {
           if (error || !data) {
-            setProfile(null);
+            setProfileData(null);
             return;
           }
           const row = data as ProfileWithCity;
           if (row.user_id !== user.id) {
-            setProfile(null);
+            setProfileData(null);
             return;
           }
-          setProfile(row);
+          setProfileData(row);
           const p = row;
           setName(p.name);
           setAge(String(p.age));
@@ -180,6 +245,9 @@ export default function Cuenta() {
           setServicesIncluded(Array.isArray((p as { services_included?: string[] }).services_included) ? (p as { services_included: string[] }).services_included : []);
           setServicesExtra(Array.isArray((p as { services_extra?: string[] }).services_extra) ? (p as { services_extra: string[] }).services_extra : []);
           setActiveUntil((p as { active_until?: string | null }).active_until ?? null);
+          if (searchParams.get("promo") === "1") {
+            setPromoDialogOpen(true);
+          }
         });
     } else {
       setDashboardLoading(true);
@@ -188,12 +256,12 @@ export default function Cuenta() {
         .select("*, cities(*)")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .then(({ data, error }) => {
+        .then(async ({ data, error }) => {
           setDashboardLoading(false);
           if (error) return;
           const list = (data ?? []) as ProfileWithCity[];
           setProfilesList(list);
-          if (list.length === 0) navigate("/completar-perfil", { replace: true });
+          // No redirigir a completar-perfil: si hay 0 perfiles se muestra Mi cuenta con la invitación y el botón Nuevo anuncio
           // Al cargar: perfiles ya vencidos se marcan como pausados (available = false)
           const now = new Date();
           list
@@ -206,9 +274,25 @@ export default function Cuenta() {
                 .eq("id", p.id)
                 .then(() => {});
             });
+          // Cargar historial de créditos
+          const { data: txData } = await supabase
+            .from("credit_transactions")
+            .select("id, amount, type, description, created_at, escort_profile_id")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false });
+          setCreditTransactions((txData as CreditTransactionsRow[]) ?? []);
         });
     }
-  }, [user?.id, role, profileId, navigate]);
+  }, [user?.id, role, profileId, navigate, searchParams]);
+
+  useEffect(() => {
+    if (!user) return;
+    const meta = (user.user_metadata ?? {}) as { display_name?: string; whatsapp?: string };
+    const baseName = profile?.display_name || meta.display_name || user.email || "";
+    const basePhone = meta.whatsapp || "";
+    setAccountNameInput(baseName);
+    setAccountPhoneInput(basePhone);
+  }, [user, profile]);
 
   const handleRenovar7Dias = async (profileIdToRenew: string) => {
     if (!supabase || !user?.id) return;
@@ -237,13 +321,23 @@ export default function Cuenta() {
   }
 
   if (!profileId) {
-    if (dashboardLoading || profilesList.length === 0) {
+    if (dashboardLoading) {
       return (
         <div className="min-h-screen bg-background flex items-center justify-center">
           <p className="text-muted-foreground">Cargando…</p>
         </div>
       );
     }
+    const userMeta = (user?.user_metadata ?? {}) as { display_name?: string; whatsapp?: string };
+    const accountName = profile?.display_name || userMeta.display_name || user?.email || "—";
+    const accountPhone = userMeta.whatsapp || "—";
+    const totalCredits = profilesList.reduce(
+      (sum, p) => sum + (typeof (p as any).credits === "number" ? (p as any).credits : 0),
+      0,
+    );
+    const initialCredits = profilesList.length * 5000;
+    const consumedCredits = Math.max(initialCredits - totalCredits, 0);
+
     return (
       <div className="min-h-screen bg-background px-4 py-8 pb-28">
         <SeoHead title="Dashboard | Punto Cachero" description="Panel de acompañantes." canonicalPath="/cuenta" robots="noindex, nofollow" noSocial />
@@ -255,32 +349,56 @@ export default function Cuenta() {
               <LayoutDashboard className="w-5 h-5 text-gold" />
               Perfiles o anuncios
             </h2>
+            {profilesList.length === 0 && (
+              <Alert className="mb-4 border-gold/50 bg-gold/10 text-foreground [&>svg]:text-gold">
+                <Star className="h-4 w-4" />
+                <AlertTitle>¡Crea un anuncio!</AlertTitle>
+                <AlertDescription>
+                  Aún no tienes anuncios publicados. Usa el botón <strong>Nuevo anuncio</strong> de abajo para crear tu perfil y aparecer en el sitio. Los clientes podrán encontrarte y contactarte.
+                </AlertDescription>
+              </Alert>
+            )}
             <p className="text-sm text-muted-foreground mb-4">
               Tienes {profilesList.length} de {MAX_PERFILES} perfiles. Cada uno puede tener su propia franja y subidas.
             </p>
             <div className="space-y-3">
               {profilesList.map((p) => {
                 const isExpired = p.active_until ? new Date(p.active_until) < new Date() : false;
+                const thumb =
+                  p.image ||
+                  (Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery[0] : null) ||
+                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80";
                 return (
                   <div
                     key={p.id}
                     className="p-4 rounded-xl border border-border bg-card flex flex-wrap items-center justify-between gap-3"
                   >
-                    <div>
-                      <p className="font-medium">{p.name}, {p.age}</p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {(p as ProfileWithCity).cities?.name ?? "—"}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {isExpired ? (
-                          <span className="text-amber-500">Oculto (período vencido)</span>
-                        ) : p.active_until ? (
-                          <>Visible hasta {new Date(p.active_until).toLocaleDateString("es-CL", { dateStyle: "short" })}</>
-                        ) : (
-                          "Visible"
-                        )}
-                      </p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-14 w-14 rounded-xl overflow-hidden border border-border flex-shrink-0">
+                        <img
+                          src={thumb}
+                          alt={p.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">
+                          {p.name}, {p.age}
+                        </p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1 truncate">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          {(p as ProfileWithCity).cities?.name ?? "—"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {isExpired ? (
+                            <span className="text-amber-500">Oculto (período vencido)</span>
+                          ) : p.active_until ? (
+                            <>Visible hasta {new Date(p.active_until).toLocaleDateString("es-CL", { dateStyle: "short" })}</>
+                          ) : (
+                            "Visible"
+                          )}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       {isExpired && (
@@ -294,13 +412,40 @@ export default function Cuenta() {
                         </Button>
                       )}
                       <Link to={`/perfil/${p.id}`} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="gap-1">Ver</Button>
+                        <Button variant="outline" size="sm" className="gap-1">
+                          Ver
+                        </Button>
                       </Link>
-                      <Button variant="outline" size="sm" className="gap-1 text-gold border-gold/50 hover:bg-gold/10" asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 text-gold border-gold/50 hover:bg-gold/10"
+                        asChild
+                      >
                         <Link to={`/cuenta/perfil/${p.id}`}>
                           <Pencil className="w-3.5 h-3.5" />
                           Editar
                         </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 text-amber-300 border-amber-500/60 hover:bg-amber-500/10"
+                        asChild
+                      >
+                        <Link to={`/cuenta/perfil/${p.id}?promo=1`}>
+                          <Star className="w-3.5 h-3.5" />
+                          Promocionar
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 text-destructive border-destructive/50 hover:bg-destructive/10"
+                        onClick={() => setDeleteFromListProfile(p)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Eliminar
                       </Button>
                     </div>
                   </div>
@@ -322,9 +467,123 @@ export default function Cuenta() {
               <User className="w-5 h-5 text-gold" />
               Datos de la cuenta
             </h2>
-            <div className="p-4 rounded-xl border border-border bg-card space-y-2">
-              <p className="text-sm text-muted-foreground">Correo</p>
-              <p className="font-medium">{user?.email ?? "—"}</p>
+            <div className="p-4 rounded-xl border border-border bg-card space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">Correo</p>
+                  <p className="font-medium break-all">{user?.email ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Nombre de usuario</p>
+                  {editingAccount ? (
+                    <Input
+                      value={accountNameInput}
+                      onChange={(e) => setAccountNameInput(e.target.value)}
+                      className="h-9"
+                    />
+                  ) : (
+                    <p className="font-medium">{accountName}</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Número de contacto</p>
+                  {editingAccount ? (
+                    <Input
+                      value={accountPhoneInput}
+                      onChange={(e) => setAccountPhoneInput(e.target.value)}
+                      className="h-9"
+                      placeholder="+569..."
+                    />
+                  ) : (
+                    <p className="font-medium">{accountPhone}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                {editingAccount ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 rounded-lg"
+                      onClick={() => {
+                        setEditingAccount(false);
+                        const meta = (user?.user_metadata ?? {}) as { display_name?: string; whatsapp?: string };
+                        setAccountNameInput(profile?.display_name || meta.display_name || user?.email || "");
+                        setAccountPhoneInput(meta.whatsapp || "");
+                      }}
+                      disabled={accountSaving}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-8 rounded-lg bg-gold text-primary-foreground"
+                      onClick={handleSaveAccountData}
+                      disabled={accountSaving}
+                    >
+                      {accountSaving ? "Guardando…" : "Guardar"}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 rounded-lg"
+                    onClick={() => setEditingAccount(true)}
+                  >
+                    Editar datos
+                  </Button>
+                )}
+              </div>
+              <div className="border-t border-border pt-4 grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="text-xs text-muted-foreground">Créditos totales</p>
+                  <p className="text-lg font-semibold">{totalCredits}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Consumidos</p>
+                  <p className="text-lg font-semibold">{consumedCredits}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Iniciales</p>
+                  <p className="text-lg font-semibold">{initialCredits}</p>
+                </div>
+              </div>
+              <div className="pt-4 border-t border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Historial de compras
+                </p>
+                {creditTransactions.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    Aún no hay compras de créditos.
+                  </p>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-auto pr-1">
+                    {creditTransactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        className="flex items-center justify-between text-xs"
+                      >
+                        <div className="space-y-0.5">
+                          <p className="font-medium">
+                            {tx.amount > 0 ? "+" : ""}
+                            {tx.amount} créditos
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {tx.description || (tx.type === "admin_add" ? "Créditos añadidos por admin" : tx.type)}
+                          </p>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          {new Date(tx.created_at).toLocaleDateString("es-CL", {
+                            dateStyle: "short",
+                          })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </section>
 
@@ -334,6 +593,30 @@ export default function Cuenta() {
               Cerrar sesión
             </Button>
           </div>
+
+          <AlertDialog open={!!deleteFromListProfile} onOpenChange={(open) => !open && setDeleteFromListProfile(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Eliminar este anuncio?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Se borrará el perfil &quot;{deleteFromListProfile?.name ?? ""}&quot; de forma permanente. No podrás recuperarlo.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  disabled={deletingFromList}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteFromList();
+                  }}
+                >
+                  {deletingFromList ? "Eliminando…" : "Eliminar"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     );
@@ -438,6 +721,7 @@ export default function Cuenta() {
     const newActiveUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const { error } = await supabase
       .from("escort_profiles")
+      // @ts-expect-error Supabase generated types pueden no incluir active_until todavía
       .update({ active_until: newActiveUntil, available: true, updated_at: new Date().toISOString() })
       .eq("id", profile.id);
     setActivating(false);
@@ -454,6 +738,7 @@ export default function Cuenta() {
     const nowIso = new Date().toISOString();
     const { error } = await supabase
       .from("escort_profiles")
+      // @ts-expect-error Supabase generated types pueden no incluir active_until todavía
       .update({ active_until: nowIso, available: false, updated_at: nowIso })
       .eq("id", profile.id);
     setPausing(false);
@@ -464,6 +749,49 @@ export default function Cuenta() {
     } else setMessage(error.message);
   };
 
+  const handleSavePromocion = async () => {
+    if (!supabase || !profile?.id) return;
+    setPromoSaving(true);
+    setPromoMessage("");
+    const { error } = await supabase
+      .from("escort_profiles")
+      // @ts-expect-error Supabase generated types pueden no incluir time_slot/subidas_per_day/promotion todavía
+      .update({
+        time_slot: canEditSubidas ? (timeSlot.trim() || null) : ((profile as { time_slot?: string }).time_slot ?? "09-12"),
+        subidas_per_day: canEditSubidas
+          ? subidasPerDay
+          : (profile as { subidas_per_day?: number }).subidas_per_day === 5
+            ? 5
+            : 10,
+        promotion:
+          promotion.trim() === "galeria"
+            ? "galeria"
+            : promotion.trim() === "destacada"
+              ? "destacada"
+              : null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", profile.id);
+    setPromoSaving(false);
+    if (error) setPromoMessage(error.message);
+    else setPromoMessage("Promoción guardada.");
+  };
+
+  const calcularCreditosPromocion = (): number | null => {
+    const tipo = promotion.trim();
+    const subidas = subidasPerDay;
+    if (!tipo || (tipo !== "galeria" && tipo !== "destacada")) return null;
+    if (subidas === 10) {
+      if (tipo === "galeria") return 70;
+      if (tipo === "destacada") return 90;
+    }
+    if (subidas === 5) {
+      if (tipo === "galeria") return 50;
+      if (tipo === "destacada") return 60;
+    }
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supabase) return;
@@ -471,6 +799,7 @@ export default function Cuenta() {
     setMessage("");
     const { error } = await supabase
       .from("escort_profiles")
+      // @ts-expect-error Supabase generated types pueden quedarse desfasados frente al schema real
       .update({
         name: name.trim(),
         age: parseInt(age, 10) || 0,
@@ -484,9 +813,6 @@ export default function Cuenta() {
         whatsapp: whatsapp.trim() || null,
         services_included: servicesIncluded,
         services_extra: servicesExtra,
-        time_slot: canEditSubidas ? (timeSlot.trim() || null) : ((profile as { time_slot?: string }).time_slot ?? null),
-        subidas_per_day: canEditSubidas ? subidasPerDay : ((profile as { subidas_per_day?: number }).subidas_per_day === 5 ? 5 : 10),
-        promotion: promotion.trim() === "galeria" ? "galeria" : promotion.trim() === "destacada" ? "destacada" : null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", profile.id);
@@ -504,6 +830,7 @@ export default function Cuenta() {
     const newAvailable = !available;
     const { error } = await supabase
       .from("escort_profiles")
+      // @ts-expect-error Supabase generated types pueden quedarse desfasados frente al schema real
       .update({ available: newAvailable, updated_at: new Date().toISOString() })
       .eq("id", profile.id);
     setSaving(false);
@@ -525,6 +852,7 @@ export default function Cuenta() {
     }
     const { data: remaining } = await supabase.from("escort_profiles").select("id").eq("user_id", user.id);
     if (!remaining || remaining.length === 0) {
+      // @ts-expect-error Supabase generated types pueden quedarse desfasados frente al schema real
       await supabase.from("profiles").update({ role: "visitor", updated_at: new Date().toISOString() }).eq("id", user.id);
       await supabase.auth.signOut();
       navigate("/", { replace: true });
@@ -598,7 +926,7 @@ export default function Cuenta() {
                 </h1>
                 <p className="text-muted-foreground flex items-center gap-1.5 mt-1">
                   <MapPin className="w-4 h-4" />
-                  {profile.cities?.name ?? "—"}
+                  {(profileData as ProfileWithCity | null)?.cities?.name ?? "—"}
                 </p>
               </div>
               {badge && (
@@ -767,62 +1095,7 @@ export default function Cuenta() {
               <p className="text-xs text-muted-foreground">La categoría no se puede modificar después de crear el perfil.</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label>Promoción</Label>
-            <Select value={promotion || "__ninguna__"} onValueChange={(v) => setPromotion(v === "__ninguna__" ? "" : v)}>
-              <SelectTrigger className="bg-surface rounded-xl">
-                <SelectValue placeholder="Selecciona una promoción" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__ninguna__">Ninguna</SelectItem>
-                <SelectItem value="galeria">Galeria</SelectItem>
-                <SelectItem value="destacada">Destacada</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">Galeria: carrusel en la página de tu ciudad (orden por subidas 5 o 10). Destacada: prioridad en el listado.</p>
-          </div>
-          <div className="space-y-2">
-            <Label>Franja horaria para subidas</Label>
-            <Select value={timeSlot || "09-12"} onValueChange={setTimeSlot} disabled={!canEditSubidas}>
-              <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
-                <SelectValue placeholder="Elige tu franja" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_SLOTS.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {!canEditSubidas && (
-              <p className="text-xs text-amber-500">
-                Franja y subidas se pueden cambiar solo cuando termine tu período de 7 días (perfil oculto).
-              </p>
-            )}
-            {canEditSubidas && (
-              <p className="text-xs text-muted-foreground">
-                Tu perfil aparecerá entre los primeros del listado dentro de esta franja.
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Subidas por día</Label>
-            <Select value={String(subidasPerDay)} onValueChange={(v) => setSubidasPerDay(Number(v))} disabled={!canEditSubidas}>
-              <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
-                <SelectValue placeholder="Elige subidas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 subidas al día</SelectItem>
-                <SelectItem value="5">5 subidas al día</SelectItem>
-              </SelectContent>
-            </Select>
-            {canEditSubidas && (
-              <p className="text-xs text-muted-foreground">
-                Número de veces al día que tu perfil aparecerá entre los primeros (repartidas al azar en la franja).
-              </p>
-            )}
-          </div>
+          {/* Promoción, franja y subidas se gestionan en el bloque separado de \"Promoción\" */}
           <div className="space-y-2">
             <Label>Imagen principal</Label>
             <div className="flex flex-col gap-2">
@@ -954,7 +1227,17 @@ export default function Cuenta() {
                 variant="outline"
                 size="sm"
                 className="h-8 rounded-lg text-xs font-medium gap-1.5 border-gold text-gold hover:bg-gold/10"
-                onClick={() => setDescription(generarDescripcionAleatoria(name, age, profile.cities?.name ?? "", servicesIncluded, servicesExtra))}
+                onClick={() =>
+                  setDescription(
+                    generarDescripcionAleatoria(
+                      name,
+                      age,
+                      (profileData as ProfileWithCity | null)?.cities?.name ?? "",
+                      servicesIncluded,
+                      servicesExtra,
+                    ),
+                  )
+                }
               >
                 <Shuffle className="h-3.5 w-3.5" />
                 Texto aleatorio
@@ -998,6 +1281,117 @@ export default function Cuenta() {
         )}
 
       </div>
+
+      <Dialog open={promoDialogOpen} onOpenChange={setPromoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Promoción y subidas</DialogTitle>
+            <DialogDescription>
+              Gestiona la promoción de tu perfil, la franja horaria y las subidas por día.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Promoción</Label>
+              <Select
+                value={promotion || "__ninguna__"}
+                onValueChange={(v) => setPromotion(v === "__ninguna__" ? "" : v)}
+              >
+                <SelectTrigger className="bg-surface rounded-xl">
+                  <SelectValue placeholder="Selecciona una promoción" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__ninguna__">Ninguna</SelectItem>
+                  <SelectItem value="galeria">Galería</SelectItem>
+                  <SelectItem value="destacada">Destacada</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Galería: carrusel en la página de tu ciudad (orden por subidas 5 o 10). Destacada: prioridad en el listado.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Franja horaria para subidas</Label>
+              <Select value={timeSlot || "09-12"} onValueChange={setTimeSlot} disabled={!canEditSubidas}>
+                <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
+                  <SelectValue placeholder="Elige tu franja" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIME_SLOTS.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!canEditSubidas && (
+                <p className="text-xs text-amber-500">
+                  Franja y subidas se pueden cambiar solo cuando termine tu período de 7 días (perfil oculto).
+                </p>
+              )}
+              {canEditSubidas && (
+                <p className="text-xs text-muted-foreground">
+                  Tu perfil aparecerá entre los primeros del listado dentro de esta franja.
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Subidas por día</Label>
+              <Select
+                value={String(subidasPerDay)}
+                onValueChange={(v) => setSubidasPerDay(Number(v))}
+                disabled={!canEditSubidas}
+              >
+                <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
+                  <SelectValue placeholder="Elige subidas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 subidas al día</SelectItem>
+                  <SelectItem value="5">5 subidas al día</SelectItem>
+                </SelectContent>
+              </Select>
+              {canEditSubidas && (
+                <p className="text-xs text-muted-foreground">
+                  Número de veces al día que tu perfil aparecerá entre los primeros (repartidas al azar en la franja).
+                </p>
+              )}
+            </div>
+            {(() => {
+              const credits = calcularCreditosPromocion();
+              return (
+                <p className="text-sm">
+                  {credits != null ? (
+                    <>
+                      Esta combinación cuesta{" "}
+                      <span className="font-semibold text-gold">{credits} créditos</span>{" "}
+                      por 7 días.
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">
+                      Selecciona tipo de promoción y subidas para ver el costo en créditos.
+                    </span>
+                  )}
+                </p>
+              );
+            })()}
+            {promoMessage && (
+              <p className={`text-xs ${promoMessage === "Promoción guardada." ? "text-green-500" : "text-destructive"}`}>
+                {promoMessage}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              className="w-full h-10 rounded-xl bg-gold text-primary-foreground text-sm font-semibold"
+              onClick={handleSavePromocion}
+              disabled={promoSaving}
+            >
+              {promoSaving ? "Guardando promoción…" : "Guardar promoción"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

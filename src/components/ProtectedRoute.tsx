@@ -21,7 +21,7 @@ export function ProtectedRoute({
   fallbackPath = "/",
   allowWhenMustChangePassword = false,
 }: ProtectedRouteProps) {
-  const { user, role, mustChangePassword, isLoading } = useAuth();
+  const { user, role, mustChangePassword, isBlocked, isLoading, signOut } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -38,6 +38,24 @@ export function ProtectedRoute({
 
   if (mustChangePassword && !allowWhenMustChangePassword) {
     return <Navigate to="/cambiar-contrasena" replace />;
+  }
+
+  if (allowedRoles?.includes("registered_user") && role === "registered_user" && isBlocked) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <h1 className="text-xl font-display font-bold text-foreground mb-2">Cuenta pausada</h1>
+        <p className="text-muted-foreground text-sm mb-6 max-w-sm">
+          Tu cuenta de publicador está pausada. No puedes acceder a la gestión de perfiles. Contacta al administrador si crees que es un error.
+        </p>
+        <button
+          type="button"
+          onClick={() => signOut()}
+          className="rounded-xl bg-gold px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    );
   }
 
   if (allowWhenMustChangePassword && !mustChangePassword && role) {

@@ -14,6 +14,7 @@ export interface ProfilesRow {
   updated_at: string;
   is_blocked?: boolean;
   email?: string | null;
+  contact_phone?: string | null;
 }
 
 export interface EscortProfilesRow {
@@ -36,6 +37,7 @@ export interface EscortProfilesRow {
   time_slot: string | null;
   subidas_per_day: number | null;
   promotion: string | null;
+   credits?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -60,6 +62,16 @@ export interface ProfileViewsRow {
   user_id: string;
   escort_profile_id: string;
   viewed_at: string;
+}
+
+export interface CreditTransactionsRow {
+  id: string;
+  user_id: string;
+  escort_profile_id: string | null;
+  amount: number;
+  type: string;
+  description: string | null;
+  created_at: string;
 }
 
 export interface CitiesRow {
@@ -105,6 +117,11 @@ export interface Database {
         Row: ProfileViewsRow;
         Insert: Omit<ProfileViewsRow, "id"> & { id?: string };
         Update: Partial<Omit<ProfileViewsRow, "id">>;
+      };
+      credit_transactions: {
+        Row: CreditTransactionsRow;
+        Insert: Omit<CreditTransactionsRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<CreditTransactionsRow, "id">>;
       };
       escort_profiles: {
         Row: EscortProfilesRow;
