@@ -1,6 +1,6 @@
 /**
  * Franjas horarias y lógica de subidas diarias.
- * Cada perfil elige 1 franja; tiene 10 subidas/día repartidas al azar dentro de esa franja.
+ * Un perfil puede elegir 1 o más franjas; en cada franja tiene 10 subidas/día.
  */
 
 export const TIME_SLOTS = [
@@ -74,6 +74,29 @@ function minuteIndexInFranja(slot: TimeSlotValue, mod: number): number | null {
   }
 }
 
+/** Convierte índice dentro de franja a minuto absoluto del día (0..1439) */
+function minuteOfDayFromIndex(slot: TimeSlotValue, idx: number): number {
+  switch (slot) {
+    case "09-12":
+      return 9 * 60 + idx;
+    case "12-15":
+      return 12 * 60 + 1 + idx;
+    case "15-18":
+      return 15 * 60 + 1 + idx;
+    case "18-22":
+      return 18 * 60 + 1 + idx;
+    case "22-09": {
+      const firstSegment = 24 * 60 - (22 * 60 + 1); // 22:01-23:59 = 119
+      if (idx < firstSegment) {
+        return 22 * 60 + 1 + idx;
+      }
+      return idx - firstSegment; // 0:00-8:59
+    }
+    default:
+      return idx;
+  }
+}
+
 /** PRNG determinista: seed string -> número 0..1 */
 function seededRandom(seed: string): number {
   let h = 0;
@@ -106,7 +129,7 @@ export function getSubidaMinutesForDay(
 /** Ventana en minutos: cada subida cuenta como "activa" durante SUBIDA_WINDOW minutos */
 const SUBIDA_WINDOW = 6;
 
-/** ¿Está el perfil en una subida ahora? (dentro de su franja y en uno de los N slots de hoy) */
+/** ¿Está el perfil en una subida ahora? (una sola franja; subidasPerDay 5 o 10) */
 export function isInSubidaNow(
   profileId: string,
   timeSlot: string | null,
@@ -126,16 +149,78 @@ export function isInSubidaNow(
   return false;
 }
 
+/** Horario completo de subidas para un día (por franjas) */
+export function getSubidaScheduleForDay(
+  profileId: string,
+  date: Date,
+  timeSlots: string[],
+  subidasPorFranja: number
+): { slot: TimeSlotValue; minuteOfDay: number }[] {
+  if (!timeSlots.length) return [];
+  const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  const result: { slot: TimeSlotValue; minuteOfDay: number }[] = [];
+  for (const slotStr of timeSlots) {
+    if (!TIME_SLOTS.some((t) => t.value === slotStr)) continue;
+    const slot = slotStr as TimeSlotValue;
+    const minutesIdx = getSubidaMinutesForDay(profileId, dateKey, slot, subidasPorFranja);
+    for (const idx of minutesIdx) {
+      const mod = minuteOfDayFromIndex(slot, idx);
+      result.push({ slot, minuteOfDay: mod });
+    }
+  }
+  return result.sort((a, b) => a.minuteOfDay - b.minuteOfDay);
+}
+
+/** ¿Está el perfil en subida ahora con múltiples franjas? (5 o 10 subidas por franja) */
+export function isInSubidaNowMulti(
+  profileId: string,
+  timeSlots: string[],
+  now: Date,
+  subidasPorFranja: number
+): boolean {
+  if (!timeSlots.length) return false;
+  const mod = minuteOfDay(now);
+  const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  for (const slotStr of timeSlots) {
+    if (!TIME_SLOTS.some((t) => t.value === slotStr)) continue;
+    const slot = slotStr as TimeSlotValue;
+    const idx = minuteIndexInFranja(slot, mod);
+    if (idx === null) continue;
+    const subidaMinutes = getSubidaMinutesForDay(profileId, dateKey, slot, subidasPorFranja);
+    for (const start of subidaMinutes) {
+      if (idx >= start && idx < start + SUBIDA_WINDOW) return true;
+    }
+  }
+  return false;
+}
+
 /** Ordenar perfiles: primero los que están en subida (orden aleatorio entre ellos), luego el resto */
-export function sortProfilesWithSubidas<T extends { id: string; time_slot?: string | null; subidas_per_day?: number | null }>(
+export function sortProfilesWithSubidas<T extends {
+  id: string;
+  time_slot?: string | null;
+  time_slots?: string[] | null;
+  subidas_per_day?: number | null;
+}>(
   profiles: T[],
   now: Date = new Date()
 ): T[] {
   const inSubida: T[] = [];
   const rest: T[] = [];
   for (const p of profiles) {
-    const subidas = p.subidas_per_day === 5 ? 5 : 10;
-    if (isInSubidaNow(p.id, p.time_slot ?? null, now, subidas)) inSubida.push(p);
+    const slots = p.time_slots && p.time_slots.length > 0 ? p.time_slots : null;
+    const inSubidaNow = slots
+      ? isInSubidaNowMulti(
+          p.id,
+          slots,
+          now,
+          (() => {
+            const total = p.subidas_per_day ?? 10;
+            const per = slots.length > 0 ? Math.round(total / slots.length) : total;
+            return per === 5 ? 5 : 10;
+          })()
+        )
+      : isInSubidaNow(p.id, p.time_slot ?? null, now, p.subidas_per_day === 5 ? 5 : 10);
+    if (inSubidaNow) inSubida.push(p);
     else rest.push(p);
   }
   // Shuffle inSubida deterministically by date so order is stable within the same minute

@@ -34,7 +34,7 @@ const CityPage = () => {
   const [activeAge, setActiveAge] = useState<string | null>(null);
 
   type CityRow = { id: string; slug: string; name: string; profiles: number; image: string | null; is_active?: boolean; meta_robots?: string | null };
-  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; subidas_per_day?: number | null; promotion?: string | null };
+  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null };
 
   const { data: dbCity } = useQuery({
     queryKey: ["city", citySlug],
@@ -67,9 +67,10 @@ const CityPage = () => {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, time_slot, subidas_per_day, promotion")
+        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion")
         .eq("city_id", cityId)
-        .or(`active_until.is.null,active_until.gt.${now}`);
+        .not("promotion", "is", null)
+        .gt("active_until", now);
       const rows = (data ?? []) as EscortRow[];
       return sortProfilesWithSubidas(rows);
     },

@@ -24,25 +24,23 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus, Eye } from "lucide-react";
 import type { EscortProfilesRow, CitiesRow, CreditTransactionsRow } from "@/types/database";
-import { TIME_SLOTS } from "@/lib/franjas";
+import { TIME_SLOTS, getSubidaScheduleForDay } from "@/lib/franjas";
+import { jsPDF } from "jspdf";
 
 /** Palabras clave para el botón "Texto aleatorio" en Descripción. Edita estos arrays manualmente. */
 const DESC_PALABRAS = {
   inicios: ["Soy", "Hola, soy", "Mi nombre es", "Encantada,"],
-  adjetivos: ["discreta", "profesional", "amigable", "elegante", "cálida", "reservada", "verificada", "seria"],
+  adjetivos: ["discreta","una escort", "caliente", "profesional", "amigable", "elegante", "cálida", "reservada", "verificada", "seria"],
   frases: [
     "disfruto de buenos momentos",
     "me adapto a lo que buscas",
+    "me encanta el sexo",
+    "me gusta el sexo en diferentes posiciones",
+    "no pierdas tu tiempo y contactame",
     "atendiendo en",
     "disponible para encuentros",
     "verificada y seria",
@@ -134,8 +132,8 @@ export default function Cuenta() {
   const [zone, setZone] = useState("");
   const [schedule, setSchedule] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [timeSlot, setTimeSlot] = useState("09-12");
-  const [subidasPerDay, setSubidasPerDay] = useState(10);
+  const [timeSlots, setTimeSlots] = useState<string[]>(["09-12"]);
+  const [subidasPorFranja, setSubidasPorFranja] = useState<5 | 10>(10);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -156,12 +154,17 @@ export default function Cuenta() {
   const [promoMessage, setPromoMessage] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const [creditTransactions, setCreditTransactions] = useState<CreditTransactionsRow[]>([]);
+  const [publisherCredits, setPublisherCredits] = useState(0);
   const [editingAccount, setEditingAccount] = useState(false);
   const [accountNameInput, setAccountNameInput] = useState("");
   const [accountPhoneInput, setAccountPhoneInput] = useState("");
   const [accountSaving, setAccountSaving] = useState(false);
   const [deleteFromListProfile, setDeleteFromListProfile] = useState<ProfileWithCity | null>(null);
   const [deletingFromList, setDeletingFromList] = useState(false);
+  const [creditsTotalInEditView, setCreditsTotalInEditView] = useState<number | null>(null);
+  const [promoInfoProfile, setPromoInfoProfile] = useState<ProfileWithCity | null>(null);
+  const [promoInfoOpen, setPromoInfoOpen] = useState(false);
+  const [txProfilesById, setTxProfilesById] = useState<Record<string, { name: string }>>({});
 
   const handleSaveAccountData = async () => {
     if (!supabase || !user) return;
@@ -239,8 +242,15 @@ export default function Cuenta() {
           setZone(p.zone ?? "");
           setSchedule(p.schedule ?? "");
           setWhatsapp(p.whatsapp ?? "");
-          setTimeSlot((p as { time_slot?: string }).time_slot ?? "09-12");
-          setSubidasPerDay((p as { subidas_per_day?: number }).subidas_per_day === 5 ? 5 : 10);
+          const loadedSlots =
+            (p as { time_slots?: string[]; time_slot?: string }).time_slots?.length
+              ? (p as { time_slots: string[] }).time_slots
+              : [(p as { time_slot?: string }).time_slot ?? "09-12"];
+          setTimeSlots(loadedSlots);
+          const totalSubidasDb = (p as { subidas_per_day?: number }).subidas_per_day ?? 10;
+          const perFranja =
+            loadedSlots.length > 0 ? Math.round(totalSubidasDb / loadedSlots.length) : totalSubidasDb;
+          setSubidasPorFranja(perFranja === 5 ? 5 : 10);
           setGallery(Array.isArray(p.gallery) ? p.gallery : []);
           setServicesIncluded(Array.isArray((p as { services_included?: string[] }).services_included) ? (p as { services_included: string[] }).services_included : []);
           setServicesExtra(Array.isArray((p as { services_extra?: string[] }).services_extra) ? (p as { services_extra: string[] }).services_extra : []);
@@ -248,8 +258,26 @@ export default function Cuenta() {
           if (searchParams.get("promo") === "1") {
             setPromoDialogOpen(true);
           }
+          // Total de créditos del usuario (para el modal de promoción)
+          supabase
+            .from("escort_profiles")
+            .select("credits")
+            .eq("user_id", user.id)
+            .then(({ data: list }) => {
+              const fromProfiles = (list ?? []).reduce((s, r) => s + ((r as { credits?: number }).credits ?? 0), 0);
+              supabase
+                ?.from("profiles")
+                .select("publisher_credits")
+                .eq("id", user.id)
+                .single()
+                .then(({ data: pr }) => {
+                  const fromPublisher = (pr as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+                  setCreditsTotalInEditView(fromProfiles + fromPublisher);
+                });
+            });
         });
     } else {
+      setCreditsTotalInEditView(null);
       setDashboardLoading(true);
       supabase
         .from("escort_profiles")
@@ -261,6 +289,13 @@ export default function Cuenta() {
           if (error) return;
           const list = (data ?? []) as ProfileWithCity[];
           setProfilesList(list);
+          // Créditos del usuario cuando tiene 0 perfiles (profiles.publisher_credits)
+          const { data: profileRow } = await supabase
+            .from("profiles")
+            .select("publisher_credits")
+            .eq("id", user.id)
+            .single();
+          setPublisherCredits((profileRow as { publisher_credits?: number } | null)?.publisher_credits ?? 0);
           // No redirigir a completar-perfil: si hay 0 perfiles se muestra Mi cuenta con la invitación y el botón Nuevo anuncio
           // Al cargar: perfiles ya vencidos se marcan como pausados (available = false)
           const now = new Date();
@@ -280,7 +315,29 @@ export default function Cuenta() {
             .select("id, amount, type, description, created_at, escort_profile_id")
             .eq("user_id", user.id)
             .order("created_at", { ascending: false });
-          setCreditTransactions((txData as CreditTransactionsRow[]) ?? []);
+          const txList = (txData as CreditTransactionsRow[]) ?? [];
+          setCreditTransactions(txList);
+          // Nombres de perfiles asociados a las transacciones
+          const escortIds = Array.from(
+            new Set(
+              txList
+                .map((tx) => tx.escort_profile_id)
+                .filter((id): id is string => !!id)
+            )
+          );
+          if (escortIds.length > 0) {
+            const { data: escortRows } = await supabase
+              .from("escort_profiles")
+              .select("id, name")
+              .in("id", escortIds);
+            const map: Record<string, { name: string }> = {};
+            (escortRows as { id: string; name: string }[] | null)?.forEach((row) => {
+              map[row.id] = { name: row.name };
+            });
+            setTxProfilesById(map);
+          } else {
+            setTxProfilesById({});
+          }
         });
     }
   }, [user?.id, role, profileId, navigate, searchParams]);
@@ -334,7 +391,7 @@ export default function Cuenta() {
     const totalCredits = profilesList.reduce(
       (sum, p) => sum + (typeof (p as any).credits === "number" ? (p as any).credits : 0),
       0,
-    );
+    ) + publisherCredits;
     const initialCredits = profilesList.length * 5000;
     const consumedCredits = Math.max(initialCredits - totalCredits, 0);
 
@@ -438,6 +495,20 @@ export default function Cuenta() {
                           Promocionar
                         </Link>
                       </Button>
+                      {p.promotion && p.active_until && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                          onClick={() => {
+                            setPromoInfoProfile(p as ProfileWithCity);
+                            setPromoInfoOpen(true);
+                          }}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Ver promoción
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -461,6 +532,214 @@ export default function Cuenta() {
               </Button>
             )}
           </section>
+
+          {promoInfoProfile && (
+            <Dialog
+              open={promoInfoOpen}
+              onOpenChange={(open) => {
+                setPromoInfoOpen(open);
+                if (!open) setPromoInfoProfile(null);
+              }}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Promoción activa</DialogTitle>
+                  <DialogDescription>
+                    Detalles de la promoción actual de tu perfil.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 text-sm">
+                  <p>
+                    <span className="font-medium">{promoInfoProfile.name}</span>, {promoInfoProfile.age}
+                  </p>
+                  <p>
+                    <span className="font-medium">Tipo:</span>{" "}
+                    {promoInfoProfile.promotion === "destacada" ? "Destacada" : "Galería"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Vigente hasta:</span>{" "}
+                    {promoInfoProfile.active_until
+                      ? new Date(promoInfoProfile.active_until).toLocaleString("es-CL")
+                      : "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Franjas horarias:</span>{" "}
+                    {Array.isArray((promoInfoProfile as { time_slots?: string[] }).time_slots) &&
+                    (promoInfoProfile as { time_slots?: string[] }).time_slots!.length > 0
+                      ? (promoInfoProfile as { time_slots: string[] }).time_slots
+                          .map((slot) => {
+                            const found = TIME_SLOTS.find((t) => t.value === slot);
+                            return found ? found.label : slot;
+                          })
+                          .join(", ")
+                      : (() => {
+                          const slot = (promoInfoProfile as { time_slot?: string | null }).time_slot ?? null;
+                          if (!slot) return "Sin franja definida";
+                          const found = TIME_SLOTS.find((t) => t.value === slot);
+                          return found ? found.label : slot;
+                        })()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Subidas diarias totales:</span>{" "}
+                    {(promoInfoProfile as { subidas_per_day?: number | null }).subidas_per_day ?? 0}
+                  </p>
+                </div>
+                <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={async () => {
+                      const p = promoInfoProfile;
+                      if (!p) return;
+                      const slots =
+                        ((p as { time_slots?: string[] }).time_slots && (p as { time_slots?: string[] }).time_slots!.length > 0
+                          ? (p as { time_slots: string[] }).time_slots
+                          : [(p as { time_slot?: string | null }).time_slot ?? "09-12"]) as string[];
+                      const totalSubidas = (p as { subidas_per_day?: number | null }).subidas_per_day ?? 0;
+                      const subidasPorFranja =
+                        slots.length > 0 ? Math.max(1, Math.round(totalSubidas / slots.length)) : 10;
+
+                      // Rango de días de la promoción (7 días terminando en active_until, o a partir de hoy si no hay fecha)
+                      const endDate = p.active_until ? new Date(p.active_until) : new Date();
+                      const days = 7;
+                      const startDate = new Date(endDate);
+                      startDate.setDate(endDate.getDate() - (days - 1));
+
+                      // Construir matriz: filas = (franja, índice subida), columnas = días 1..7
+                      const daysLabels: string[] = [];
+                      type CellKey = { slot: string; index: number };
+                      const rowsMatrix: { slot: string; index: number; times: (string | null)[] }[] = [];
+
+                      // Inicializar filas
+                      slots.forEach((slot) => {
+                        for (let i = 0; i < subidasPorFranja; i++) {
+                          rowsMatrix.push({
+                            slot,
+                            index: i + 1,
+                            times: Array(days).fill(null),
+                          });
+                        }
+                      });
+
+                      for (let d = 0; d < days; d++) {
+                        const date = new Date(startDate);
+                        date.setDate(startDate.getDate() + d);
+                        daysLabels[d] = date.toLocaleDateString("es-CL");
+                        const schedule = getSubidaScheduleForDay(p.id, date, slots, subidasPorFranja);
+                        // Agrupar por franja y ordenar
+                        slots.forEach((slot) => {
+                          const itemsForSlot = schedule
+                            .filter((it) => it.slot === slot)
+                            .sort((a, b) => a.minuteOfDay - b.minuteOfDay);
+                          itemsForSlot.forEach((it, idx) => {
+                            if (idx >= subidasPorFranja) return;
+                            const rowIndex = slots.indexOf(slot) * subidasPorFranja + idx;
+                            const hour = Math.floor(it.minuteOfDay / 60);
+                            const minute = it.minuteOfDay % 60;
+                            const horaStr = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+                            rowsMatrix[rowIndex].times[d] = horaStr;
+                          });
+                        });
+                      }
+
+                      const doc = new jsPDF();
+
+                      // Imagen principal en la cabecera
+                      const mainImageUrl =
+                        p.image ||
+                        ((Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery[0] : null) as string | null);
+                      if (mainImageUrl) {
+                        const loadImageAsDataURL = (url: string): Promise<string> =>
+                          new Promise((resolve) => {
+                            const img = new Image();
+                            img.crossOrigin = "anonymous";
+                            img.onload = () => {
+                              const canvas = document.createElement("canvas");
+                              canvas.width = img.width;
+                              canvas.height = img.height;
+                              const ctx = canvas.getContext("2d");
+                              if (!ctx) {
+                                resolve("");
+                                return;
+                              }
+                              ctx.drawImage(img, 0, 0);
+                              resolve(canvas.toDataURL("image/jpeg", 0.85));
+                            };
+                            img.onerror = () => resolve("");
+                            img.src = url;
+                          });
+                        const imgData = await loadImageAsDataURL(mainImageUrl);
+                        if (imgData) {
+                          doc.addImage(imgData, "JPEG", 150, 10, 40, 40);
+                        }
+                      }
+
+                      doc.setFontSize(14);
+                      doc.text("Plan de subidas por día", 14, 18);
+                      doc.setFontSize(11);
+                      doc.text(`Perfil: ${p.name}, ${p.age}`, 14, 26);
+                      doc.text(
+                        `Tipo: ${p.promotion === "destacada" ? "Destacada" : "Galería"}  ·  Días: ${days}  ·  Subidas/día: ${
+                          totalSubidas || slots.length * subidasPorFranja
+                        }`,
+                        14,
+                        32
+                      );
+                      doc.text("Tabla de horarios exactos por franja y día.", 14, 38);
+
+                      let y = 55;
+                      doc.setFontSize(10);
+                      // Cabecera: fila 1 (títulos) y fila 2 (días 1..7)
+                      doc.text("Franja horarios", 14, y);
+                      doc.text("N° subida", 60, y);
+                      doc.text("Día", 90, y);
+                      const headerY = y + 6;
+                      daysLabels.forEach((_, idx) => {
+                        const x = 90 + idx * 18;
+                        doc.text(String(idx + 1), x, headerY);
+                      });
+                      y = headerY + 4;
+
+                      rowsMatrix.forEach((row) => {
+                        if (y > 280) {
+                          doc.addPage();
+                          y = 20;
+                          doc.setFontSize(10);
+                          doc.text("Franja horarios", 14, y);
+                          doc.text("N° subida", 60, y);
+                          doc.text("Día", 90, y);
+                          const headerY2 = y + 6;
+                          daysLabels.forEach((_, idx) => {
+                            const x = 90 + idx * 18;
+                            doc.text(String(idx + 1), x, headerY2);
+                          });
+                          y = headerY2 + 4;
+                        }
+                        const labelSlot = TIME_SLOTS.find((t) => t.value === row.slot)?.label ?? row.slot;
+                        doc.text(labelSlot, 14, y);
+                        doc.text(String(row.index), 60, y);
+                        row.times.forEach((hora, idx) => {
+                          if (!hora) return;
+                          const x = 90 + idx * 18;
+                          doc.text(hora, x, y);
+                        });
+                        y += 6;
+                      });
+
+                      const safeName = String(p.name || "perfil").replace(/[^a-z0-9_-]+/gi, "_");
+                      doc.save(`subidas_${safeName}.pdf`);
+                    }}
+                  >
+                    Descargar PDF de subidas
+                  </Button>
+                  <Button variant="outline" className="w-full sm:w-auto" onClick={() => setPromoInfoOpen(false)}>
+                    Cerrar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
 
           <section>
             <h2 className="text-lg font-display font-bold flex items-center gap-2 mb-4">
@@ -560,27 +839,49 @@ export default function Cuenta() {
                   </p>
                 ) : (
                   <div className="space-y-2 max-h-40 overflow-auto pr-1">
-                    {creditTransactions.map((tx) => (
-                      <div
-                        key={tx.id}
-                        className="flex items-center justify-between text-xs"
-                      >
-                        <div className="space-y-0.5">
-                          <p className="font-medium">
-                            {tx.amount > 0 ? "+" : ""}
-                            {tx.amount} créditos
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {tx.description || (tx.type === "admin_add" ? "Créditos añadidos por admin" : tx.type)}
+                    {creditTransactions.map((tx) => {
+                      const profileInfo = tx.escort_profile_id
+                        ? txProfilesById[tx.escort_profile_id] ?? null
+                        : null;
+                      const fecha = new Date(tx.created_at);
+                      return (
+                        <div
+                          key={tx.id}
+                          className="flex items-start justify-between text-xs gap-3"
+                        >
+                          <div className="space-y-0.5">
+                            <p className="font-medium">
+                              {tx.amount > 0 ? "+" : ""}
+                              {tx.amount} créditos
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {tx.type === "promocion"
+                                ? tx.description || "Promoción activada"
+                                : tx.description ||
+                                  (tx.type === "admin_add"
+                                    ? "Créditos añadidos por admin"
+                                    : tx.type)}
+                            </p>
+                            {profileInfo && (
+                              <p className="text-[11px] text-muted-foreground">
+                                Perfil:{" "}
+                                <Link
+                                  to={`/perfil/${tx.escort_profile_id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="underline underline-offset-2"
+                                >
+                                  {profileInfo.name}
+                                </Link>
+                              </p>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground whitespace-nowrap text-right">
+                            {fecha.toLocaleDateString("es-CL", { dateStyle: "short" })}
                           </p>
                         </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          {new Date(tx.created_at).toLocaleDateString("es-CL", {
-                            dateStyle: "short",
-                          })}
-                        </p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -711,9 +1012,11 @@ export default function Cuenta() {
     setGallery((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const isProfileExpired = activeUntil ? new Date(activeUntil) < new Date() : false;
-  /** Franja y subidas solo se pueden cambiar cuando terminen los 7 días (perfil oculto) */
-  const canEditSubidas = isProfileExpired;
+  // Consideramos "vencido" cuando no hay fecha o cuando ya pasó.
+  const isProfileExpired = activeUntil ? new Date(activeUntil) < new Date() : true;
+  /** Franja y subidas editables: primera vez (sin promoción activa) o cuando terminó el período de 7 días */
+  const tienePromoActiva = promotion.trim() === "galeria" || promotion.trim() === "destacada";
+  const canEditSubidas = isProfileExpired || !tienePromoActiva;
 
   const handleActivar7Dias = async () => {
     if (!supabase || !profile?.id) return;
@@ -750,45 +1053,148 @@ export default function Cuenta() {
   };
 
   const handleSavePromocion = async () => {
-    if (!supabase || !profile?.id) return;
+    if (!supabase || !user?.id) return;
+    const escortProfile = (profileData as ProfileWithCity | null) ?? (profilesList[0] as ProfileWithCity | undefined);
+    if (!escortProfile?.id) {
+      setPromoMessage("No se encontró el perfil a promocionar.");
+      return;
+    }
     setPromoSaving(true);
     setPromoMessage("");
+
+    const tipoPromo = promotion.trim();
+    const tienePromo = tipoPromo === "galeria" || tipoPromo === "destacada";
+    const totalSubidas = timeSlots.length * subidasPorFranja;
+    if (tienePromo && (timeSlots.length === 0 || totalSubidas === 0)) {
+      setPromoMessage("Selecciona al menos una franja horaria y el número de subidas.");
+      setPromoSaving(false);
+      return;
+    }
+
+    const coste = calcularCreditosPromocion();
+
+    if (tienePromo && coste != null && coste > 0) {
+      // Créditos en el perfil
+      const { data: rowCredits } = await supabase
+        .from("escort_profiles")
+        .select("credits")
+        .eq("id", escortProfile.id)
+        .maybeSingle();
+      const creditsPerfil = (rowCredits as { credits?: number } | null)?.credits ?? 0;
+      // Créditos a nivel de usuario (publisher_credits)
+      const { data: rowProfile } = await supabase
+        .from("profiles")
+        .select("publisher_credits")
+        .eq("id", user.id)
+        .maybeSingle();
+      const creditsPublisher = (rowProfile as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+      const totalDisponibles = creditsPerfil + creditsPublisher;
+      if (totalDisponibles < coste) {
+        setPromoMessage(`Créditos insuficientes. Tienes ${totalDisponibles}, necesitas ${coste}.`);
+        setPromoSaving(false);
+        return;
+      }
+      const restarDePerfil = Math.min(creditsPerfil, coste);
+      const restarDePublisher = coste - restarDePerfil;
+      const nuevosCredits = creditsPerfil - restarDePerfil;
+      const descripcion =
+        tipoPromo === "galeria"
+          ? `Promoción Galería, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`
+          : `Promoción Destacada, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`;
+      // Actualizar créditos del perfil si corresponde
+      if (restarDePerfil > 0) {
+        const { error: updateCreditsErr } = await supabase
+          .from("escort_profiles")
+          // @ts-expect-error credits en schema
+          .update({ credits: nuevosCredits, updated_at: new Date().toISOString() })
+          .eq("id", escortProfile.id);
+        if (updateCreditsErr) {
+          setPromoMessage(updateCreditsErr.message);
+          setPromoSaving(false);
+          return;
+        }
+      }
+      // Actualizar publisher_credits si corresponde
+      if (restarDePublisher > 0) {
+        const { error: updatePublisherErr } = await supabase
+          .from("profiles")
+          // @ts-expect-error publisher_credits en schema
+          .update({ publisher_credits: creditsPublisher - restarDePublisher, updated_at: new Date().toISOString() })
+          .eq("id", user.id);
+        if (updatePublisherErr) {
+          setPromoMessage(updatePublisherErr.message);
+          setPromoSaving(false);
+          return;
+        }
+      }
+      const { error: txErr } = await supabase
+        .from("credit_transactions")
+        // @ts-expect-error tipo promocion añadido en migración
+        .insert({
+          user_id: user.id,
+          escort_profile_id: escortProfile.id,
+          amount: -coste,
+          type: "promocion",
+          description,
+        });
+      if (txErr) {
+        setPromoMessage(txErr.message);
+        setPromoSaving(false);
+        return;
+      }
+    }
+
     const { error } = await supabase
       .from("escort_profiles")
-      // @ts-expect-error Supabase generated types pueden no incluir time_slot/subidas_per_day/promotion todavía
+      // @ts-expect-error Supabase generated types pueden no incluir time_slot/time_slots/subidas_per_day/promotion/active_until
       .update({
-        time_slot: canEditSubidas ? (timeSlot.trim() || null) : ((profile as { time_slot?: string }).time_slot ?? "09-12"),
+        time_slot: canEditSubidas ? (timeSlots[0]?.trim() || null) : ((escortProfile as { time_slot?: string }).time_slot ?? "09-12"),
+        time_slots: canEditSubidas
+          ? timeSlots
+          : ((escortProfile as { time_slots?: string[] }).time_slots ?? [(escortProfile as { time_slot?: string }).time_slot ?? "09-12"]),
         subidas_per_day: canEditSubidas
-          ? subidasPerDay
-          : (profile as { subidas_per_day?: number }).subidas_per_day === 5
+          ? timeSlots.length * subidasPorFranja
+          : (escortProfile as { subidas_per_day?: number }).subidas_per_day === 5
             ? 5
-            : 10,
+            : (escortProfile as { subidas_per_day?: number }).subidas_per_day ?? 10,
         promotion:
           promotion.trim() === "galeria"
             ? "galeria"
             : promotion.trim() === "destacada"
               ? "destacada"
               : null,
+        ...(tienePromo
+          ? {
+              active_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              available: true,
+            }
+          : {}),
         updated_at: new Date().toISOString(),
       })
-      .eq("id", profile.id);
+      .eq("id", escortProfile.id);
     setPromoSaving(false);
     if (error) setPromoMessage(error.message);
-    else setPromoMessage("Promoción guardada.");
+    else {
+      setPromoMessage("Promoción guardada.");
+      if (tienePromo && coste != null && coste > 0) {
+        setCreditsTotalInEditView((prev) => (prev != null ? prev - coste : null));
+      }
+      if (tienePromo) {
+        const newActiveUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        setActiveUntil(newActiveUntil);
+        setAvailable(true);
+      }
+    }
   };
 
   const calcularCreditosPromocion = (): number | null => {
     const tipo = promotion.trim();
-    const subidas = subidasPerDay;
+    const totalSubidas = timeSlots.length * subidasPorFranja;
     if (!tipo || (tipo !== "galeria" && tipo !== "destacada")) return null;
-    if (subidas === 10) {
-      if (tipo === "galeria") return 70;
-      if (tipo === "destacada") return 90;
-    }
-    if (subidas === 5) {
-      if (tipo === "galeria") return 50;
-      if (tipo === "destacada") return 60;
-    }
+    if (totalSubidas === 0) return null;
+    // Regla coherente: base + por subida. Galería 30+4×N, Destacada 30+6×N (mantiene 5→50/60, 10→70/90)
+    if (tipo === "galeria") return 30 + 4 * totalSubidas;
+    if (tipo === "destacada") return 30 + 6 * totalSubidas;
     return null;
   };
 
@@ -1311,67 +1717,107 @@ export default function Cuenta() {
               </p>
             </div>
             <div className="space-y-2">
-              <Label>Franja horaria para subidas</Label>
-              <Select value={timeSlot || "09-12"} onValueChange={setTimeSlot} disabled={!canEditSubidas}>
-                <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
-                  <SelectValue placeholder="Elige tu franja" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIME_SLOTS.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Franjas horarias para subidas</Label>
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/20 p-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={TIME_SLOTS.every((t) => timeSlots.includes(t.value))}
+                    onCheckedChange={(checked) => {
+                      if (checked) setTimeSlots(TIME_SLOTS.map((t) => t.value));
+                      else setTimeSlots([]);
+                    }}
+                    disabled={!canEditSubidas}
+                  />
+                  <span className="text-sm font-medium">Todas las franjas</span>
+                </label>
+                {TIME_SLOTS.map((t) => (
+                  <label key={t.value} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={timeSlots.includes(t.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) setTimeSlots((prev) => [...prev, t.value].sort());
+                        else setTimeSlots((prev) => prev.filter((s) => s !== t.value));
+                      }}
+                      disabled={!canEditSubidas}
+                    />
+                    <span className="text-sm">{t.label}</span>
+                  </label>
+                ))}
+              </div>
               {!canEditSubidas && (
                 <p className="text-xs text-amber-500">
-                  Franja y subidas se pueden cambiar solo cuando termine tu período de 7 días (perfil oculto).
+                  Franjas se pueden cambiar solo cuando termine tu período de 7 días (perfil oculto).
+                </p>
+              )}
+              {!canEditSubidas && activeUntil && (
+                <p className="text-sm font-medium text-gold">
+                  Promoción activa hasta el {new Date(activeUntil).toLocaleDateString("es-CL", { dateStyle: "long" })}. Podrás cambiar cuando termine el período.
                 </p>
               )}
               {canEditSubidas && (
                 <p className="text-xs text-muted-foreground">
-                  Tu perfil aparecerá entre los primeros del listado dentro de esta franja.
+                  Cada franja elegida da {subidasPorFranja} subidas al día en ese horario. Total:{" "}
+                  <strong>
+                    {timeSlots.length} franja(s) × {subidasPorFranja} = {timeSlots.length * subidasPorFranja} subidas/día
+                  </strong>
+                  .
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>Subidas por día</Label>
+              <Label>Subidas por franja</Label>
               <Select
-                value={String(subidasPerDay)}
-                onValueChange={(v) => setSubidasPerDay(Number(v))}
+                value={String(subidasPorFranja)}
+                onValueChange={(v) => setSubidasPorFranja(Number(v) === 5 ? 5 : 10)}
                 disabled={!canEditSubidas}
               >
                 <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
-                  <SelectValue placeholder="Elige subidas" />
+                  <SelectValue placeholder="Elige subidas por franja" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="10">10 subidas al día</SelectItem>
-                  <SelectItem value="5">5 subidas al día</SelectItem>
+                  <SelectItem value="10">10 subidas por franja</SelectItem>
+                  <SelectItem value="5">5 subidas por franja</SelectItem>
                 </SelectContent>
               </Select>
-              {canEditSubidas && (
-                <p className="text-xs text-muted-foreground">
-                  Número de veces al día que tu perfil aparecerá entre los primeros (repartidas al azar en la franja).
-                </p>
-              )}
             </div>
             {(() => {
               const credits = calcularCreditosPromocion();
+              const total = creditsTotalInEditView ?? 0;
+              const coste = credits ?? 0;
+              const restantes = total - coste;
               return (
-                <p className="text-sm">
-                  {credits != null ? (
-                    <>
-                      Esta combinación cuesta{" "}
-                      <span className="font-semibold text-gold">{credits} créditos</span>{" "}
-                      por 7 días.
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground text-xs">
-                      Selecciona tipo de promoción y subidas para ver el costo en créditos.
-                    </span>
+                <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-4">
+                  <p className="text-sm font-medium">
+                    Tienes <span className="font-semibold text-foreground">{total} créditos</span> en total.
+                  </p>
+                  <p className="text-sm">
+                    {credits != null ? (
+                      <>
+                        Esta combinación cuesta{" "}
+                        <span className="font-semibold text-gold">{credits} créditos</span>{" "}
+                        por 7 días.
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">
+                        Selecciona tipo de promoción y al menos una franja para ver el costo en créditos.
+                      </span>
+                    )}
+                  </p>
+                  {credits != null && credits > 0 && (
+                    <p className="text-sm">
+                      {restantes >= 0 ? (
+                        <>
+                          Te quedarán{" "}
+                          <span className="font-semibold text-foreground">{restantes} créditos</span>.
+                        </>
+                      ) : (
+                        <span className="font-medium text-destructive">
+                          No tienes suficientes créditos (te faltan {Math.abs(restantes)}).
+                        </span>
+                      )}
+                    </p>
                   )}
-                </p>
+                </div>
               );
             })()}
             {promoMessage && (
@@ -1385,9 +1831,9 @@ export default function Cuenta() {
               type="button"
               className="w-full h-10 rounded-xl bg-gold text-primary-foreground text-sm font-semibold"
               onClick={handleSavePromocion}
-              disabled={promoSaving}
+              disabled={promoSaving || !canEditSubidas || ((promotion.trim() === "galeria" || promotion.trim() === "destacada") && timeSlots.length === 0)}
             >
-              {promoSaving ? "Guardando promoción…" : "Guardar promoción"}
+              {promoSaving ? "Activando promoción…" : "Activar promoción"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -243,7 +243,8 @@ export default function CompletarPerfil() {
       available: true,
       active_until: activeUntil,
       time_slot: "09-12",
-      subidas_per_day: 5,
+      time_slots: ["09-12"],
+      subidas_per_day: 10,
       promotion: null,
     });
     if (insertErr) {

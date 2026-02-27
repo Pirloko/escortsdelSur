@@ -15,6 +15,7 @@ export interface ProfilesRow {
   is_blocked?: boolean;
   email?: string | null;
   contact_phone?: string | null;
+  publisher_credits?: number;
 }
 
 export interface EscortProfilesRow {
@@ -35,6 +36,8 @@ export interface EscortProfilesRow {
   services_extra: string[];
   active_until: string | null;
   time_slot: string | null;
+  /** Múltiples franjas: cada una con 10 subidas/día. Si está vacío se usa time_slot. */
+  time_slots?: string[] | null;
   subidas_per_day: number | null;
   promotion: string | null;
    credits?: number | null;

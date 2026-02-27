@@ -35,7 +35,7 @@ export default function AdminPublicadores() {
       // 1) Usuarios publicador: perfiles con role = registered_user (sin relación anidada para evitar 400)
       const { data: profileList, error: errProfiles } = await supabase
         .from("profiles")
-        .select("id, role, display_name, email, is_blocked, contact_phone")
+        .select("id, role, display_name, email, is_blocked, contact_phone, publisher_credits")
         .eq("role", "registered_user");
       if (errProfiles) throw errProfiles;
       const ids = (profileList ?? []).map((p) => p.id);
@@ -69,10 +69,12 @@ export default function AdminPublicadores() {
   const rows = useMemo(
     () =>
       (publishers ?? []).map((p) => {
-        const totalCredits = (p.escort_profiles ?? []).reduce(
+        const creditsFromProfiles = (p.escort_profiles ?? []).reduce(
           (sum, ep) => sum + (ep.credits ?? 0),
           0,
         );
+        const publisherCredits = (p as { publisher_credits?: number }).publisher_credits ?? 0;
+        const totalCredits = creditsFromProfiles + publisherCredits;
         return { ...p, totalCredits };
       }),
     [publishers],
@@ -81,12 +83,9 @@ export default function AdminPublicadores() {
   const addCreditsMutation = useMutation({
     mutationFn: async ({ publisher, add }: { publisher: PublisherRow; add: number }) => {
       if (!supabase) throw new Error("Sin Supabase");
-      // Tomamos un perfil principal del publicador para almacenar créditos extra
-      let primaryProfileId = publisher.escort_profiles[0]?.id ?? null;
-      if (!primaryProfileId) {
-        // Si aún no tiene perfiles, no podemos asignar créditos a perfiles.
-        // Guardamos solo el movimiento en historial.
-      } else {
+      const primaryProfileId = publisher.escort_profiles[0]?.id ?? null;
+
+      if (primaryProfileId) {
         const { data: current } = await supabase
           .from("escort_profiles")
           .select("credits")
@@ -100,7 +99,24 @@ export default function AdminPublicadores() {
           .update({ credits: newCredits, updated_at: new Date().toISOString() })
           .eq("id", primaryProfileId);
         if (updateErr) throw updateErr;
+      } else {
+        const { data: profileRow } = await supabase
+          .from("profiles")
+          .select("publisher_credits")
+          .eq("id", publisher.id)
+          .single();
+        const current = (profileRow as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+        const { error: updateErr } = await supabase
+          .from("profiles")
+          // @ts-expect-error publisher_credits en migración
+          .update({
+            publisher_credits: current + add,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", publisher.id);
+        if (updateErr) throw updateErr;
       }
+
       // Registrar movimiento a nivel usuario
       // @ts-expect-error tipos generados pueden no incluir credit_transactions todavía
       const { error: txError } = await supabase.from("credit_transactions").insert({
