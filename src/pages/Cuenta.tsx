@@ -1689,21 +1689,21 @@ export default function Cuenta() {
       </div>
 
       <Dialog open={promoDialogOpen} onOpenChange={setPromoDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Promoción y subidas</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-h-[90vh] max-w-[calc(100vw-1.5rem)] w-full overflow-y-auto p-4 sm:p-6 sm:max-w-lg">
+          <DialogHeader className="space-y-1 text-left pb-2">
+            <DialogTitle className="text-base sm:text-lg">Promoción y subidas</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm text-left">
               Gestiona la promoción de tu perfil, la franja horaria y las subidas por día.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-5">
             <div className="space-y-2">
-              <Label>Promoción</Label>
+              <Label className="text-sm">Promoción</Label>
               <Select
                 value={promotion || "__ninguna__"}
                 onValueChange={(v) => setPromotion(v === "__ninguna__" ? "" : v)}
               >
-                <SelectTrigger className="bg-surface rounded-xl">
+                <SelectTrigger className="bg-surface rounded-xl h-11 min-h-[44px]">
                   <SelectValue placeholder="Selecciona una promoción" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1712,14 +1712,14 @@ export default function Cuenta() {
                   <SelectItem value="destacada">Destacada</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground leading-snug">
                 Galería: carrusel en la página de tu ciudad (orden por subidas 5 o 10). Destacada: prioridad en el listado.
               </p>
             </div>
             <div className="space-y-2">
-              <Label>Franjas horarias para subidas</Label>
-              <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/20 p-3">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <Label className="text-sm">Franjas horarias para subidas</Label>
+              <div className="flex flex-col gap-1.5 sm:gap-2 rounded-xl border border-border bg-muted/20 p-3 sm:p-3">
+                <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-1">
                   <Checkbox
                     checked={TIME_SLOTS.every((t) => timeSlots.includes(t.value))}
                     onCheckedChange={(checked) => {
@@ -1727,11 +1727,12 @@ export default function Cuenta() {
                       else setTimeSlots([]);
                     }}
                     disabled={!canEditSubidas}
+                    className="h-5 w-5"
                   />
                   <span className="text-sm font-medium">Todas las franjas</span>
                 </label>
                 {TIME_SLOTS.map((t) => (
-                  <label key={t.value} className="flex items-center gap-2 cursor-pointer">
+                  <label key={t.value} className="flex items-center gap-3 cursor-pointer min-h-[44px] py-1">
                     <Checkbox
                       checked={timeSlots.includes(t.value)}
                       onCheckedChange={(checked) => {
@@ -1739,23 +1740,24 @@ export default function Cuenta() {
                         else setTimeSlots((prev) => prev.filter((s) => s !== t.value));
                       }}
                       disabled={!canEditSubidas}
+                      className="h-5 w-5"
                     />
                     <span className="text-sm">{t.label}</span>
                   </label>
                 ))}
               </div>
               {!canEditSubidas && (
-                <p className="text-xs text-amber-500">
+                <p className="text-xs text-amber-500 leading-snug">
                   Franjas se pueden cambiar solo cuando termine tu período de 7 días (perfil oculto).
                 </p>
               )}
               {!canEditSubidas && activeUntil && (
-                <p className="text-sm font-medium text-gold">
+                <p className="text-xs sm:text-sm font-medium text-gold leading-snug">
                   Promoción activa hasta el {new Date(activeUntil).toLocaleDateString("es-CL", { dateStyle: "long" })}. Podrás cambiar cuando termine el período.
                 </p>
               )}
               {canEditSubidas && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground leading-snug">
                   Cada franja elegida da {subidasPorFranja} subidas al día en ese horario. Total:{" "}
                   <strong>
                     {timeSlots.length} franja(s) × {subidasPorFranja} = {timeSlots.length * subidasPorFranja} subidas/día
@@ -1765,13 +1767,13 @@ export default function Cuenta() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>Subidas por franja</Label>
+              <Label className="text-sm">Subidas por franja</Label>
               <Select
                 value={String(subidasPorFranja)}
                 onValueChange={(v) => setSubidasPorFranja(Number(v) === 5 ? 5 : 10)}
                 disabled={!canEditSubidas}
               >
-                <SelectTrigger className="bg-surface rounded-xl" disabled={!canEditSubidas}>
+                <SelectTrigger className="bg-surface rounded-xl h-11 min-h-[44px]" disabled={!canEditSubidas}>
                   <SelectValue placeholder="Elige subidas por franja" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1786,11 +1788,11 @@ export default function Cuenta() {
               const coste = credits ?? 0;
               const restantes = total - coste;
               return (
-                <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-4">
-                  <p className="text-sm font-medium">
+                <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+                  <p className="text-sm font-medium leading-snug">
                     Tienes <span className="font-semibold text-foreground">{total} créditos</span> en total.
                   </p>
-                  <p className="text-sm">
+                  <p className="text-sm leading-snug">
                     {credits != null ? (
                       <>
                         Esta combinación cuesta{" "}
@@ -1798,13 +1800,13 @@ export default function Cuenta() {
                         por 7 días.
                       </>
                     ) : (
-                      <span className="text-muted-foreground text-xs">
+                      <span className="text-muted-foreground text-xs leading-snug">
                         Selecciona tipo de promoción y al menos una franja para ver el costo en créditos.
                       </span>
                     )}
                   </p>
                   {credits != null && credits > 0 && (
-                    <p className="text-sm">
+                    <p className="text-sm leading-snug">
                       {restantes >= 0 ? (
                         <>
                           Te quedarán{" "}
@@ -1821,15 +1823,15 @@ export default function Cuenta() {
               );
             })()}
             {promoMessage && (
-              <p className={`text-xs ${promoMessage === "Promoción guardada." ? "text-green-500" : "text-destructive"}`}>
+              <p className={`text-xs leading-snug ${promoMessage === "Promoción guardada." ? "text-green-500" : "text-destructive"}`}>
                 {promoMessage}
               </p>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4 pt-2 border-t border-border sm:border-0 sm:pt-0">
             <Button
               type="button"
-              className="w-full h-10 rounded-xl bg-gold text-primary-foreground text-sm font-semibold"
+              className="w-full min-h-[48px] h-12 rounded-xl bg-gold text-primary-foreground text-sm font-semibold"
               onClick={handleSavePromocion}
               disabled={promoSaving || !canEditSubidas || ((promotion.trim() === "galeria" || promotion.trim() === "destacada") && timeSlots.length === 0)}
             >

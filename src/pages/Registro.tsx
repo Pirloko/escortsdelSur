@@ -51,9 +51,9 @@ export default function Registro() {
           .eq("id", userId);
         await refreshProfile();
       }
-      navigate(userId ? "/cuenta" : "/completar-perfil", { replace: true });
+      navigate("/cuenta", { replace: true });
     } catch {
-      navigate("/completar-perfil", { replace: true });
+      navigate("/cuenta", { replace: true });
     } finally {
       setLoading(false);
     }

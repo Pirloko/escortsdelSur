@@ -7,7 +7,7 @@ import { SeoHead } from "@/components/SeoHead";
 import { JsonLdHome } from "@/components/JsonLd";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { cities, featuredProfiles } from "@/lib/data";
+import { cities, featuredProfiles, CITIES_DROPDOWN_SLUGS } from "@/lib/data";
 import { ProfileCard } from "@/components/ProfileCard";
 import { CityCard } from "@/components/CityCard";
 import { Footer } from "@/components/Footer";
@@ -121,20 +121,23 @@ const Index = () => {
               </button>
               {cityDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl glass border border-white/10 py-2 z-50 max-h-64 overflow-y-auto">
-                  {dbCities.length === 0 ? (
-                    <p className="px-4 py-2.5 text-sm text-muted-foreground">No hay ciudades disponibles</p>
-                  ) : (
-                    dbCities.map((city) => (
-                      <Link
-                        key={city.id}
-                        to={`/${city.slug}`}
-                        className="block px-4 py-2.5 text-sm text-foreground hover:bg-white/10 transition-colors"
-                        onClick={() => setCityDropdownOpen(false)}
-                      >
-                        {city.name}
-                      </Link>
-                    ))
-                  )}
+                  {(() => {
+                    const dropdownCities = dbCities.filter((c) => CITIES_DROPDOWN_SLUGS.includes(c.slug));
+                    return dropdownCities.length === 0 ? (
+                      <p className="px-4 py-2.5 text-sm text-muted-foreground">No hay ciudades disponibles</p>
+                    ) : (
+                      dropdownCities.map((city) => (
+                        <Link
+                          key={city.id}
+                          to={`/${city.slug}`}
+                          className="block px-4 py-2.5 text-sm text-foreground hover:bg-white/10 transition-colors"
+                          onClick={() => setCityDropdownOpen(false)}
+                        >
+                          {city.name}
+                        </Link>
+                      ))
+                    );
+                  })()}
                 </div>
               )}
             </div>

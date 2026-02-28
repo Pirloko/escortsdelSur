@@ -4,6 +4,7 @@ import { SeoHead } from "@/components/SeoHead";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { CITIES_DROPDOWN_SLUGS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -316,11 +317,13 @@ export default function CompletarPerfil() {
               className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
             >
               <option value="">Selecciona una ciudad</option>
-              {cities.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
+              {cities
+                .filter((c) => CITIES_DROPDOWN_SLUGS.includes(c.slug))
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
             </select>
           </div>
           <div className="space-y-2">
