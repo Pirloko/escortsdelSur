@@ -37,19 +37,27 @@ export default function Registro() {
     }
     try {
       const { data: { session } } = await supabase?.auth.getSession() ?? { data: { session: null } };
-      const userId = session?.user?.id;
+      let userId = session?.user?.id;
       if (userId && supabase) {
-        await supabase
-          .from("profiles")
-          // @ts-expect-error actualizar role/email/contact_phone al crear cuenta publicador
-          .update({
-            role: "registered_user",
-            display_name: nombre.trim() || null,
-            email: email.trim() || null,
-            contact_phone: numero.trim() || null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", userId);
+        const updateProfile = async () => {
+          const { error: updateErr } = await supabase
+            .from("profiles")
+            // @ts-expect-error actualizar role/email/contact_phone al crear cuenta publicador
+            .update({
+              role: "registered_user",
+              display_name: nombre.trim() || null,
+              email: email.trim() || null,
+              contact_phone: numero.trim() || null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", userId);
+          return !updateErr;
+        };
+        const maxAttempts = 3;
+        for (let i = 0; i < maxAttempts; i++) {
+          if (await updateProfile()) break;
+          if (i < maxAttempts - 1) await new Promise((r) => setTimeout(r, 400));
+        }
         await refreshProfile();
       }
       navigate("/cuenta", { replace: true });

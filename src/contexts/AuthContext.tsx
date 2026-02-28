@@ -143,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: email.trim(),
             password,
             role,
+            signup_role: role,
             display_name: meta?.display_name ?? null,
             age: meta?.age ?? null,
             whatsapp: meta?.whatsapp ?? null,
@@ -160,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             role,
+            signup_role: role,
             display_name: meta?.display_name ?? null,
             age: meta?.age ?? null,
             city_id: meta?.city_id ?? null,
