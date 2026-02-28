@@ -27,6 +27,7 @@ export default function Registro() {
       display_name: nombre.trim() || undefined,
       age: !Number.isNaN(ageNum) && ageNum > 0 ? ageNum : undefined,
       whatsapp: numero.trim() || undefined,
+      role: "registered_user" as const,
     };
     const { error: err } = await signUp(email.trim(), password, meta);
     if (err) {

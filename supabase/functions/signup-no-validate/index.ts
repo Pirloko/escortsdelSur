@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { email, password, display_name, age, whatsapp } = body;
+    const { email, password, display_name, age, whatsapp, role } = body;
     if (!email || !password) {
       return new Response(JSON.stringify({ error: "Faltan email o password" }), {
         status: 400,
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
       password: String(password),
       email_confirm: true,
       user_metadata: {
-        role: "visitor",
+        role: role === "registered_user" ? "registered_user" : "visitor",
         display_name: display_name ?? null,
         age: age ?? null,
         whatsapp: whatsapp ?? null,

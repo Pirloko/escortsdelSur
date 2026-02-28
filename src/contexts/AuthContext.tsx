@@ -29,7 +29,7 @@ interface AuthState {
   mustChangePassword: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null; profile?: Profile | null; user?: User | null }>;
-  signUp: (email: string, password: string, meta?: { display_name?: string; age?: number; city_id?: string; whatsapp?: string }) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, meta?: { display_name?: string; age?: number; city_id?: string; whatsapp?: string; role?: UserRole }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<Profile | null>;
 }
@@ -122,9 +122,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (
       email: string,
       password: string,
-      meta?: { display_name?: string; age?: number; city_id?: string; whatsapp?: string }
+      meta?: { display_name?: string; age?: number; city_id?: string; whatsapp?: string; role?: UserRole }
     ) => {
       if (!supabase) return { error: new Error("Supabase no configurado") };
+
+      const role = meta?.role ?? "visitor";
 
       const skipValidation = import.meta.env.VITE_SKIP_EMAIL_VALIDATION === "true";
       const signupSecret = import.meta.env.VITE_SIGNUP_SECRET;
@@ -140,6 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({
             email: email.trim(),
             password,
+            role,
             display_name: meta?.display_name ?? null,
             age: meta?.age ?? null,
             whatsapp: meta?.whatsapp ?? null,
@@ -156,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           data: {
-            role: "visitor",
+            role,
             display_name: meta?.display_name ?? null,
             age: meta?.age ?? null,
             city_id: meta?.city_id ?? null,
