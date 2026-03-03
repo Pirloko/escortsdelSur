@@ -47,12 +47,15 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
           </span>
         </motion.div>
 
-        <motion.p
-          variants={fadeUp(0.1)}
-          className="font-display text-copper-light text-2xl md:text-3xl tracking-[0.35em] uppercase mb-6"
-        >
-          holacachero.cl
-        </motion.p>
+        <motion.div variants={fadeUp(0.1)} className="mb-6 flex justify-center">
+          <img
+            src="/HolaCachero.png"
+            alt="holacachero"
+            className="h-auto w-full max-w-[220px] sm:max-w-[300px] md:max-w-[340px] object-contain"
+            width="340"
+            height="425"
+          />
+        </motion.div>
 
         <motion.h1
           id="hero-heading"
