@@ -1,12 +1,8 @@
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
+import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
 
-const footerCities = [
-  { name: "Temuco", slug: "temuco" },
-  { name: "Concepción", slug: "concepcion" },
-  { name: "Valdivia", slug: "valdivia" },
-  { name: "Puerto Montt", slug: "puerto-montt" },
-] as const;
+const footerCities = [{ name: "Rancagua", slug: ACTIVE_CITY_SLUG }] as const;
 
 export function Footer() {
   return (

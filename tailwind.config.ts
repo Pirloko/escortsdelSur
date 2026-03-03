@@ -27,9 +27,16 @@ export default {
           DEFAULT: "hsl(var(--gold))",
           glow: "hsl(var(--gold-glow))",
         },
+        copper: {
+          DEFAULT: "hsl(var(--copper))",
+          light: "hsl(var(--copper-light))",
+          dark: "hsl(var(--copper-dark))",
+          glow: "hsl(var(--copper-glow))",
+        },
         surface: {
           DEFAULT: "hsl(var(--surface))",
           light: "hsl(var(--surface-light))",
+          elevated: "hsl(var(--surface-elevated))",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -76,6 +83,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
         "2xl": "1rem",
         "3xl": "1.5rem",
+      },
+      boxShadow: {
+        copper: "0 4px 20px -4px hsl(32 60% 52% / 0.25), 0 0 0 1px hsl(32 60% 52% / 0.05)",
+        "copper-lg": "0 12px 40px -8px hsl(32 60% 52% / 0.35), 0 0 0 1px hsl(32 60% 52% / 0.08)",
       },
       keyframes: {
         "accordion-down": {

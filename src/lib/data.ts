@@ -9,8 +9,8 @@ export const cities = [
   { id: "puerto-montt", name: "Puerto Montt", profiles: 22, image: "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=600&q=80" },
 ];
 
-/** Slugs de ciudades a mostrar en el selector "Ciudad" (dropdown). Por ahora solo Rancagua y Talca. */
-export const CITIES_DROPDOWN_SLUGS = ["rancagua", "talca"];
+/** Slugs de ciudades a mostrar en el selector (por ahora solo Rancagua). */
+export const CITIES_DROPDOWN_SLUGS = ["rancagua"];
 
 export function getCityBySlug(slug: string) {
   return cities.find((c) => c.id === slug) ?? null;

@@ -95,6 +95,21 @@ export interface CitiesRow {
   meta_robots?: string | null;
 }
 
+export interface StatusPhrasesRow {
+  id: string;
+  text: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HotStoriesRow {
+  id: string;
+  escort_profile_id: string;
+  story_date: string;
+  content: string;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -142,6 +157,20 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<CitiesRow, "id">>;
+      };
+      status_phrases: {
+        Row: StatusPhrasesRow;
+        Insert: Omit<StatusPhrasesRow, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<StatusPhrasesRow, "id">>;
+      };
+      hot_stories: {
+        Row: HotStoriesRow;
+        Insert: Omit<HotStoriesRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<HotStoriesRow, "id">>;
       };
     };
   };

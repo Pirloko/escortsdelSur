@@ -1,12 +1,13 @@
 import { Home, Search, MapPin, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { CITY_SLUGS } from "@/lib/seo";
+import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = (profilePath: string) => [
   { icon: Home, label: "Inicio", path: "/" },
   { icon: Search, label: "Buscar", path: "/" },
-  { icon: MapPin, label: "Ciudades", path: "/temuco" },
+  { icon: MapPin, label: "Ciudades", path: `/${ACTIVE_CITY_SLUG}` },
   { icon: User, label: "Perfil", path: profilePath },
 ];
 

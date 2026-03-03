@@ -1,19 +1,31 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, SlidersHorizontal, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, SlidersHorizontal, Phone, ChevronLeft, ChevronRight } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { SeoHead } from "@/components/SeoHead";
 import { useQuery } from "@tanstack/react-query";
 import { getCityBySlug, filterCategories, filterAges } from "@/lib/data";
+import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
 import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
 import { ProfileCard } from "@/components/ProfileCard";
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { sortProfilesWithSubidas } from "@/lib/franjas";
 
 const GALLERY_INTERVAL_MS = 5000;
+
+const ESTADOS_TIME_LABELS = ["HACE 2 MIN.", "HACE 5 MIN.", "HACE 7 MIN.", "HACE 15 MIN.", "HACE 30 MIN.", "HACE 1 HORA", "HACE UNAS HORAS"];
+
+function shuffleArray<T>(arr: T[], seed: number): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor((seed * (i + 1)) % (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 const stagger = {
   hidden: {},
@@ -75,6 +87,30 @@ const CityPage = () => {
       return sortProfilesWithSubidas(rows);
     },
     enabled: !!cityId && !!supabase,
+  });
+
+  const { data: statusPhrases = [] } = useQuery({
+    queryKey: ["status_phrases"],
+    queryFn: async (): Promise<{ id: string; text: string }[]> => {
+      if (!supabase) return [];
+      const { data } = await supabase.from("status_phrases").select("id, text").order("updated_at", { ascending: false });
+      return (data ?? []) as { id: string; text: string }[];
+    },
+    enabled: !!supabase,
+  });
+
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const { data: hotStoriesRaw = [] } = useQuery({
+    queryKey: ["hot_stories", today],
+    queryFn: async (): Promise<{ id: string; content: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null }[]> => {
+      if (!supabase) return [];
+      const { data } = await supabase
+        .from("hot_stories")
+        .select("id, content, escort_profile_id, escort_profiles(id, name, city_id)")
+        .eq("story_date", today);
+      return (data ?? []) as { id: string; content: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null }[];
+    },
+    enabled: !!supabase,
   });
 
   const city = dbCity
@@ -145,6 +181,11 @@ const CityPage = () => {
       return 0;
     });
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
+  useEffect(() => {
+    const t = setInterval(() => setEstadosTimeBucket(Math.floor(Date.now() / (5 * 60 * 1000))), 60 * 1000);
+    return () => clearInterval(t);
+  }, []);
   useEffect(() => {
     if (galleryProfiles.length <= 1) return;
     const t = setInterval(() => {
@@ -162,7 +203,38 @@ const CityPage = () => {
   const robots =
     thinContent ? "noindex, nofollow" : dbCity?.meta_robots != null ? dbCity.meta_robots : dbCity?.is_active === false ? "noindex, nofollow" : "index, follow";
   const noIndex = robots.startsWith("noindex");
-  const otherCities = activeCitiesList.filter((c) => c.slug !== citySlug);
+  const otherCities = activeCitiesList.filter(
+    (c) => c.slug !== citySlug && ALLOWED_CITY_SLUGS.includes(c.slug)
+  );
+
+  const estadosFeedItems = useMemo(() => {
+    if (profiles.length === 0 || statusPhrases.length === 0) return [];
+    const seed = estadosTimeBucket / 1e6;
+    const shuffledProfiles = shuffleArray(profiles, seed);
+    const shuffledPhrases = shuffleArray([...statusPhrases], seed + 0.1);
+    const count = Math.min(10, profiles.length, statusPhrases.length, Math.max(5, Math.floor(profiles.length * 0.8)));
+    const items: { profileId: string; profileName: string; phrase: string; timeLabel: string; cityName: string }[] = [];
+    for (let i = 0; i < count; i++) {
+      const profile = shuffledProfiles[i % shuffledProfiles.length];
+      const phrase = shuffledPhrases[i % shuffledPhrases.length];
+      const timeLabel = ESTADOS_TIME_LABELS[Math.floor((seed * 100 + i) % ESTADOS_TIME_LABELS.length)];
+      items.push({
+        profileId: profile.id,
+        profileName: profile.name.toUpperCase(),
+        phrase: phrase.text,
+        timeLabel,
+        cityName: city.name,
+      });
+    }
+    return items;
+  }, [profiles, statusPhrases, city.name, estadosTimeBucket]);
+
+  const hotStoriesForCity = useMemo(() => {
+    if (!cityId) return [];
+    return hotStoriesRaw.filter(
+      (h) => h.escort_profiles?.city_id === cityId
+    ) as { id: string; content: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null }[];
+  }, [hotStoriesRaw, cityId]);
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -385,6 +457,68 @@ const CityPage = () => {
           </motion.div>
         )}
       </div>
+
+      {/* Estados actualizados: feed de frases asignadas aleatoriamente a perfiles */}
+      {estadosFeedItems.length > 0 && (
+        <section className="px-4 max-w-7xl mx-auto mt-8 pt-6 border-t border-border/50" aria-labelledby="estados-actualizados-heading">
+          <h2 id="estados-actualizados-heading" className="text-xl font-display font-bold mb-4 text-foreground">
+            ESTADOS ACTUALIZADOS.
+          </h2>
+          <div className="rounded-xl border border-border bg-surface/50 overflow-hidden">
+            <ul className="divide-y divide-border">
+              {estadosFeedItems.map((item, i) => (
+                <li key={`${item.profileId}-${i}`} className="px-4 py-4">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <span className="font-semibold text-gold text-sm uppercase tracking-wide">{item.profileName}</span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{item.timeLabel}</span>
+                  </div>
+                  <p className="text-sm text-foreground leading-snug">{item.phrase}</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">{item.cityName}</p>
+                    <Link
+                    to={`/perfil/${item.profileId}`}
+                    className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-gold hover:text-gold/80 transition-colors"
+                  >
+                    Ver perfil
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* Historias calientes: una por perfil por día, generadas por cron */}
+      {hotStoriesForCity.length > 0 && (
+        <section className="px-4 max-w-7xl mx-auto mt-8 pt-6 border-t border-border/50" aria-labelledby="historias-calientes-heading">
+          <h2 id="historias-calientes-heading" className="text-xl font-display font-bold mb-4 text-foreground">
+            Historias calientes
+          </h2>
+          <div className="space-y-4">
+            {hotStoriesForCity.map((story) => (
+              <div key={story.id} className="rounded-xl border border-border bg-surface/50 overflow-hidden">
+                <div className="px-4 pt-4 pb-4">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="font-semibold text-gold text-sm uppercase tracking-wide">
+                      {story.escort_profiles?.name ?? "Perfil"}
+                    </span>
+                    <Link
+                      to={`/perfil/${story.escort_profile_id}`}
+                      className="text-sm font-medium text-gold hover:text-gold/80 transition-colors inline-flex items-center gap-1.5"
+                    >
+                      Ver perfil
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed line-clamp-6">
+                    {story.content}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Enlazado interno: también disponible en otras ciudades activas */}
       {otherCities.length > 0 && (

@@ -1,17 +1,10 @@
 /**
- * SEO: slugs válidos para rutas de ciudad (URLs limpias sin /ciudad/)
- * Fase 1 prioritarias: Rancagua, Talca, Chillán, Concepción, Temuco
+ * SEO: slugs válidos para rutas de ciudad.
+ * Controlado por site-config (por ahora solo Rancagua).
  */
-export const CITY_SLUGS = [
-  "rancagua",
-  "talca",
-  "chillan",
-  "concepcion",
-  "temuco",
-  "valdivia",
-  "osorno",
-  "puerto-montt",
-] as const;
+import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
+
+export const CITY_SLUGS = [...ALLOWED_CITY_SLUGS] as const;
 
 export type CitySlug = (typeof CITY_SLUGS)[number];
 

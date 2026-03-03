@@ -29,6 +29,7 @@ const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
 const AdminComentarios = lazy(() => import("./pages/admin/AdminComentarios"));
 const AdminVisitantes = lazy(() => import("./pages/admin/AdminVisitantes"));
 const AdminCiudades = lazy(() => import("./pages/admin/AdminCiudades"));
+const AdminEstados = lazy(() => import("./pages/admin/AdminEstados"));
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,7 @@ const App = () => (
                 <Route path="visitantes" element={<AdminVisitantes />} />
                 <Route path="comentarios" element={<AdminComentarios />} />
                 <Route path="ciudades" element={<AdminCiudades />} />
+                <Route path="estados" element={<AdminEstados />} />
               </Route>
               <Route path="/terminos-y-condiciones" element={<TerminosYCondiciones />} />
               <Route path="/politica-de-privacidad" element={<PoliticaPrivacidad />} />

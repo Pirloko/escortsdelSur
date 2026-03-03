@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, UserCircle, MapPin, MessageSquare, LogOut, Users, Menu } from "lucide-react";
+import { LayoutDashboard, UserCircle, MapPin, MessageSquare, LogOut, Users, Menu, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -13,6 +13,7 @@ const nav = [
   { to: "/admin/visitantes", label: "Visitantes / Clientes", icon: Users },
   { to: "/admin/comentarios", label: "Comentarios", icon: MessageSquare },
   { to: "/admin/ciudades", label: "Ciudades", icon: MapPin },
+  { to: "/admin/estados", label: "Frases estados", icon: MessageCircle },
 ];
 
 function NavLinks({
