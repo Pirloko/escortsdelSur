@@ -51,9 +51,9 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
           <img
             src="/HolaCachero.png"
             alt="holacachero"
-            className="h-auto w-full max-w-[220px] sm:max-w-[300px] md:max-w-[340px] object-contain"
-            width="340"
-            height="425"
+            className="h-auto w-full max-w-[340px] sm:max-w-[460px] md:max-w-[540px] object-contain"
+            width="540"
+            height="675"
           />
         </motion.div>
 
