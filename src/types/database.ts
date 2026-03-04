@@ -16,6 +16,8 @@ export interface ProfilesRow {
   email?: string | null;
   contact_phone?: string | null;
   publisher_credits?: number;
+  pepitas_cobre?: number;
+  tickets_rifa?: number;
 }
 
 export interface EscortProfilesRow {
@@ -110,6 +112,40 @@ export interface HotStoriesRow {
   created_at: string;
 }
 
+// Desafío del Día (quiz) - supabase/migrations/20260304000000_drop_puzzle_create_daily_quiz.sql
+export interface DailyQuizRow {
+  id: string;
+  date: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface DailyQuizQuestionsRow {
+  id: string;
+  quiz_id: string;
+  question_text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_option: string;
+  image_url: string;
+  order_number: number;
+  created_at: string;
+}
+
+export interface UserQuizProgressRow {
+  id: string;
+  user_id: string;
+  quiz_id: string;
+  current_question: number;
+  correct_answers: number;
+  completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -171,6 +207,25 @@ export interface Database {
         Row: HotStoriesRow;
         Insert: Omit<HotStoriesRow, "id" | "created_at"> & { id?: string; created_at?: string };
         Update: Partial<Omit<HotStoriesRow, "id">>;
+      };
+      daily_quiz: {
+        Row: DailyQuizRow;
+        Insert: Omit<DailyQuizRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<DailyQuizRow, "id">>;
+      };
+      daily_quiz_questions: {
+        Row: DailyQuizQuestionsRow;
+        Insert: Omit<DailyQuizQuestionsRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<DailyQuizQuestionsRow, "id">>;
+      };
+      user_quiz_progress: {
+        Row: UserQuizProgressRow;
+        Insert: Omit<UserQuizProgressRow, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<UserQuizProgressRow, "id">>;
       };
     };
   };

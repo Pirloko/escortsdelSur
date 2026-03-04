@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, UserCircle, MapPin, MessageSquare, LogOut, Users, Menu, MessageCircle } from "lucide-react";
+import { LayoutDashboard, UserCircle, MapPin, MessageSquare, LogOut, Users, Menu, MessageCircle, Puzzle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -14,6 +14,7 @@ const nav = [
   { to: "/admin/comentarios", label: "Comentarios", icon: MessageSquare },
   { to: "/admin/ciudades", label: "Ciudades", icon: MapPin },
   { to: "/admin/estados", label: "Frases estados", icon: MessageCircle },
+  { to: "/admin/desafio-del-dia", label: "Desafío del Día", icon: Puzzle },
 ];
 
 function NavLinks({
@@ -68,6 +69,8 @@ export default function AdminLayout() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-0 flex flex-col">
+            <SheetTitle className="sr-only">Menú de navegación del panel de administración</SheetTitle>
+            <SheetDescription className="sr-only">Enlaces a secciones del panel y cerrar sesión.</SheetDescription>
             <div className="p-4 border-b border-border">
               <p className="font-display font-bold text-gold">Admin</p>
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>

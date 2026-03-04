@@ -1,0 +1,136 @@
+import { supabase } from "@/lib/supabase";
+import type { DailyQuiz, DailyQuizQuestion, UserQuizProgress, CorrectOption } from "@/types/quiz";
+
+const PEPITAS_PER_CORRECT = 5;
+const TICKETS_PER_CORRECT = 1;
+const TICKETS_BONUS_COMPLETE = 10;
+
+export async function getQuizByDate(date: string): Promise<DailyQuiz | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("daily_quiz")
+    .select("*")
+    .eq("date", date)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (error) throw error;
+  return data as DailyQuiz | null;
+}
+
+export async function getQuizQuestions(quizId: string): Promise<DailyQuizQuestion[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("daily_quiz_questions")
+    .select("*")
+    .eq("quiz_id", quizId)
+    .order("order_number", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as DailyQuizQuestion[];
+}
+
+export async function getUserQuizProgress(
+  userId: string,
+  quizId: string
+): Promise<UserQuizProgress | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("user_quiz_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("quiz_id", quizId)
+    .maybeSingle();
+  if (error) throw error;
+  return data as UserQuizProgress | null;
+}
+
+export async function getOrCreateUserProgress(
+  userId: string,
+  quizId: string
+): Promise<UserQuizProgress> {
+  const existing = await getUserQuizProgress(userId, quizId);
+  if (existing) return existing;
+  if (!supabase) throw new Error("Supabase no disponible");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("user_quiz_progress")
+    .insert({
+      user_id: userId,
+      quiz_id: quizId,
+      current_question: 1,
+      correct_answers: 0,
+      completed: false,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as UserQuizProgress;
+}
+
+export function isCorrectOption(question: DailyQuizQuestion, selected: CorrectOption): boolean {
+  return question.correct_option === selected;
+}
+
+export async function submitQuizAnswer(
+  userId: string,
+  quizId: string,
+  questionNumber: number,
+  selectedOption: CorrectOption,
+  question: DailyQuizQuestion
+): Promise<{ correct: boolean; newProgress: UserQuizProgress }> {
+  if (!supabase) throw new Error("Supabase no disponible");
+  const correct = isCorrectOption(question, selectedOption);
+  const progress = await getOrCreateUserProgress(userId, quizId);
+
+  if (progress.completed) {
+    return { correct: false, newProgress: progress };
+  }
+  if (progress.current_question !== questionNumber) {
+    return { correct, newProgress: progress };
+  }
+
+  if (!correct) {
+    return { correct: false, newProgress: progress };
+  }
+
+  const nextQuestion = Math.min(questionNumber + 1, 11);
+  const newCorrectAnswers = progress.correct_answers + 1;
+  const completed = questionNumber >= 10;
+  const pepitasToAdd = PEPITAS_PER_CORRECT;
+  const ticketsToAdd = TICKETS_PER_CORRECT + (completed ? TICKETS_BONUS_COMPLETE : 0);
+
+  const updatePayload = {
+    current_question: completed ? 10 : nextQuestion,
+    correct_answers: newCorrectAnswers,
+    completed,
+    completed_at: completed ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: updatedProgress, error: progressError } = await (supabase as any)
+    .from("user_quiz_progress")
+    .update(updatePayload)
+    .eq("user_id", userId)
+    .eq("quiz_id", quizId)
+    .select()
+    .single();
+
+  if (progressError) throw progressError;
+
+  const { data: profileRow } = await supabase.from("profiles").select("pepitas_cobre, tickets_rifa").eq("id", userId).single();
+  const profile = profileRow as { pepitas_cobre?: number | null; tickets_rifa?: number | null } | null;
+  const prevPepitas = profile ? Number(profile.pepitas_cobre ?? 0) : 0;
+  const prevTickets = profile ? Number(profile.tickets_rifa ?? 0) : 0;
+  const currentPepitas = prevPepitas + pepitasToAdd;
+  const currentTickets = prevTickets + ticketsToAdd;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any)
+    .from("profiles")
+    .update({
+      pepitas_cobre: currentPepitas,
+      tickets_rifa: currentTickets,
+    })
+    .eq("id", userId);
+
+  return { correct: true, newProgress: updatedProgress as UserQuizProgress };
+}

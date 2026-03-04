@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -19,6 +20,7 @@ const RegistroCliente = lazy(() => import("./pages/RegistroCliente"));
 const CompletarPerfil = lazy(() => import("./pages/CompletarPerfil"));
 const CambiarContrasena = lazy(() => import("./pages/CambiarContrasena"));
 const MiPerfil = lazy(() => import("./pages/MiPerfil"));
+const DesafioDelDia = lazy(() => import("./pages/DesafioDelDia"));
 const Cuenta = lazy(() => import("./pages/Cuenta"));
 const TerminosYCondiciones = lazy(() => import("./pages/TerminosYCondiciones"));
 const PoliticaPrivacidad = lazy(() => import("./pages/PoliticaPrivacidad"));
@@ -30,6 +32,7 @@ const AdminComentarios = lazy(() => import("./pages/admin/AdminComentarios"));
 const AdminVisitantes = lazy(() => import("./pages/admin/AdminVisitantes"));
 const AdminCiudades = lazy(() => import("./pages/admin/AdminCiudades"));
 const AdminEstados = lazy(() => import("./pages/admin/AdminEstados"));
+const AdminDesafioDelDia = lazy(() => import("./pages/admin/AdminDesafioDelDia"));
 
 const queryClient = new QueryClient();
 
@@ -39,6 +42,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <Analytics />
         <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><span className="text-muted-foreground text-sm">Cargando…</span></div>}>
           <AnimatePresence mode="wait">
@@ -68,6 +72,14 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={["visitor"]}>
                     <MiPerfil />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/desafio-del-dia"
+                element={
+                  <ProtectedRoute>
+                    <DesafioDelDia />
                   </ProtectedRoute>
                 }
               />
@@ -102,6 +114,7 @@ const App = () => (
                 <Route path="comentarios" element={<AdminComentarios />} />
                 <Route path="ciudades" element={<AdminCiudades />} />
                 <Route path="estados" element={<AdminEstados />} />
+                <Route path="desafio-del-dia" element={<AdminDesafioDelDia />} />
               </Route>
               <Route path="/terminos-y-condiciones" element={<TerminosYCondiciones />} />
               <Route path="/politica-de-privacidad" element={<PoliticaPrivacidad />} />

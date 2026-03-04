@@ -35,7 +35,7 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
       />
 
       <motion.div
-        className="relative z-10 text-center max-w-3xl mx-auto"
+        className="relative z-10 text-center max-w-3xl mx-auto mt-14 sm:mt-20 md:mt-0"
         initial="hidden"
         animate="visible"
         variants={stagger}
@@ -91,16 +91,6 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
             Explorar perfiles
           </Link>
         </motion.div>
-      </motion.div>
-
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="w-6 h-10 rounded-full border border-copper/40 flex items-start justify-center pt-2">
-          <div className="w-1.5 h-2.5 rounded-full bg-copper/70" />
-        </div>
       </motion.div>
     </section>
   );

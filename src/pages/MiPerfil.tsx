@@ -18,6 +18,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ProfileCard } from "@/components/ProfileCard";
+import {
+  LevelProgress,
+  UserEconomyCard,
+  QuizStatusCard,
+  BadgesGrid,
+  StreakCard,
+} from "@/components/gamification";
+import { useQuizDayForUser } from "@/hooks/useQuizDay";
+import type { UserProgress } from "@/types/gamification";
 import { LogOut, Trash2, Heart, MessageSquare, Eye, Pencil } from "lucide-react";
 
 type FavoriteWithProfile = {
@@ -60,6 +69,8 @@ type ViewWithProfile = {
 export default function MiPerfil() {
   const { user, profile, role, isLoading, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const quizState = useQuizDayForUser(user?.id ?? undefined);
+
   const [displayName, setDisplayName] = useState("");
   const [age, setAge] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -74,6 +85,31 @@ export default function MiPerfil() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const [profileEconomy, setProfileEconomy] = useState<{ pepitas_cobre: number; tickets_rifa: number } | null>(null);
+  const [progress] = useState<UserProgress>(() => ({
+    stats: {
+      level: 2,
+      levelLabel: "Explorador",
+      currentXp: 80,
+      xpToNextLevel: 100,
+      pepitas: 0,
+      ticketsRifa: 0,
+      streakDays: 0,
+      lastActivityDate: null,
+    },
+    badges: [
+      { id: "1", key: "first_comment", name: "Primer comentario", icon: "message", unlocked: true, unlockedAt: new Date().toISOString() },
+      { id: "2", key: "ten_comments", name: "10 comentarios", icon: "message", unlocked: false, unlockedAt: null },
+      { id: "3", key: "quiz_completed", name: "Desafío completado", icon: "puzzle", unlocked: false, unlockedAt: null },
+      { id: "4", key: "seven_day_streak", name: "7 días consecutivos", icon: "flame", unlocked: false, unlockedAt: null },
+      { id: "5", key: "level_five", name: "Nivel 5", icon: "star", unlocked: false, unlockedAt: null },
+    ],
+    quizLevel: 1,
+    quizMaxLevel: 10,
+    quizCompletedToday: false,
+    quizTicketsEarnedToday: 0,
+  }));
+
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name ?? "");
@@ -81,6 +117,16 @@ export default function MiPerfil() {
       setAvatarUrl(profile.avatar_url ?? "");
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (!supabase || !user?.id || role !== "visitor") return;
+    supabase
+      .from("profiles")
+      .select("pepitas_cobre, tickets_rifa")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => setProfileEconomy(data as { pepitas_cobre: number; tickets_rifa: number } | null));
+  }, [user?.id, role]);
 
   useEffect(() => {
     if (!supabase || !user?.id || role !== "visitor") return;
@@ -145,8 +191,8 @@ export default function MiPerfil() {
     }
     const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
     setAvatarUrl(publicUrl);
-    await supabase
-      .from("profiles")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.from("profiles") as any)
       .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
       .eq("id", user.id);
     refreshProfile();
@@ -157,8 +203,8 @@ export default function MiPerfil() {
     if (!supabase) return;
     setSaving(true);
     setMessage("");
-    const { error } = await supabase
-      .from("profiles")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from("profiles") as any)
       .update({
         display_name: displayName.trim() || null,
         age: age.trim() ? parseInt(age, 10) : null,
@@ -212,6 +258,12 @@ export default function MiPerfil() {
     }
   };
 
+  const pepitas = profileEconomy?.pepitas_cobre ?? progress.stats.pepitas;
+  const ticketsRifa = profileEconomy?.tickets_rifa ?? progress.stats.ticketsRifa;
+  const quizLevel = quizState.progress ? Math.min(quizState.currentQuestionIndex, 10) : 1;
+  const quizCompletedToday = quizState.isCompleted ?? false;
+  const quizTicketsEarnedToday = quizState.ticketsEarnedToday ?? 0;
+
   const favoriteProfiles = favorites
     .filter((f) => f.escort_profiles)
     .map((f) => ({
@@ -224,9 +276,22 @@ export default function MiPerfil() {
       available: f.escort_profiles!.available,
     }));
 
+  const progressWithEconomy: UserProgress = {
+    ...progress,
+    stats: {
+      ...progress.stats,
+      pepitas,
+      ticketsRifa,
+    },
+    quizLevel,
+    quizMaxLevel: 10,
+    quizCompletedToday,
+    quizTicketsEarnedToday,
+  };
+
   return (
     <div className="min-h-screen bg-background px-4 py-8 pb-28">
-      <SeoHead title="Mi perfil | Punto Cachero" description="Perfil de cliente." canonicalPath="/cuenta/mi-perfil" robots="noindex, nofollow" noSocial />
+      <SeoHead title="Mi perfil | Punto Cachero" description="Perfil de cliente." canonicalPath="/mi-perfil" robots="noindex, nofollow" noSocial />
       <div className="max-w-md mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-display font-bold">Mi perfil</h1>
@@ -236,14 +301,14 @@ export default function MiPerfil() {
           </Button>
         </div>
         <p className="text-sm text-muted-foreground">
-          Cuenta de cliente. Aquí puedes editar tu nombre, foto y ver tus favoritos.
+          Cuenta de cliente. Aquí puedes editar tu nombre, foto, ver favoritos y el desafío del día.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col items-center gap-3">
             <Avatar className="h-28 w-28">
               <AvatarImage src={avatarUrl || undefined} alt={displayName || "Avatar"} />
-              <AvatarFallback className="bg-gold/20 text-gold text-3xl">
+              <AvatarFallback className="bg-copper/20 text-copper text-3xl">
                 {(displayName || user.email)?.[0]?.toUpperCase() ?? "?"}
               </AvatarFallback>
             </Avatar>
@@ -256,16 +321,16 @@ export default function MiPerfil() {
                   disabled={uploadingAvatar}
                   onChange={handleAvatarUpload}
                 />
-                <span className="inline-flex items-center justify-center rounded-xl text-sm font-medium bg-gold text-primary-foreground hover:bg-gold/90 h-9 px-4">
+                <span className="inline-flex items-center justify-center rounded-xl text-sm font-medium bg-copper/90 text-primary-foreground hover:bg-copper h-9 px-4">
                   {uploadingAvatar ? "Subiendo…" : "Subir foto de perfil"}
                 </span>
               </label>
-              <span className="text-xs text-muted-foreground">1 foto. JPG, PNG o WebP. Máx. 2 MB.</span>
+              <span className="text-xs text-muted-foreground">JPG, PNG o WebP. Máx. 2 MB.</span>
               {avatarError && <p className="text-sm text-destructive">{avatarError}</p>}
             </div>
           </div>
           {message && (
-            <p className={`text-sm ${message === "Guardado." ? "text-green-600" : "text-destructive"}`}>
+            <p className={`text-sm ${message === "Guardado." ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>
               {message}
             </p>
           )}
@@ -292,7 +357,7 @@ export default function MiPerfil() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit" className="flex-1 h-11 rounded-2xl bg-gold text-primary-foreground" disabled={saving}>
+                <Button type="submit" className="flex-1 h-11 rounded-2xl bg-copper/90 text-primary-foreground hover:bg-copper" disabled={saving}>
                   {saving ? "Guardando…" : "Guardar"}
                 </Button>
                 <Button type="button" variant="outline" className="h-11 rounded-2xl" onClick={() => setEditingProfile(false)}>
@@ -310,7 +375,7 @@ export default function MiPerfil() {
                 <p className="text-xs text-muted-foreground">Edad</p>
                 <p className="text-base font-medium">{age || "—"}</p>
               </div>
-              <Button type="button" className="w-full h-11 rounded-2xl bg-gold text-primary-foreground gap-2" onClick={() => setEditingProfile(true)}>
+              <Button type="button" className="w-full h-11 rounded-2xl bg-copper/90 text-primary-foreground hover:bg-copper gap-2" onClick={() => setEditingProfile(true)}>
                 <Pencil className="w-4 h-4" />
                 Editar
               </Button>
@@ -318,9 +383,31 @@ export default function MiPerfil() {
           )}
         </form>
 
+        {/* Panel gamificado */}
+        <section className="space-y-4">
+          <LevelProgress
+            level={progressWithEconomy.stats.level}
+            levelLabel={progressWithEconomy.stats.levelLabel}
+            currentXp={progressWithEconomy.stats.currentXp}
+            xpToNextLevel={progressWithEconomy.stats.xpToNextLevel}
+          />
+          <UserEconomyCard pepitas={progressWithEconomy.stats.pepitas} ticketsRifa={progressWithEconomy.stats.ticketsRifa} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <QuizStatusCard
+              level={progressWithEconomy.quizLevel}
+              maxLevel={progressWithEconomy.quizMaxLevel}
+              completedToday={progressWithEconomy.quizCompletedToday}
+              ticketsEarnedToday={progressWithEconomy.quizTicketsEarnedToday}
+              onPlay={() => navigate("/desafio-del-dia")}
+            />
+            <StreakCard streakDays={progressWithEconomy.stats.streakDays} />
+          </div>
+          <BadgesGrid badges={progressWithEconomy.badges} />
+        </section>
+
         <section>
           <h2 className="text-lg font-display font-bold flex items-center gap-2 mb-3">
-            <Heart className="w-5 h-5 text-gold" />
+            <Heart className="w-5 h-5 text-copper" />
             Mis favoritos
           </h2>
           {favoriteProfiles.length === 0 ? (
@@ -351,12 +438,12 @@ export default function MiPerfil() {
 
         <section>
           <h2 className="text-lg font-display font-bold flex items-center gap-2 mb-3">
-            <MessageSquare className="w-5 h-5 text-gold" />
+            <MessageSquare className="w-5 h-5 text-copper" />
             Historial de comentarios
           </h2>
           {comments.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aún no has dejado comentarios en ningún perfil. Puedes dejar uno por día en cada perfil que visites.
+              Aún no has dejado comentarios. Puedes dejar uno por día en cada perfil que visites.
             </p>
           ) : (
             <ul className="space-y-3">
@@ -368,7 +455,7 @@ export default function MiPerfil() {
                     {c.escort_profiles && (
                       <>
                         {" · "}
-                        <Link to={`/perfil/${c.escort_profile_id}`} className="text-gold hover:underline">
+                        <Link to={`/perfil/${c.escort_profile_id}`} className="text-copper hover:underline">
                           {c.escort_profiles.name} → Ver perfil
                         </Link>
                       </>
@@ -382,7 +469,7 @@ export default function MiPerfil() {
 
         <section>
           <h2 className="text-lg font-display font-bold flex items-center gap-2 mb-3">
-            <Eye className="w-5 h-5 text-gold" />
+            <Eye className="w-5 h-5 text-copper" />
             Escorts que has visualizado
           </h2>
           {views.length === 0 ? (
@@ -419,7 +506,7 @@ export default function MiPerfil() {
             Eliminar mi cuenta
           </Button>
           <p className="text-center">
-            <Link to="/" className="text-sm text-gold hover:underline">← Volver al inicio</Link>
+            <Link to="/" className="text-sm text-copper hover:underline">← Volver al inicio</Link>
           </p>
         </div>
       </div>
