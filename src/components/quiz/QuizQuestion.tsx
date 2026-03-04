@@ -29,12 +29,19 @@ export function QuizQuestion({
 
   return (
     <div className="space-y-4">
-      <QuizImageReveal
-        imageUrl={question.image_url}
-        revealed={revealed}
-        alt=""
-        className="aspect-[4/3] w-full max-h-[280px]"
-      />
+      <div className="relative">
+        <QuizImageReveal
+          imageUrl={question.image_url}
+          revealed={revealed}
+          alt=""
+          className="aspect-[4/3] w-full max-h-[280px]"
+        />
+        {revealed && state === "correct" && (
+          <p className="absolute bottom-2 left-2 right-2 text-center text-xs font-semibold text-white bg-black/60 rounded-lg py-2 px-3">
+            ¡Foto desbloqueada!
+          </p>
+        )}
+      </div>
       <p className="text-base font-medium text-foreground">{question.question_text}</p>
       <QuizOptions
         optionA={question.option_a}

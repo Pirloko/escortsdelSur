@@ -66,6 +66,24 @@ export async function getOrCreateUserProgress(
   return data as UserQuizProgress;
 }
 
+/** Reinicia el progreso del usuario en un quiz (vuelve a la pregunta 1, 0 aciertos). */
+export async function resetQuizProgress(userId: string, quizId: string): Promise<void> {
+  if (!supabase) throw new Error("Supabase no disponible");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from("user_quiz_progress")
+    .update({
+      current_question: 1,
+      correct_answers: 0,
+      completed: false,
+      completed_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", userId)
+    .eq("quiz_id", quizId);
+  if (error) throw error;
+}
+
 export function isCorrectOption(question: DailyQuizQuestion, selected: CorrectOption): boolean {
   return question.correct_option === selected;
 }
