@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { SeoHead } from "@/components/SeoHead";
+import { ProfileCard } from "@/components/ProfileCard";
 import { getActiveRaffle, getTotalTicketsAccumulated, getLastClosedRaffle } from "@/lib/raffleService";
+import { supabase } from "@/lib/supabase";
+import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
 import { Gift, Ticket, Calendar, Trophy } from "lucide-react";
 
 const MONTHS = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -27,6 +30,32 @@ export default function RafflePage() {
   const { data: lastClosed } = useQuery({
     queryKey: ["raffle-last-closed"],
     queryFn: getLastClosedRaffle,
+  });
+
+  const { data: activeProfiles = [] } = useQuery({
+    queryKey: ["raffle-page-active-profiles"],
+    queryFn: async () => {
+      if (!supabase) return [];
+      const now = new Date().toISOString();
+      const { data } = await supabase
+        .from("escort_profiles")
+        .select("id, name, age, badge, image, available, whatsapp, city_id, cities(name)")
+        .not("promotion", "is", null)
+        .gt("active_until", now)
+        .order("name");
+      const rows = (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; city_id: string | null; cities: { name: string } | null }[];
+      return rows.map((p) => ({
+        id: p.id,
+        name: p.name,
+        age: p.age,
+        city: p.cities?.name ?? "",
+        badge: p.badge ?? "Perfil",
+        image: p.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+        available: p.available,
+        whatsapp: p.whatsapp ?? null,
+      }));
+    },
+    enabled: !!supabase,
   });
 
   return (
@@ -94,6 +123,33 @@ export default function RafflePage() {
             Términos del Sorteo →
           </Link>
         </div>
+
+        <section className="space-y-4" aria-labelledby="perfiles-activos-heading">
+          <div>
+            <h2
+              id="perfiles-activos-heading"
+              className="text-2xl md:text-3xl font-display font-bold text-foreground"
+            >
+              Todos los perfiles activos
+            </h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Perfiles con los que podrías ganar tu hora exclusiva
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {activeProfiles.map((profile) => (
+              <ProfileCard key={profile.id} profile={profile} />
+            ))}
+          </div>
+          {activeProfiles.length > 0 && (
+            <Link
+              to={`/${ACTIVE_CITY_SLUG}`}
+              className="inline-block text-copper text-sm font-medium hover:underline"
+            >
+              Ver todos los perfiles →
+            </Link>
+          )}
+        </section>
       </div>
     </div>
   );
