@@ -146,6 +146,40 @@ export interface UserQuizProgressRow {
   updated_at: string;
 }
 
+// Rifa mensual - supabase/migrations/20260305000000_raffle_system.sql
+export type RaffleStatus = "active" | "closed";
+export type RafflePrizeStatus = "pending" | "contacted" | "delivered";
+
+export interface RafflesRow {
+  id: string;
+  title: string;
+  description: string;
+  month: number;
+  year: number;
+  status: RaffleStatus;
+  winner_user_id: string | null;
+  total_tickets: number;
+  created_at: string;
+  executed_at: string | null;
+}
+
+export interface RaffleParticipantsSnapshotRow {
+  id: string;
+  raffle_id: string;
+  user_id: string;
+  tickets_used: number;
+  created_at: string;
+}
+
+export interface RafflePrizesRow {
+  id: string;
+  raffle_id: string;
+  user_id: string;
+  status: RafflePrizeStatus;
+  claimed_at: string | null;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -226,6 +260,21 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<UserQuizProgressRow, "id">>;
+      };
+      raffles: {
+        Row: RafflesRow;
+        Insert: Omit<RafflesRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<RafflesRow, "id">>;
+      };
+      raffle_participants_snapshot: {
+        Row: RaffleParticipantsSnapshotRow;
+        Insert: Omit<RaffleParticipantsSnapshotRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<RaffleParticipantsSnapshotRow, "id">>;
+      };
+      raffle_prizes: {
+        Row: RafflePrizesRow;
+        Insert: Omit<RafflePrizesRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<RafflePrizesRow, "id">>;
       };
     };
   };

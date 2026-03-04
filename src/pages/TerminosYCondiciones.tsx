@@ -50,8 +50,21 @@ export default function TerminosYCondiciones() {
               Nos reservamos el derecho de modificar estos términos. Los cambios serán publicados en esta página. El uso continuado del sitio tras las modificaciones implica aceptación.
             </p>
           </section>
+          <section id="sorteo">
+            <h2 className="text-lg font-semibold text-foreground mb-2">6. Términos del Sorteo</h2>
+            <p className="mb-2">
+              La rifa mensual y sus premios se rigen por las siguientes condiciones:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li><strong className="text-foreground">Edad mínima:</strong> Solo pueden participar usuarios mayores de 18 años.</li>
+              <li><strong className="text-foreground">Naturaleza del premio:</strong> El premio consiste en 1 hora de servicio exclusivo con el perfil que el ganador elija, según la oferta vigente del sitio.</li>
+              <li><strong className="text-foreground">No canjeable por dinero:</strong> El premio no puede ser canjeado por efectivo ni por ningún otro bien o servicio distinto al indicado.</li>
+              <li><strong className="text-foreground">Territorio:</strong> El premio es válido únicamente en el territorio donde el sitio opera y donde el perfil elegido preste servicios.</li>
+              <li><strong className="text-foreground">Derecho a cancelar:</strong> El sitio se reserva el derecho de cancelar, posponer o modificar el sorteo en caso de fuerza mayor o por razones de seguridad o legalidad, sin que ello genere responsabilidad hacia los participantes.</li>
+            </ul>
+          </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-2">6. Contacto</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">7. Contacto</h2>
             <p>
               Para consultas sobre estos términos puede contactarnos a través de los canales indicados en el sitio.
             </p>

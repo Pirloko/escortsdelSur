@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -25,9 +26,65 @@ import {
   BadgesGrid,
   StreakCard,
 } from "@/components/gamification";
+import { RaffleTicketsCard } from "@/components/RaffleTicketsCard";
 import { useQuizDayForUser } from "@/hooks/useQuizDay";
-import type { UserProgress } from "@/types/gamification";
-import { LogOut, Trash2, Heart, MessageSquare, Eye, Pencil } from "lucide-react";
+import { getMyRafflePrize } from "@/lib/raffleService";
+import { getRaffleClaimWhatsAppUrl } from "@/lib/raffleConfig";
+import type { UserProgress, UserBadge } from "@/types/gamification";
+import { LogOut, Trash2, Heart, MessageSquare, Eye, Pencil, Gift, ExternalLink } from "lucide-react";
+
+/** Dado un array de ISO dates (completed_at), devuelve la racha máxima y la fecha en que se alcanzaron 7 días seguidos. */
+function computeStreakSeven(completedAts: string[]): { maxStreak: number; firstSevenAt: string | null } {
+  const dates = [...new Set(completedAts.map((d) => d.slice(0, 10)))].sort();
+  let maxStreak = dates.length > 0 ? 1 : 0;
+  let run = 1;
+  let firstSevenAt: string | null = null;
+  for (let i = 1; i < dates.length; i++) {
+    const prev = new Date(dates[i - 1] + "Z");
+    prev.setUTCDate(prev.getUTCDate() + 1);
+    const nextDay = prev.toISOString().slice(0, 10);
+    if (nextDay === dates[i]) {
+      run++;
+      if (run >= 7 && firstSevenAt == null) firstSevenAt = dates[i];
+    } else {
+      run = 1;
+    }
+    if (run > maxStreak) maxStreak = run;
+  }
+  return { maxStreak, firstSevenAt };
+}
+
+/** Niveles 1-5 según puntos (pepitas, tickets, comentarios, quizzes completados). */
+const LEVEL_LABELS = ["", "Principiante", "Explorador", "Avanzado", "Experto", "Maestro"] as const;
+function computeLevel(
+  pepitas: number,
+  tickets: number,
+  commentsCount: number,
+  completedQuizCount: number
+): { level: number; levelLabel: string; points: number; pointsInLevel: number; pointsToNextLevel: number } {
+  const points = pepitas + tickets * 2 + commentsCount * 5 + completedQuizCount * 20;
+  const level = Math.min(5, 1 + Math.floor(points / 50));
+  const pointsInLevel = points % 50;
+  const pointsToNextLevel = level >= 5 ? 0 : 50 - pointsInLevel;
+  return {
+    level,
+    levelLabel: LEVEL_LABELS[level] ?? "Maestro",
+    points,
+    pointsInLevel,
+    pointsToNextLevel,
+  };
+}
+
+/** Definiciones base de insignias. El unlocked/unlockedAt se calcula con datos reales. */
+const RAFFLE_MONTHS = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+const BADGE_DEFINITIONS: Pick<UserBadge, "id" | "key" | "name" | "icon">[] = [
+  { id: "1", key: "first_comment", name: "Primer comentario", icon: "message" },
+  { id: "2", key: "ten_comments", name: "10 comentarios", icon: "message" },
+  { id: "3", key: "quiz_completed", name: "Desafío completado", icon: "puzzle" },
+  { id: "4", key: "seven_day_streak", name: "7 días consecutivos", icon: "flame" },
+  { id: "5", key: "level_five", name: "Nivel 5", icon: "star" },
+];
 
 type FavoriteWithProfile = {
   id: string;
@@ -71,6 +128,12 @@ export default function MiPerfil() {
   const navigate = useNavigate();
   const quizState = useQuizDayForUser(user?.id ?? undefined);
 
+  const { data: myRafflePrize } = useQuery({
+    queryKey: ["my-raffle-prize", user?.id],
+    queryFn: () => (user?.id ? getMyRafflePrize(user.id) : Promise.resolve(null)),
+    enabled: !!user?.id && role === "visitor",
+  });
+
   const [displayName, setDisplayName] = useState("");
   const [age, setAge] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -86,6 +149,9 @@ export default function MiPerfil() {
   const [deleting, setDeleting] = useState(false);
 
   const [profileEconomy, setProfileEconomy] = useState<{ pepitas_cobre: number; tickets_rifa: number } | null>(null);
+  const [quizCompletedAt, setQuizCompletedAt] = useState<string | null>(null);
+  const [streakSevenUnlockedAt, setStreakSevenUnlockedAt] = useState<string | null>(null);
+  const [completedQuizCount, setCompletedQuizCount] = useState(0);
   const [progress] = useState<UserProgress>(() => ({
     stats: {
       level: 2,
@@ -97,18 +163,45 @@ export default function MiPerfil() {
       streakDays: 0,
       lastActivityDate: null,
     },
-    badges: [
-      { id: "1", key: "first_comment", name: "Primer comentario", icon: "message", unlocked: true, unlockedAt: new Date().toISOString() },
-      { id: "2", key: "ten_comments", name: "10 comentarios", icon: "message", unlocked: false, unlockedAt: null },
-      { id: "3", key: "quiz_completed", name: "Desafío completado", icon: "puzzle", unlocked: false, unlockedAt: null },
-      { id: "4", key: "seven_day_streak", name: "7 días consecutivos", icon: "flame", unlocked: false, unlockedAt: null },
-      { id: "5", key: "level_five", name: "Nivel 5", icon: "star", unlocked: false, unlockedAt: null },
-    ],
+    badges: BADGE_DEFINITIONS.map((b) => ({ ...b, unlocked: false, unlockedAt: null as string | null })),
     quizLevel: 1,
     quizMaxLevel: 10,
     quizCompletedToday: false,
     quizTicketsEarnedToday: 0,
   }));
+
+  /** Bloque 1: insignias de comentarios (Primer comentario, 10 comentarios) */
+  const badgesComputed = ((): UserBadge[] => {
+    const byCreatedAsc = [...comments].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    const firstAt = byCreatedAsc[0]?.created_at ?? null;
+    const tenthAt = byCreatedAsc[9]?.created_at ?? null;
+    return BADGE_DEFINITIONS.map((def) => {
+      if (def.key === "first_comment") {
+        return { ...def, unlocked: comments.length >= 1, unlockedAt: firstAt };
+      }
+      if (def.key === "ten_comments") {
+        return { ...def, unlocked: comments.length >= 10, unlockedAt: tenthAt };
+      }
+      if (def.key === "quiz_completed") {
+        return { ...def, unlocked: quizCompletedAt != null, unlockedAt: quizCompletedAt };
+      }
+      if (def.key === "seven_day_streak") {
+        return { ...def, unlocked: streakSevenUnlockedAt != null, unlockedAt: streakSevenUnlockedAt };
+      }
+      if (def.key === "level_five") {
+        const lvl = computeLevel(
+          profileEconomy?.pepitas_cobre ?? 0,
+          profileEconomy?.tickets_rifa ?? 0,
+          comments.length,
+          completedQuizCount
+        );
+        return { ...def, unlocked: lvl.level >= 5, unlockedAt: null };
+      }
+      return { ...def, unlocked: false, unlockedAt: null };
+    });
+  })();
 
   useEffect(() => {
     if (profile) {
@@ -126,6 +219,36 @@ export default function MiPerfil() {
       .eq("id", user.id)
       .single()
       .then(({ data }) => setProfileEconomy(data as { pepitas_cobre: number; tickets_rifa: number } | null));
+  }, [user?.id, role]);
+
+  useEffect(() => {
+    if (!supabase || !user?.id || role !== "visitor") return;
+    supabase
+      .from("user_quiz_progress")
+      .select("completed_at")
+      .eq("user_id", user.id)
+      .eq("completed", true)
+      .order("completed_at", { ascending: true })
+      .limit(1)
+      .then(({ data }) => {
+        const row = (data as { completed_at: string }[] | null)?.[0];
+        setQuizCompletedAt(row?.completed_at ?? null);
+      });
+  }, [user?.id, role]);
+
+  useEffect(() => {
+    if (!supabase || !user?.id || role !== "visitor") return;
+    supabase
+      .from("user_quiz_progress")
+      .select("completed_at")
+      .eq("user_id", user.id)
+      .eq("completed", true)
+      .then(({ data }) => {
+        const list = (data as { completed_at: string }[]) ?? [];
+        const { firstSevenAt } = computeStreakSeven(list.map((r) => r.completed_at));
+        setStreakSevenUnlockedAt(firstSevenAt);
+        setCompletedQuizCount(list.length);
+      });
   }, [user?.id, role]);
 
   useEffect(() => {
@@ -260,6 +383,7 @@ export default function MiPerfil() {
 
   const pepitas = profileEconomy?.pepitas_cobre ?? progress.stats.pepitas;
   const ticketsRifa = profileEconomy?.tickets_rifa ?? progress.stats.ticketsRifa;
+  const levelInfo = computeLevel(pepitas, ticketsRifa, comments.length, completedQuizCount);
   const quizLevel = quizState.progress ? Math.min(quizState.currentQuestionIndex, 10) : 1;
   const quizCompletedToday = quizState.isCompleted ?? false;
   const quizTicketsEarnedToday = quizState.ticketsEarnedToday ?? 0;
@@ -280,9 +404,14 @@ export default function MiPerfil() {
     ...progress,
     stats: {
       ...progress.stats,
+      level: levelInfo.level,
+      levelLabel: levelInfo.levelLabel,
+      currentXp: levelInfo.pointsInLevel,
+      xpToNextLevel: levelInfo.pointsToNextLevel || 50,
       pepitas,
       ticketsRifa,
     },
+    badges: badgesComputed,
     quizLevel,
     quizMaxLevel: 10,
     quizCompletedToday,
@@ -303,6 +432,25 @@ export default function MiPerfil() {
         <p className="text-sm text-muted-foreground">
           Cuenta de cliente. Aquí puedes editar tu nombre, foto, ver favoritos y el desafío del día.
         </p>
+
+        {myRafflePrize && myRafflePrize.prize.status !== "delivered" && (
+          <section className="rounded-2xl border-2 border-copper/50 bg-copper/10 p-6 space-y-4">
+            <h2 className="text-lg font-display font-bold flex items-center gap-2 text-copper">
+              <Gift className="w-5 h-5" />
+              ¡Ganaste el sorteo de {RAFFLE_MONTHS[myRafflePrize.raffle.month]} {myRafflePrize.raffle.year}!
+            </h2>
+            <p className="text-sm text-muted-foreground">{myRafflePrize.raffle.description}</p>
+            <a
+              href={getRaffleClaimWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
+            >
+              <ExternalLink className="w-5 h-5" />
+              Cobrar premio
+            </a>
+          </section>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col items-center gap-3">
@@ -392,6 +540,7 @@ export default function MiPerfil() {
             xpToNextLevel={progressWithEconomy.stats.xpToNextLevel}
           />
           <UserEconomyCard pepitas={progressWithEconomy.stats.pepitas} ticketsRifa={progressWithEconomy.stats.ticketsRifa} />
+          <RaffleTicketsCard ticketsRifa={progressWithEconomy.stats.ticketsRifa} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <QuizStatusCard
               level={progressWithEconomy.quizLevel}

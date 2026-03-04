@@ -10,6 +10,7 @@ import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
 import { ProfileCard } from "@/components/ProfileCard";
 import { CityCard } from "@/components/CityCard";
 import { HeroSection } from "@/components/HeroSection";
+import { RaffleHighlightCard } from "@/components/RaffleHighlightCard";
 import { BenefitsSection } from "@/components/BenefitsSection";
 import { RaffleSection } from "@/components/RaffleSection";
 import { SocialProofSection } from "@/components/SocialProofSection";
@@ -116,6 +117,7 @@ export default function Index() {
       <JsonLdHome />
 
       <HeroSection firstCitySlug={firstCitySlug} />
+      <RaffleHighlightCard />
       <BenefitsSection />
       <RaffleSection
         participantesCount={stats?.usuarios}

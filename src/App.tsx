@@ -24,6 +24,7 @@ const DesafioDelDia = lazy(() => import("./pages/DesafioDelDia"));
 const Cuenta = lazy(() => import("./pages/Cuenta"));
 const TerminosYCondiciones = lazy(() => import("./pages/TerminosYCondiciones"));
 const PoliticaPrivacidad = lazy(() => import("./pages/PoliticaPrivacidad"));
+const RafflePage = lazy(() => import("./pages/RafflePage"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminPublicadores = lazy(() => import("./pages/admin/AdminPublicadores"));
@@ -33,6 +34,7 @@ const AdminVisitantes = lazy(() => import("./pages/admin/AdminVisitantes"));
 const AdminCiudades = lazy(() => import("./pages/admin/AdminCiudades"));
 const AdminEstados = lazy(() => import("./pages/admin/AdminEstados"));
 const AdminDesafioDelDia = lazy(() => import("./pages/admin/AdminDesafioDelDia"));
+const AdminRaffle = lazy(() => import("./pages/admin/AdminRaffle"));
 
 const queryClient = new QueryClient();
 
@@ -75,14 +77,7 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/desafio-del-dia"
-                element={
-                  <ProtectedRoute>
-                    <DesafioDelDia />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/desafio-del-dia" element={<DesafioDelDia />} />
               <Route
                 path="/cuenta"
                 element={
@@ -115,7 +110,9 @@ const App = () => (
                 <Route path="ciudades" element={<AdminCiudades />} />
                 <Route path="estados" element={<AdminEstados />} />
                 <Route path="desafio-del-dia" element={<AdminDesafioDelDia />} />
+                <Route path="rifa" element={<AdminRaffle />} />
               </Route>
+              <Route path="/rifa" element={<RafflePage />} />
               <Route path="/terminos-y-condiciones" element={<TerminosYCondiciones />} />
               <Route path="/politica-de-privacidad" element={<PoliticaPrivacidad />} />
               <Route path="/perfil/:profileId" element={<ProfilePage />} />

@@ -45,6 +45,11 @@ export function Footer() {
                   Política de privacidad
                 </Link>
               </li>
+              <li>
+                <Link to="/rifa" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Rifa mensual
+                </Link>
+              </li>
             </ul>
           </div>
 

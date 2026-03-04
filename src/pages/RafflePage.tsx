@@ -1,0 +1,100 @@
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { SeoHead } from "@/components/SeoHead";
+import { getActiveRaffle, getTotalTicketsAccumulated, getLastClosedRaffle } from "@/lib/raffleService";
+import { Gift, Ticket, Calendar, Trophy } from "lucide-react";
+
+const MONTHS = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+/** Anonimizar ganador: Usuario #XXXX (últimos 4 caracteres del id en base36). */
+function anonymizeWinnerId(userId: string): string {
+  const hex = userId.replace(/-/g, "").slice(-8);
+  const num = parseInt(hex, 16) % 10000;
+  return `Usuario #${num.toString().padStart(4, "0")}`;
+}
+
+export default function RafflePage() {
+  const { data: activeRaffle } = useQuery({
+    queryKey: ["raffle-active-public"],
+    queryFn: getActiveRaffle,
+  });
+
+  const { data: totalTickets = 0 } = useQuery({
+    queryKey: ["raffle-total-tickets-public"],
+    queryFn: getTotalTicketsAccumulated,
+  });
+
+  const { data: lastClosed } = useQuery({
+    queryKey: ["raffle-last-closed"],
+    queryFn: getLastClosedRaffle,
+  });
+
+  return (
+    <div className="min-h-screen bg-background px-4 py-8 pb-24">
+      <SeoHead
+        title="Rifa mensual | Punto Cachero"
+        description="Participa con tus tickets en el sorteo mensual. Premio: 1 hora de servicio exclusivo con el perfil que elijas."
+        canonicalPath="/rifa"
+        robots="index, follow"
+      />
+      <div className="max-w-lg mx-auto space-y-6">
+        <div className="flex items-center gap-2">
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Inicio</Link>
+        </div>
+        <h1 className="text-2xl font-display font-bold flex items-center gap-2">
+          <Gift className="w-7 h-7 text-copper" />
+          Rifa mensual
+        </h1>
+        <p className="text-muted-foreground">
+          Acumula tickets con el Desafío del Día y otras actividades. Cada ticket es una papeleta. Más tickets, más probabilidad de ganar.
+        </p>
+
+        {activeRaffle ? (
+          <div className="rounded-2xl border border-copper/30 bg-card p-6 space-y-4">
+            <h2 className="font-semibold text-lg flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-copper" />
+              Próximo sorteo
+            </h2>
+            <p className="font-medium">{activeRaffle.title}</p>
+            <p className="text-sm text-muted-foreground">{activeRaffle.description}</p>
+            <p className="text-sm">
+              {MONTHS[activeRaffle.month]} {activeRaffle.year}
+            </p>
+            <div className="flex items-center gap-2 pt-2">
+              <Ticket className="w-5 h-5 text-copper" />
+              <span className="font-medium text-copper">Total tickets acumulados: {totalTickets}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <p className="text-muted-foreground">No hay sorteo activo en este momento. Vuelve pronto.</p>
+          </div>
+        )}
+
+        {lastClosed && lastClosed.winner_user_id && (
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
+            <h2 className="font-semibold flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-copper" />
+              Ganador anterior
+            </h2>
+            <p className="text-muted-foreground">{lastClosed.title}</p>
+            <p className="font-medium">{anonymizeWinnerId(lastClosed.winner_user_id)}</p>
+          </div>
+        )}
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="font-semibold mb-2">¿Cómo participar?</h2>
+          <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+            <li>Acumula tickets con el Desafío del Día (1 ticket por acierto + 10 al completar).</li>
+            <li>Solo participan usuarios con al menos 1 ticket.</li>
+            <li>Cada ticket = 1 papeleta. Más tickets = más probabilidad.</li>
+            <li>Al ejecutarse el sorteo, todos los tickets se reinician a 0.</li>
+          </ul>
+          <Link to="/terminos-y-condiciones#sorteo" className="inline-block mt-4 text-sm text-copper hover:underline">
+            Términos del Sorteo →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
