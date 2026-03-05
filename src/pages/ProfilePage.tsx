@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -49,6 +49,7 @@ const ProfilePage = () => {
     available: boolean;
     description: string | null;
     zone: string | null;
+    nationality: string | null;
     schedule: string | null;
     whatsapp: string | null;
     gallery: string[] | null;
@@ -64,7 +65,7 @@ const ProfilePage = () => {
       if (!supabase || !profileId) return null;
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, city_id, name, age, badge, image, available, description, zone, schedule, whatsapp, gallery, services_included, services_extra, active_until, cities(slug, name)")
+        .select("id, city_id, name, age, badge, image, available, description, nationality, zone, schedule, whatsapp, gallery, services_included, services_extra, active_until, cities(slug, name)")
         .eq("id", profileId)
         .single();
       return data as DbProfile | null;
@@ -103,6 +104,7 @@ const ProfilePage = () => {
         image: dbProfile.image ?? "",
         available: dbProfile.available,
         description: dbProfile.description,
+        nationality: dbProfile.nationality ?? null,
         zone: dbProfile.zone,
         schedule: dbProfile.schedule,
         whatsapp: dbProfile.whatsapp,
@@ -243,8 +245,16 @@ const ProfilePage = () => {
           ...("gallery" in profile && Array.isArray(profile.gallery) ? profile.gallery : []),
         ].filter(Boolean)
       : profileGallery;
-  const title = `${profile.name}, Escort en ${profile.city} | Perfil Disponible`;
-  const description = "description" in profile && profile.description ? profile.description : `${profile.name}, ${profile.age} años. Perfil verificado y disponible en ${profile.city}. Conecta con acompañantes premium en el sur de Chile.`;
+  const isRancagua = profile.city?.toLowerCase().includes("rancagua");
+  const title = isRancagua
+    ? `${profile.name}, Escort en Rancagua | Acompañantes en Rancagua – Hola Cachero`
+    : `${profile.name}, Escort en ${profile.city} | Perfil Disponible`;
+  const description =
+    "description" in profile && profile.description
+      ? profile.description
+      : isRancagua
+        ? `${profile.name}, ${profile.age} años. Escort en Rancagua y acompañantes en Rancagua. Perfil verificado en Hola Cachero – damas de compañía en Rancagua.`
+        : `${profile.name}, ${profile.age} años. Perfil verificado y disponible en ${profile.city}. Conecta con acompañantes premium en el sur de Chile.`;
 
   const ogImage = profile.image || (Array.isArray(profile.gallery) && profile.gallery.length > 0 ? profile.gallery[0] : undefined);
 
@@ -400,6 +410,9 @@ const ProfilePage = () => {
           {/* Details grid */}
           <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
             {[
+              ...("nationality" in profile && profile.nationality
+                ? [{ icon: Globe, label: "Nacionalidad", value: profile.nationality }]
+                : []),
               { icon: Building2, label: "Dirección", value: "schedule" in profile && profile.schedule ? profile.schedule : "—" },
               { icon: MapPin, label: "Zona", value: "zone" in profile && profile.zone ? profile.zone : "—" },
               { icon: Star, label: "Experiencia", value: "Verificada" },

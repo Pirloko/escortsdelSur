@@ -15,7 +15,7 @@ export function Footer() {
               <span className="font-display text-lg font-bold">Sur Premium</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              El marketplace exclusivo del sur de Chile.
+              Hola Cachero: escorts en Rancagua, acompañantes y damas de compañía en el sur de Chile.
             </p>
           </div>
 
@@ -25,7 +25,7 @@ export function Footer() {
               {footerCities.map(({ name, slug }) => (
                 <li key={slug}>
                   <Link to={`/${slug}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Ver perfiles en {name}
+                    Escorts en {name}
                   </Link>
                 </li>
               ))}
@@ -62,7 +62,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-border/30 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">© 2026 Sur Premium. Todos los derechos reservados.</p>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Hola Cachero – holacachero.cl. Todos los derechos reservados.</p>
           <div className="h-px w-12 bg-gold/30 md:hidden" />
         </div>
       </div>

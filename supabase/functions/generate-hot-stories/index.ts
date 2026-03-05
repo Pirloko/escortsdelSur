@@ -16,19 +16,16 @@ const MIN_LENGTH = 780;
  * Reglas de generación:
  * - Cada historia es ÚNICA: seed = hash(profileId + story_date), sin repetición entre perfiles ni días.
  * - Coherencia: estructura narrativa (intro → nudo → desenlace) con conectores y párrafos lógicos.
- * - Todas distintas entre sí: distintos arcos narrativos, orden de frases y vocabulario por seed.
  */
 
-/** Hash entero reproducible a partir de un string (diferente string => distinto índice). */
 function hashToIndex(s: string, max: number): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
   return (Math.abs(h) >>> 0) % max;
 }
 
-/** Prefijo único por perfil y fecha para que cada historia use índices distintos. */
-function slot(profileId: string, storyDate: string, index: number, tag: string): string {
-  return `${profileId}|${storyDate}|${index}|${tag}`;
+function slot(profileId: string, profileName: string, storyDate: string, index: number, tag: string): string {
+  return `${profileId}|${profileName}|${storyDate}|${index}|${tag}`;
 }
 
 const INICIOS = [
@@ -85,6 +82,36 @@ const CONECTORES_PARR = [
   "Así pasamos la mayor parte de la noche. ",
 ];
 
+/** Frases que incluyen etiquetas de servicios (incluidos y adicionales) para SEO y variedad. */
+const FRASES_ETIQUETAS = [
+  "Había lenceria, masajes eróticos y besos boca que no acababan.",
+  "Esa noche hubo fantasías y disfraces, diferentes posiciones y trato de polola.",
+  "Americana corporal, oral con condon y garganta profunda: todo fluyó natural.",
+  "Juguetes eróticos, fetichismo suave y masajes nos llevaron al límite.",
+  "Desde beso negro hasta sexo anal, exploramos sin tabúes.",
+  "A domicilio en apartamento propio, con atención a parejas y pago con tarjeta.",
+  "Sado suave, eyaculación facial y lluvia dorada: una noche inolvidable.",
+  "Piel blanca, depilada, tetona; bajita y culona. Me hizo sentir deseada.",
+  "Atención a hombres con masajes, fantasias y disfraces y diferentes posiciones.",
+  "Oral sin condon, trato de polola y besos que no paraban.",
+  "Trios, lenceria y juguetes eróticos: la noche se fue en una.",
+  "Pelinegra, culona, con atención a mujeres. Química total.",
+  "Masajes eróticos, sado duro controlado y fetichismo a medida.",
+  "Atención a discapacitado, a domicilio, apartamento propio. Discreción y placer.",
+  "Garganta profunda, eyaculación facial y americana corporal sin límites.",
+];
+
+/** Frases con keywords SEO: Hola Cachero, escorts en Rancagua, acompañantes, damas de compañía. */
+const FRASES_SEO = [
+  "Como escort en Rancagua en Hola Cachero, noches así las vivo a menudo.",
+  "En Hola Cachero las escorts en Rancagua somos acompañantes que vivimos estas historias.",
+  "Soy una de las acompañantes en Rancagua en Hola Cachero y esto es parte de mi día a día.",
+  "Las damas de compañía en Rancagua en Hola Cachero sabemos de noches así.",
+  "En Hola Cachero, escorts en Rancagua y acompañantes compartimos experiencias únicas.",
+  "Como dama de compañía en Rancagua en Hola Cachero, cada cita puede ser así de intensa.",
+  "Acompañantes en Rancagua en Hola Cachero: historias como esta nos definen.",
+];
+
 const FINALES = [
   "Cuando se fue me quedé con la piel todavía encendida y la promesa de repetirlo pronto.",
   "Fue una de esas experiencias que marcan y que uno quiere vivir de nuevo.",
@@ -95,13 +122,26 @@ const FINALES = [
   "Noches así son las que me hacen amar lo que hago.",
 ];
 
-function generateStory(profileId: string, storyDate: string, _profileName: string, index: number): string {
+const INTROS_CON_NOMBRE = [
+  (n: string) => `La noche que pasé con ${n} no tiene comparación. `,
+  (n: string) => `Todo empezó cuando ${n} llegó y la tensión se sintió al instante. `,
+  (n: string) => `Fue una de esas citas que uno no olvida: ${n} y yo desde el primer momento. `,
+  (n: string) => `${n} me había escrito durante días y por fin nos vimos. `,
+  (n: string) => `Desde que ${n} entró no hubo vuelta atrás. `,
+  (n: string) => `Con ${n} la química fue inmediata. `,
+  (n: string) => `Esa noche con ${n} superó todas mis expectativas. `,
+  (n: string) => `Cuando ${n} y yo nos encontramos, algo encendió. `,
+];
+
+function generateStory(profileId: string, storyDate: string, profileName: string, index: number): string {
+  const name = (profileName || "Alguien").trim();
   const base = (p: number, f: number, tag: string) =>
-    slot(profileId, storyDate, index, tag + p + "_" + f);
+    slot(profileId, name, storyDate, index, tag + p + "_" + f);
   const pick = <T>(arr: T[], key: string) => arr[hashToIndex(key, arr.length)];
 
-  const inicio = pick(INICIOS, slot(profileId, storyDate, index, "inicio"));
-  const numParrafos = 2 + hashToIndex(slot(profileId, storyDate, index, "np"), 3);
+  const introConNombre = pick(INTROS_CON_NOMBRE, slot(profileId, name, storyDate, index, "introName"));
+  const inicio = (introConNombre as (n: string) => string)(name) + pick(INICIOS, slot(profileId, name, storyDate, index, "inicio"));
+  const numParrafos = 2 + hashToIndex(slot(profileId, name, storyDate, index, "np"), 3);
 
   let content = inicio;
   for (let p = 0; p < numParrafos; p++) {
@@ -113,15 +153,17 @@ function generateStory(profileId: string, storyDate: string, _profileName: strin
       content += trans + frag.charAt(0).toUpperCase() + frag.slice(1) + ". ";
       content += `Todo muy ${adj}. `;
     }
-    content += pick(CONECTORES_PARR, slot(profileId, storyDate, index, "conn" + p));
+    content += pick(CONECTORES_PARR, slot(profileId, name, storyDate, index, "conn" + p));
   }
-  content += pick(FINALES, slot(profileId, storyDate, index, "final"));
+  content += pick(FRASES_ETIQUETAS, slot(profileId, name, storyDate, index, "etq")) + " ";
+  content += pick(FRASES_SEO, slot(profileId, name, storyDate, index, "seo")) + " ";
+  content += pick(FINALES, slot(profileId, name, storyDate, index, "final"));
 
   let ext = 0;
   while (content.length < MIN_LENGTH) {
-    const t = pick(TRANSICIONES, slot(profileId, storyDate, index, "extT" + ext));
-    const frag = pick(FRAGMENTOS_CALIENTES, slot(profileId, storyDate, index, "extF" + ext));
-    const adj = pick(ADJETIVOS, slot(profileId, storyDate, index, "extA" + ext));
+    const t = pick(TRANSICIONES, slot(profileId, name, storyDate, index, "extT" + ext));
+    const frag = pick(FRAGMENTOS_CALIENTES, slot(profileId, name, storyDate, index, "extF" + ext));
+    const adj = pick(ADJETIVOS, slot(profileId, name, storyDate, index, "extA" + ext));
     content += t + frag.charAt(0).toUpperCase() + frag.slice(1) + ". ";
     content += `Muy ${adj}. `;
     ext++;

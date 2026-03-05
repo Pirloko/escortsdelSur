@@ -10,14 +10,15 @@ export function JsonLdHome() {
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: sanitizeForJsonLd(SITE_NAME),
+    name: "Hola Cachero",
     url: SITE_URL + "/",
-    description: "Marketplace de perfiles premium por ciudad en el sur de Chile.",
+    description:
+      "Hola Cachero: escorts en Rancagua, escort en Rancagua, acompañantes en Rancagua, damas de compañía en Rancagua. Sexo en Rancagua y sur de Chile.",
   };
   const organization = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: sanitizeForJsonLd(SITE_NAME),
+    name: "Hola Cachero",
     url: SITE_URL + "/",
   };
   return (
@@ -48,11 +49,14 @@ export function JsonLdCity({ cityName, citySlug, profileCount, profileNames = []
     ],
   };
 
+  const isRancagua = citySlug?.toLowerCase() === "rancagua";
   const collectionPage = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `Perfiles en ${safeName}`,
-    description: `Listado de perfiles disponibles en ${safeName}`,
+    name: isRancagua ? `Escorts en Rancagua, acompañantes y damas de compañía | Hola Cachero` : `Perfiles en ${safeName}`,
+    description: isRancagua
+      ? "Escorts en Rancagua, putas en Rancagua, damas de compañía y acompañantes. Sexo en Rancagua. Perfiles premium en Hola Cachero."
+      : `Listado de perfiles disponibles en ${safeName}`,
     url: cityUrl,
     numberOfItems: profileCount,
   };

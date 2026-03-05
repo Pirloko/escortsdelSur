@@ -29,13 +29,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus, Eye } from "lucide-react";
 import type { EscortProfilesRow, CitiesRow, CreditTransactionsRow } from "@/types/database";
 import { TIME_SLOTS, getSubidaScheduleForDay } from "@/lib/franjas";
+import { PAISES_LATINOAMERICANOS } from "@/lib/paises-latinoamericanos";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
 import { jsPDF } from "jspdf";
 
-/** Palabras clave para el botón "Texto aleatorio" en Descripción. Edita estos arrays manualmente. */
+/** Palabras clave para el botón "Texto aleatorio" en Descripción. Incluye keywords SEO. */
 const DESC_PALABRAS = {
   inicios: ["Soy", "Hola, soy", "Mi nombre es", "Encantada,"],
-  adjetivos: ["discreta","una escort", "caliente", "profesional", "amigable", "elegante", "cálida", "reservada", "verificada", "seria"],
+  adjetivos: ["discreta", "una escort", "caliente", "profesional", "amigable", "elegante", "cálida", "reservada", "verificada", "seria"],
   frases: [
     "disfruto de buenos momentos",
     "me adapto a lo que buscas",
@@ -48,7 +49,23 @@ const DESC_PALABRAS = {
     "atención personalizada",
     "ambientes cómodos y discretos",
   ],
-  cierres: ["Escríbeme y coordinamos.", "Contáctame para más información.", "Te espero.", "Reserva con confianza."],
+  /** Frases con keywords SEO (escorts en Rancagua, Hola Cachero, acompañantes, damas de compañía). */
+  frasesSeo: [
+    "Perfil verificado en Hola Cachero, escorts en Rancagua.",
+    "Acompañante en Rancagua, dama de compañía disponible.",
+    "En Hola Cachero encontrarás mi perfil con otras escorts en Rancagua.",
+    "Soy una de las acompañantes en Rancagua en Hola Cachero.",
+    "Dama de compañía en Rancagua, escort en Rancagua.",
+    "Escort en Rancagua verificada en Hola Cachero.",
+    "Acompañantes en Rancagua: mi perfil en Hola Cachero.",
+  ],
+  cierres: [
+    "Escríbeme y coordinamos.",
+    "Contáctame para más información.",
+    "Te espero.",
+    "Reserva con confianza.",
+    "Hola Cachero – escorts en Rancagua y acompañantes.",
+  ],
 };
 
 function pick<T>(arr: T[]): T {
@@ -85,8 +102,9 @@ function generarDescripcionAleatoria(
     parteServicios = " " + partes.join(" ");
   }
 
+  const fraseSeo = pick(DESC_PALABRAS.frasesSeo);
   const cierre = pick(DESC_PALABRAS.cierres);
-  return (parte1 + parte2 + parte3 + parteServicios + " " + cierre).replace(/\s+/g, " ").trim();
+  return (parte1 + parte2 + parte3 + " " + fraseSeo + parteServicios + " " + cierre).replace(/\s+/g, " ").trim();
 }
 
 /** Opciones para el menú Categoría. Editar manualmente. Radix no permite value="", usamos __ninguno__. */
@@ -96,16 +114,43 @@ const CATEGORIA_OPCIONES = ["Escort Mujer", "Escort Trans", "Escort Hombre"];
 /** Opciones de etiquetas para Servicios Incluidos y Adicionales. Editar manualmente. */
 const SERVICIOS_OPCIONES = {
   incluidos: [
-    "Departamento Propio",
-    "Oral con Condon",
-    "Servicio a Domicilio",
-    "Servicios Normales",
-    "Sexo",
+    "Americana corporal",
+    "Eyaculación facial",
+    "Beso negro",
+    "Juguetes eróticos",
+    "Lenceria",
+    "Besos boca",
+    "Fantasias y disfraces",
+    "Masajes eróticos",
+    "Oral con condon",
+    "Sexo anal",
+    "Trato de polola",
+    "Oral sin condon",
+    "Fetichismo",
+    "Garganta profunda",
+    "Lluvia dorada",
+    "Trios",
+    "Masajes",
+    "Sado duro",
+    "Sado suave",
+    "A domicilio",
+    "Apartamento propio",
+    "Diferentes posiciones",
   ],
   adicionales: [
+    "Atención a parejas",
+    "Pago con tarjeta",
+    "Atención a hombres",
+    "Atención a mujeres",
+    "Atención a discapacitado",
+    "Piel blanca",
+    "Pelinegra",
+    "Bajita",
+    "Tetona",
+    "Culona",
+    "Depilada",
     "Atencion en Hoteles",
     "Despedida de Solteros",
-    "Oral con Condon",
     "Viajes",
   ],
 };
@@ -130,6 +175,7 @@ export default function Cuenta() {
   const [image, setImage] = useState("");
   const [available, setAvailable] = useState(true);
   const [description, setDescription] = useState("");
+  const [nationality, setNationality] = useState("");
   const [zone, setZone] = useState("");
   const [schedule, setSchedule] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -240,6 +286,7 @@ export default function Cuenta() {
           setImage(p.image ?? "");
           setAvailable(p.available);
           setDescription(p.description ?? "");
+          setNationality((p as { nationality?: string | null }).nationality ?? "");
           setZone(p.zone ?? "");
           setSchedule(p.schedule ?? "");
           setWhatsapp(p.whatsapp ?? "");
@@ -1219,6 +1266,14 @@ export default function Cuenta() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supabase) return;
+    if (servicesIncluded.length < 3) {
+      setMessage("Selecciona al menos 3 etiquetas en Servicios incluidos.");
+      return;
+    }
+    if (servicesExtra.length < 3) {
+      setMessage("Selecciona al menos 3 etiquetas en Adicionales.");
+      return;
+    }
     setSaving(true);
     setMessage("");
     const { error } = await supabase
@@ -1232,6 +1287,7 @@ export default function Cuenta() {
         gallery: gallery,
         available,
         description: description.trim() || null,
+        nationality: nationality.trim() || null,
         zone: zone.trim() || null,
         schedule: schedule.trim() || null,
         whatsapp: whatsapp.trim() || null,
@@ -1602,7 +1658,7 @@ export default function Cuenta() {
 
           <div className="space-y-3">
             <Label>Servicios Incluidos</Label>
-            <p className="text-xs text-muted-foreground">Elige las etiquetas que ofreces incluidos.</p>
+            <p className="text-xs text-muted-foreground">Elige las etiquetas que ofreces incluidos. Mínimo 3.</p>
             <div className="flex flex-wrap gap-2">
               {SERVICIOS_OPCIONES.incluidos.map((tag) => {
                 const selected = servicesIncluded.includes(tag);
@@ -1623,7 +1679,7 @@ export default function Cuenta() {
           </div>
           <div className="space-y-3">
             <Label>Adicionales</Label>
-            <p className="text-xs text-muted-foreground">Elige las etiquetas de servicios adicionales.</p>
+            <p className="text-xs text-muted-foreground">Elige las etiquetas de servicios adicionales. Mínimo 3.</p>
             <div className="flex flex-wrap gap-2">
               {SERVICIOS_OPCIONES.adicionales.map((tag) => {
                 const selected = servicesExtra.includes(tag);
@@ -1677,6 +1733,22 @@ export default function Cuenta() {
             <div className="space-y-2">
               <Label>Zona</Label>
               <Input value={zone} onChange={(e) => setZone(e.target.value)} placeholder="Ej. Centro" className="bg-surface" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nationality">Nacionalidad</Label>
+              <select
+                id="nationality"
+                value={nationality}
+                onChange={(e) => setNationality(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
+              >
+                <option value="">Selecciona nacionalidad</option>
+                {PAISES_LATINOAMERICANOS.map((pais) => (
+                  <option key={pais} value={pais}>
+                    {pais}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <Label>Dirección</Label>

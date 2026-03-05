@@ -14,17 +14,15 @@ function link(path: string, text: string) {
 export const citiesSeoData: Record<string, CitySeo & { nearbyLinks: { path: string; text: string }[] }> = {
   rancagua: {
     keyword_primary: "escorts en Rancagua",
-    seo_title: "Escorts en Rancagua | Perfiles Premium en el Sur de Chile",
+    seo_title: "Escorts en Rancagua | Putas, Damas de Compañía, Acompañantes – Hola Cachero",
     seo_description:
-      "Encuentra perfiles premium y acompañantes en Rancagua. Servicio discreto y verificado en la capital de la Región de O'Higgins.",
+      "Escorts en Rancagua, putas en Rancagua, damas de compañía y acompañantes en Rancagua. Sexo en Rancagua, Sexosur. Hola Cachero: perfiles premium y discretos.",
     nearbyLinks: [
       link("/talca", "Ver más perfiles en Talca"),
       link("/chillan", "Explorar acompañantes en Chillán"),
     ],
     seo_content: `
-Rancagua es la puerta sur desde Santiago hacia la zona central y austral de Chile. La ciudad concentra movimiento comercial, turístico y de servicios, y muchas personas buscan opciones de acompañamiento de calidad y discreción en la región.
-
-En nuestra plataforma encontrarás perfiles en Rancagua seleccionados: profesionales que ofrecen servicio premium, con verificación y claridad en la información. No se trata de listados masivos, sino de un directorio cuidado donde cada perfil incluye fotos recientes, disponibilidad y datos de contacto para que puedas elegir con tranquilidad.
+Rancagua es la puerta sur desde Santiago hacia la zona central y austral de Chile. Si buscas escorts en Rancagua, escort en Rancagua, putas en Rancagua, damas de compañía en Rancagua o acompañantes en Rancagua, en Hola Cachero encontrarás un listado cuidado. También conocen la zona como sexo en Rancagua o Sexosur en Rancagua: aquí reunimos perfiles seleccionados que ofrecen servicio premium, con verificación y claridad. No se trata de listados masivos, sino de un directorio cuidado donde cada perfil incluye fotos recientes, disponibilidad y datos de contacto para que puedas elegir con tranquilidad.
 
 La Región de O'Higgins tiene una oferta hotelera y de alojamiento adecuada para encuentros privados. Rancagua cuenta con buena conectividad por ruta 5 Sur y está a poco más de una hora de la capital, lo que facilita tanto a residentes como a quienes visitan la zona. Si tu interés es conocer acompañantes en la región, aquí puedes filtrar por disponibilidad, tipo de servicio y preferencias.
 
@@ -34,7 +32,7 @@ Si te encuentras de paso hacia el sur, puede interesarte ampliar la búsqueda. H
 
 Rancagua también es punto de partida para visitar viñas, termas y la costa de la región. Tener claro dónde encontrar perfiles verificados y disponibles en la zona te permite organizar tu estadía sin perder tiempo en búsquedas poco confiables. Utiliza los filtros por fecha y disponibilidad para ver quiénes están activos en las fechas que te interesan.
 
-En resumen: si buscas acompañantes en Rancagua con estándares de calidad y discreción, esta es una opción pensada para eso. Revisa los perfiles, compara y contacta directamente a quien mejor se ajuste a lo que necesitas. Para más ciudades del sur de Chile, explora nuestro listado de zonas disponibles.
+Quienes buscan escorts en Rancagua (o escriben scorts en Rancagua) encuentran aquí el mismo listado. En resumen: si buscas acompañantes en Rancagua con estándares de calidad y discreción, esta es una opción pensada para eso. Revisa los perfiles, compara y contacta directamente a quien mejor se ajuste a lo que necesitas. Para más ciudades del sur de Chile, explora nuestro listado de zonas disponibles.
     `.trim(),
   },
 

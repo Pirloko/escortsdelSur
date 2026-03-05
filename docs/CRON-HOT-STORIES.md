@@ -2,18 +2,16 @@
 
 La Edge Function **generate-hot-stories** genera **una historia por perfil** (con promoción activa) para el día actual y las guarda en la tabla `hot_stories`. Debe ejecutarse **una vez al día** (recomendado: madrugada, ej. 00:05 UTC).
 
-## Unicidad y coherencia
+## Unicidad
 
-- **Ninguna historia se repite:** cada historia es distinta. El generador usa una semilla derivada de `profile_id + story_date`, de modo que:
+- **Ninguna historia se repite:** cada historia es distinta. El generador usa una semilla derivada de `profile_id + story_date`:
   - Dos perfiles distintos **nunca** tienen la misma historia el mismo día.
   - El mismo perfil tiene una historia **diferente cada día** (cambia la fecha → cambia la semilla → cambia el texto).
-- **Coherencia narrativa:** cada historia tiene estructura lógica (intro → nudo con varios párrafos → cierre). Se usan conectores y transiciones para que el texto fluya y no sea una lista aleatoria de frases.
-- **Todas distintas entre sí:** distintos arcos narrativos, orden de frases y vocabulario según la semilla, sin copiar ni repetir el mismo relato entre perfiles o días.
 
 ## Configuración en Supabase
 
-1. **Variable de entorno** en el proyecto Supabase (Dashboard → Edge Functions → Secrets o Settings → Edge Functions):
-   - `CRON_SECRET`: una contraseña secreta que solo conocerá el servicio cron.
+1. **Secrets** en el proyecto Supabase (Dashboard → Edge Functions → Secrets):
+   - `CRON_SECRET`: contraseña secreta que solo usará el servicio cron.
 
 2. **Desplegar la función**:
    ```bash

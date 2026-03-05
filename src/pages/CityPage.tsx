@@ -100,15 +100,17 @@ const CityPage = () => {
   });
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  type HotStoryRow = { id: string; content: string; story_date: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null };
   const { data: hotStoriesRaw = [] } = useQuery({
-    queryKey: ["hot_stories", today],
-    queryFn: async (): Promise<{ id: string; content: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null }[]> => {
+    queryKey: ["hot_stories"],
+    queryFn: async (): Promise<HotStoryRow[]> => {
       if (!supabase) return [];
       const { data } = await supabase
         .from("hot_stories")
-        .select("id, content, escort_profile_id, escort_profiles(id, name, city_id)")
-        .eq("story_date", today);
-      return (data ?? []) as { id: string; content: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null }[];
+        .select("id, content, story_date, escort_profile_id, escort_profiles(id, name, city_id)")
+        .order("story_date", { ascending: false })
+        .limit(100);
+      return (data ?? []) as HotStoryRow[];
     },
     enabled: !!supabase,
   });
@@ -197,8 +199,17 @@ const CityPage = () => {
     setGalleryIndex(0);
   }, [activeCategory, activeAge]);
 
-  const title = seo?.seo_title ?? `Escorts en ${city.name} | Perfiles Premium en el Sur de Chile`;
-  const description = seo?.seo_description ?? `Perfiles y acompañantes en ${city.name}. Servicio premium en el sur de Chile.`;
+  const isRancagua = citySlug?.toLowerCase() === "rancagua";
+  const title =
+    seo?.seo_title ??
+    (isRancagua
+      ? "Escorts en Rancagua | Putas, Damas de Compañía y Acompañantes – Hola Cachero"
+      : `Escorts en ${city.name} | Perfiles Premium en el Sur de Chile`);
+  const description =
+    seo?.seo_description ??
+    (isRancagua
+      ? "Escorts en Rancagua, putas en Rancagua, damas de compañía y acompañantes en Rancagua. Sexo en Rancagua y Sexosur. Perfiles premium en Hola Cachero."
+      : `Perfiles y acompañantes en ${city.name}. Escort en ${city.name}. Servicio premium en el sur de Chile.`);
   const thinContent = seo && getSeoContentWordCount(seo.seo_content) < 600;
   const robots =
     thinContent ? "noindex, nofollow" : dbCity?.meta_robots != null ? dbCity.meta_robots : dbCity?.is_active === false ? "noindex, nofollow" : "index, follow";
@@ -231,10 +242,18 @@ const CityPage = () => {
 
   const hotStoriesForCity = useMemo(() => {
     if (!cityId) return [];
-    return hotStoriesRaw.filter(
-      (h) => h.escort_profiles?.city_id === cityId
-    ) as { id: string; content: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null }[];
+    return hotStoriesRaw
+      .filter((h) => h.escort_profiles?.city_id === cityId)
+      .sort((a, b) => b.story_date.localeCompare(a.story_date));
   }, [hotStoriesRaw, cityId]);
+
+  const formatStoryDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" });
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -488,34 +507,33 @@ const CityPage = () => {
         </section>
       )}
 
-      {/* Historias calientes: una por perfil por día, generadas por cron */}
+      {/* Historias calientes: todas las fechas para SEO, en caja con scroll */}
       {hotStoriesForCity.length > 0 && (
         <section className="px-4 max-w-7xl mx-auto mt-8 pt-6 border-t border-border/50" aria-labelledby="historias-calientes-heading">
           <h2 id="historias-calientes-heading" className="text-xl font-display font-bold mb-4 text-foreground">
             Historias calientes
           </h2>
-          <div className="space-y-4">
-            {hotStoriesForCity.map((story) => (
-              <div key={story.id} className="rounded-xl border border-border bg-surface/50 overflow-hidden">
-                <div className="px-4 pt-4 pb-4">
-                  <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="rounded-xl border border-border bg-surface/50 overflow-hidden">
+            <div className="max-h-[420px] overflow-y-auto p-4 space-y-4" role="region" aria-label="Historias por fecha">
+              {hotStoriesForCity.map((story) => (
+                <article key={story.id} className="rounded-lg border border-border/60 bg-background/50 p-4">
+                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                     <span className="font-semibold text-gold text-sm uppercase tracking-wide">
                       {story.escort_profiles?.name ?? "Perfil"}
                     </span>
-                    <Link
-                      to={`/perfil/${story.escort_profile_id}`}
-                      className="text-sm font-medium text-gold hover:text-gold/80 transition-colors inline-flex items-center gap-1.5"
-                    >
-                      Ver perfil
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <span className="text-xs text-muted-foreground">{formatStoryDate(story.story_date)}</span>
                   </div>
-                  <p className="text-sm text-foreground leading-relaxed line-clamp-6">
-                    {story.content}
-                  </p>
-                </div>
-              </div>
-            ))}
+                  <p className="text-sm text-foreground leading-relaxed mb-3">{story.content}</p>
+                  <Link
+                    to={`/perfil/${story.escort_profile_id}`}
+                    className="text-sm font-medium text-gold hover:text-gold/80 transition-colors inline-flex items-center gap-1.5"
+                  >
+                    Ver perfil
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
       )}

@@ -110,8 +110,8 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <SeoHead
-        title="Escorts en el Sur de Chile | Perfiles Premium por Ciudad"
-        description="Descubre perfiles y acompañantes premium en las principales ciudades del sur de Chile: Rancagua, Talca, Chillán, Concepción, Temuco y más. Servicio verificado y discreto."
+        title="Escorts en Rancagua y el Sur de Chile | Hola Cachero – Acompañantes y Damas de Compañía"
+        description="Hola Cachero: escorts en Rancagua, acompañantes, damas de compañía y perfiles premium en el sur de Chile. Sexo en Rancagua y más ciudades. Servicio verificado y discreto."
         canonicalPath="/"
       />
       <JsonLdHome />
@@ -183,9 +183,9 @@ export default function Index() {
               id="ciudades-heading"
               className="text-2xl md:text-3xl font-display font-bold text-foreground"
             >
-              Ciudades disponibles
+              Escorts en el sur: ciudades disponibles
             </h2>
-            <p className="text-muted-foreground text-sm mt-1">Explora por ubicación</p>
+            <p className="text-muted-foreground text-sm mt-1">Escort en Rancagua, acompañantes y damas de compañía por ubicación</p>
           </motion.div>
           <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-4 md:overflow-visible">
             {citiesForDisplay.map((city) => (
@@ -197,9 +197,20 @@ export default function Index() {
         </motion.div>
       </section>
 
-      {/* Footer mínimo: borde superior cobre + copyright */}
+      {/* Footer mínimo: enlace legal + copyright */}
       <footer className="border-t border-copper/30 mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
+          <p className="text-center">
+            <Link
+              to="/terminos-de-uso"
+              className="text-sm text-gold hover:text-gold/80 underline underline-offset-2 transition-colors"
+            >
+              Términos de uso
+            </Link>
+          </p>
+          <p className="text-center text-xs text-muted-foreground">
+            Hola Cachero – Escorts en Rancagua, acompañantes y damas de compañía en el sur de Chile.
+          </p>
           <p className="text-center text-xs text-muted-foreground">
             © {new Date().getFullYear()} holacachero.cl. Todos los derechos reservados.
           </p>
