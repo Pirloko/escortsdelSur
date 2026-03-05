@@ -1,0 +1,1389 @@
+Banco de Preguntas (200) - Varias Categorías
+Cada pregunta incluye 4 alternativas y la respuesta correcta. Se indica nivel de dificultad: Fácil, Medio o Difícil.
+
+1. (Matemáticas - Fácil) ¿Cuánto es 1+1?
+A) 2
+B) 3
+C) 4
+D) 2
+Respuesta correcta: A
+
+2. (Matemáticas - Fácil) ¿Cuánto es 2+2?
+A) 4
+B) 6
+C) 8
+D) 3
+Respuesta correcta: A
+
+3. (Matemáticas - Fácil) ¿Cuánto es 3+3?
+A) 6
+B) 9
+C) 12
+D) 4
+Respuesta correcta: A
+
+4. (Matemáticas - Fácil) ¿Cuánto es 4+4?
+A) 8
+B) 12
+C) 16
+D) 5
+Respuesta correcta: A
+
+5. (Matemáticas - Fácil) ¿Cuánto es 5+5?
+A) 10
+B) 15
+C) 20
+D) 6
+Respuesta correcta: A
+
+6. (Matemáticas - Fácil) ¿Cuánto es 6+6?
+A) 12
+B) 18
+C) 24
+D) 7
+Respuesta correcta: A
+
+7. (Matemáticas - Fácil) ¿Cuánto es 7+7?
+A) 14
+B) 21
+C) 28
+D) 8
+Respuesta correcta: A
+
+8. (Matemáticas - Fácil) ¿Cuánto es 8+8?
+A) 16
+B) 24
+C) 32
+D) 9
+Respuesta correcta: A
+
+9. (Matemáticas - Fácil) ¿Cuánto es 9+9?
+A) 18
+B) 27
+C) 36
+D) 10
+Respuesta correcta: A
+
+10. (Matemáticas - Fácil) ¿Cuánto es 10+10?
+A) 20
+B) 30
+C) 40
+D) 11
+Respuesta correcta: A
+
+11. (Matemáticas - Medio) ¿Cuánto es 1 x 2?
+A) 2
+B) 3
+C) 4
+D) 1
+Respuesta correcta: A
+
+12. (Matemáticas - Medio) ¿Cuánto es 2 x 3?
+A) 6
+B) 5
+C) 9
+D) 4
+Respuesta correcta: A
+
+13. (Matemáticas - Medio) ¿Cuánto es 3 x 4?
+A) 12
+B) 7
+C) 16
+D) 9
+Respuesta correcta: A
+
+14. (Matemáticas - Medio) ¿Cuánto es 4 x 5?
+A) 20
+B) 9
+C) 25
+D) 16
+Respuesta correcta: A
+
+15. (Matemáticas - Medio) ¿Cuánto es 5 x 6?
+A) 30
+B) 11
+C) 36
+D) 25
+Respuesta correcta: A
+
+16. (Matemáticas - Medio) ¿Cuánto es 6 x 7?
+A) 42
+B) 13
+C) 49
+D) 36
+Respuesta correcta: A
+
+17. (Matemáticas - Medio) ¿Cuánto es 7 x 8?
+A) 56
+B) 15
+C) 64
+D) 49
+Respuesta correcta: A
+
+18. (Matemáticas - Medio) ¿Cuánto es 8 x 9?
+A) 72
+B) 17
+C) 81
+D) 64
+Respuesta correcta: A
+
+19. (Matemáticas - Difícil) ¿Cuál es la derivada de x²?
+A) 2x
+B) x
+C) x³
+D) 2
+Respuesta correcta: A
+
+20. (Matemáticas - Difícil) ¿Cuál es el valor de π aproximado?
+A) 3.14
+B) 2.17
+C) 4.13
+D) 3.50
+Respuesta correcta: A
+
+21. (Matemáticas - Medio) ¿Cuánto es la raíz cuadrada de 144?
+A) 12
+B) 10
+C) 14
+D) 16
+Respuesta correcta: A
+
+22. (Matemáticas - Fácil) ¿Cuál es el resultado de 2³?
+A) 8
+B) 6
+C) 9
+D) 4
+Respuesta correcta: A
+
+23. (Matemáticas - Medio) ¿Qué número es primo?
+A) 13
+B) 15
+C) 21
+D) 27
+Respuesta correcta: A
+
+24. (Música - Fácil) ¿Cuántas notas musicales básicas hay?
+A) 7
+B) 5
+C) 9
+D) 12
+Respuesta correcta: A
+
+25. (Música - Fácil) ¿Quién fue conocido como el 'Rey del Pop'?
+A) Michael Jackson
+B) Elvis Presley
+C) Prince
+D) Freddie Mercury
+Respuesta correcta: A
+
+26. (Música - Fácil) ¿Qué instrumento tiene teclas blancas y negras?
+A) Piano
+B) Violín
+C) Flauta
+D) Batería
+Respuesta correcta: A
+
+27. (Música - Medio) ¿Qué cantante es famoso por la canción 'Shape of You'?
+A) Ed Sheeran
+B) Drake
+C) Bruno Mars
+D) Justin Bieber
+Respuesta correcta: A
+
+28. (Música - Medio) ¿Qué país es origen del flamenco?
+A) España
+B) Italia
+C) México
+D) Argentina
+Respuesta correcta: A
+
+29. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+30. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+31. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+32. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+33. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+34. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+35. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+36. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+37. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+38. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+39. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+40. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+41. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+42. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+43. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+44. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+45. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+46. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+47. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+48. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
+A) Guitarra
+B) Trompeta
+C) Clarinete
+D) Trombón
+Respuesta correcta: A
+
+49. (Fútbol - Fácil) ¿Cuántos jugadores hay por equipo en cancha?
+A) 11
+B) 10
+C) 9
+D) 12
+Respuesta correcta: A
+
+50. (Fútbol - Medio) ¿Qué país ganó el Mundial 2018?
+A) Francia
+B) Brasil
+C) Alemania
+D) Argentina
+Respuesta correcta: A
+
+51. (Fútbol - Fácil) ¿Qué jugador argentino ganó el Mundial 2022?
+A) Lionel Messi
+B) Maradona
+C) Agüero
+D) Di María
+Respuesta correcta: A
+
+52. (Fútbol - Fácil) ¿Cada cuántos años se juega el Mundial?
+A) 4
+B) 2
+C) 3
+D) 5
+Respuesta correcta: A
+
+53. (Fútbol - Fácil) ¿Qué tarjeta significa expulsión?
+A) Roja
+B) Azul
+C) Amarilla
+D) Verde
+Respuesta correcta: A
+
+54. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+55. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+56. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+57. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+58. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+59. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+60. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+61. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+62. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+63. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+64. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+65. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+66. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+67. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+68. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+69. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+70. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+71. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+72. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+73. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+A) Manos
+B) Cabeza
+C) Pecho
+D) Piernas
+Respuesta correcta: A
+
+74. (Sexualidad - Medio) El Kamasutra es principalmente:
+A) Un texto antiguo sobre relaciones y amor
+B) Un libro de medicina
+C) Una novela moderna
+D) Un libro de cocina
+Respuesta correcta: A
+
+75. (Sexualidad - Medio) ¿En qué país se originó el Kamasutra?
+A) India
+B) China
+C) Japón
+D) Grecia
+Respuesta correcta: A
+
+76. (Sexualidad - Fácil) La educación sexual ayuda principalmente a:
+A) Comprender el cuerpo y relaciones sanas
+B) Aprender matemáticas
+C) Aprender idiomas
+D) Aprender deportes
+Respuesta correcta: A
+
+77. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+78. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+79. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+80. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+81. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+82. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+83. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+84. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+85. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+86. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+87. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+88. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+89. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+90. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+91. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+92. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+93. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+94. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+95. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+96. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+97. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+98. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
+A) Respeto y consentimiento
+B) Competencia
+C) Secreto
+D) Indiferencia
+Respuesta correcta: A
+
+99. (Autos - Fácil) ¿Qué marca fabrica el Corolla?
+A) Toyota
+B) Ford
+C) BMW
+D) Kia
+Respuesta correcta: A
+
+100. (Autos - Medio) ¿Qué marca alemana tiene el logo de cuatro anillos?
+A) Audi
+B) BMW
+C) Mercedes
+D) Volkswagen
+Respuesta correcta: A
+
+101. (Autos - Fácil) ¿Qué marca fabrica el Mustang?
+A) Ford
+B) Chevrolet
+C) Toyota
+D) Honda
+Respuesta correcta: A
+
+102. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+103. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+104. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+105. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+106. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+107. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+108. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+109. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+110. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+111. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+112. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+113. (Autos - Fácil) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+114. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+115. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+116. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+117. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+118. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+119. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+120. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+121. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+122. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+123. (Autos - Medio) ¿Qué marca es japonesa?
+A) Honda
+B) Peugeot
+C) Fiat
+D) Renault
+Respuesta correcta: A
+
+124. (Animales - Medio) ¿Cuál es el animal terrestre más rápido?
+A) Guepardo
+B) León
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+125. (Animales - Fácil) ¿Qué animal es conocido como el rey de la selva?
+A) León
+B) Tigre
+C) Elefante
+D) Jaguar
+Respuesta correcta: A
+
+126. (Animales - Medio) ¿Cuál es el mamífero más grande?
+A) Ballena azul
+B) Elefante
+C) Jirafa
+D) Hipopótamo
+Respuesta correcta: A
+
+127. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+128. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+129. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+130. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+131. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+132. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+133. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+134. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+135. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+136. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+137. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+138. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+139. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+140. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+141. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+142. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+143. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+144. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+145. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+146. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+147. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+148. (Animales - Fácil) ¿Qué animal puede volar?
+A) Águila
+B) Elefante
+C) Tigre
+D) Caballo
+Respuesta correcta: A
+
+149. (Chile - Fácil) ¿Cuál es la capital de Chile?
+A) Santiago
+B) Valparaíso
+C) Concepción
+D) La Serena
+Respuesta correcta: A
+
+150. (Chile - Fácil) ¿Cuál es la moneda de Chile?
+A) Peso chileno
+B) Sol
+C) Peso argentino
+D) Dólar
+Respuesta correcta: A
+
+151. (Chile - Fácil) ¿Qué cordillera atraviesa Chile?
+A) Los Andes
+B) Alpes
+C) Himalaya
+D) Pirineos
+Respuesta correcta: A
+
+152. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+153. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+154. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+155. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+156. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+157. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+158. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+159. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+160. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+161. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+162. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+163. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+164. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+165. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+166. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+167. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+168. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+169. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+170. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+171. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+172. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+173. (Chile - Fácil) Chile se encuentra en qué continente?
+A) América del Sur
+B) Europa
+C) Asia
+D) África
+Respuesta correcta: A
+
+174. (Minería - Medio) ¿Cuál es la mina subterránea más grande del mundo cerca de Rancagua?
+A) El Teniente
+B) Chuquicamata
+C) Escondida
+D) Collahuasi
+Respuesta correcta: A
+
+175. (Minería - Medio) ¿Qué empresa estatal chilena administra El Teniente?
+A) Codelco
+B) BHP
+C) Anglo American
+D) Antofagasta Minerals
+Respuesta correcta: A
+
+176. (Minería - Fácil) ¿Qué mineral se extrae principalmente en El Teniente?
+A) Cobre
+B) Oro
+C) Plata
+D) Litio
+Respuesta correcta: A
+
+177. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+178. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+179. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+180. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+181. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+182. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+183. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+184. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+185. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+186. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+187. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+188. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+189. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+190. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+191. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+192. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+193. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+194. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+195. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+196. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+197. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+
+198. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
+A) Producción de cobre
+B) Producción de carbón
+C) Producción de diamantes
+D) Producción de petróleo
+Respuesta correcta: A
+

@@ -1,29 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  getQuizByDate,
+  getActiveQuizzes,
+  getQuizById,
   getQuizQuestions,
   getOrCreateUserProgress,
   submitQuizAnswer,
 } from "@/lib/quizService";
 import type { CorrectOption } from "@/types/quiz";
-import type { DailyQuizQuestion, UserQuizProgress } from "@/types/quiz";
+import type { DailyQuiz, DailyQuizQuestion, UserQuizProgress } from "@/types/quiz";
 
-function todayDateString(): string {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
+/** Lista de todos los desafíos activos (para elegir cuál jugar). */
+export function useActiveQuizzes() {
+  return useQuery({
+    queryKey: ["active-quizzes"],
+    queryFn: getActiveQuizzes,
+    enabled: true,
+  });
 }
 
-export function useQuizDay(userId: string | undefined) {
-  const date = todayDateString();
+export function useQuizDay(userId: string | undefined, quizId: string | undefined) {
   const queryClient = useQueryClient();
 
   const quizQuery = useQuery({
-    queryKey: ["quiz-day", date],
-    queryFn: () => getQuizByDate(date),
-    enabled: true,
+    queryKey: ["quiz", quizId],
+    queryFn: () => (quizId ? getQuizById(quizId) : Promise.resolve(null)),
+    enabled: !!quizId,
   });
-
-  const quizId = quizQuery.data?.id;
 
   const questionsQuery = useQuery({
     queryKey: ["quiz-questions", quizId],
@@ -49,19 +51,23 @@ export function useQuizDay(userId: string | undefined) {
       if (!userId || !quizId) throw new Error("Usuario o quiz no disponible");
       return submitQuizAnswer(userId, quizId, question.order_number, selectedOption, question);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quiz-progress", userId, quizId] });
       queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["active-quizzes"] });
     },
   });
 
-  const quiz = quizQuery.data ?? null;
+  const quiz = (quizQuery.data ?? null) as DailyQuiz | null;
   const questions = questionsQuery.data ?? [];
   const progress = progressQuery.data ?? null;
   const isCompleted = progress?.completed ?? false;
   const currentQuestionIndex = progress ? Math.min(progress.current_question, 10) : 1;
+  const ticketsBonus = quiz?.tickets_on_complete ?? 10;
   const ticketsEarnedToday =
-    progress != null ? progress.correct_answers * 1 + (progress.completed ? 10 : 0) : 0;
+    progress != null
+      ? progress.correct_answers * 1 + (progress.completed ? ticketsBonus : 0)
+      : 0;
 
   return {
     quiz,
@@ -83,8 +89,8 @@ export function useQuizDay(userId: string | undefined) {
 }
 
 export type QuizDayState = {
-  quiz: ReturnType<typeof useQuizDay>["quiz"];
-  questions: ReturnType<typeof useQuizDay>["questions"];
+  quiz: DailyQuiz | null;
+  questions: DailyQuizQuestion[];
   progress: UserQuizProgress | null;
   isCompleted: boolean;
   currentQuestionIndex: number;
@@ -92,10 +98,16 @@ export type QuizDayState = {
   isLoading: boolean;
   isError: boolean;
   refetch: () => void;
-  submitAnswer: ReturnType<typeof useQuizDay>["submitAnswer"];
+  submitAnswer: (args: {
+    selectedOption: CorrectOption;
+    question: DailyQuizQuestion;
+  }) => Promise<{ correct: boolean; newProgress: UserQuizProgress }>;
   isSubmitting: boolean;
 };
 
-export function useQuizDayForUser(userId: string | undefined): QuizDayState {
-  return useQuizDay(userId ?? "");
+export function useQuizDayForUser(
+  userId: string | undefined,
+  quizId: string | undefined
+): QuizDayState {
+  return useQuizDay(userId ?? "", quizId);
 }

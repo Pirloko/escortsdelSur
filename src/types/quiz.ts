@@ -7,6 +7,8 @@ export type CorrectOption = "A" | "B" | "C" | "D";
 export interface DailyQuiz {
   id: string;
   date: string;
+  title: string | null;
+  tickets_on_complete: number;
   is_active: boolean;
   created_at: string;
 }

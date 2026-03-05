@@ -84,6 +84,7 @@ const App = () => (
                 }
               />
               <Route path="/desafio-del-dia" element={<DesafioDelDia />} />
+              <Route path="/desafio-del-dia/:quizId" element={<DesafioDelDia />} />
               <Route
                 path="/cuenta"
                 element={

@@ -27,7 +27,7 @@ import {
   StreakCard,
 } from "@/components/gamification";
 import { RaffleTicketsCard } from "@/components/RaffleTicketsCard";
-import { useQuizDayForUser } from "@/hooks/useQuizDay";
+import { useActiveQuizzes, useQuizDayForUser } from "@/hooks/useQuizDay";
 import { getMyRafflePrize } from "@/lib/raffleService";
 import { getRaffleClaimWhatsAppUrl } from "@/lib/raffleConfig";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
@@ -127,7 +127,8 @@ type ViewWithProfile = {
 export default function MiPerfil() {
   const { user, profile, role, isLoading, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const quizState = useQuizDayForUser(user?.id ?? undefined);
+  const { data: activeQuizzes = [] } = useActiveQuizzes();
+  const quizState = useQuizDayForUser(user?.id ?? undefined, undefined);
 
   const { data: myRafflePrize } = useQuery({
     queryKey: ["my-raffle-prize", user?.id],
@@ -448,7 +449,7 @@ export default function MiPerfil() {
             </h2>
             <p className="text-sm text-muted-foreground">{myRafflePrize.raffle.description}</p>
             <a
-              href={getRaffleClaimWhatsAppUrl()}
+              href={getRaffleClaimWhatsAppUrl(displayName || user?.email || null)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
@@ -555,6 +556,8 @@ export default function MiPerfil() {
               completedToday={progressWithEconomy.quizCompletedToday}
               ticketsEarnedToday={progressWithEconomy.quizTicketsEarnedToday}
               onPlay={() => navigate("/desafio-del-dia")}
+              title="Desafíos"
+              activeCount={activeQuizzes.length}
             />
             <StreakCard streakDays={progressWithEconomy.stats.streakDays} />
           </div>

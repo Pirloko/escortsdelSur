@@ -3,14 +3,28 @@ import type { DailyQuiz, DailyQuizQuestion, UserQuizProgress, CorrectOption } fr
 
 const PEPITAS_PER_CORRECT = 5;
 const TICKETS_PER_CORRECT = 1;
-const TICKETS_BONUS_COMPLETE = 10;
+const TICKETS_BONUS_COMPLETE_DEFAULT = 10;
 
-export async function getQuizByDate(date: string): Promise<DailyQuiz | null> {
+/** Todos los quizzes activos (varios pueden estar disponibles). Orden: fecha desc, creado desc. */
+export async function getActiveQuizzes(): Promise<DailyQuiz[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("daily_quiz")
+    .select("*")
+    .eq("is_active", true)
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as DailyQuiz[];
+}
+
+/** Un quiz por id (para jugar uno concreto). */
+export async function getQuizById(quizId: string): Promise<DailyQuiz | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from("daily_quiz")
     .select("*")
-    .eq("date", date)
+    .eq("id", quizId)
     .eq("is_active", true)
     .maybeSingle();
   if (error) throw error;
@@ -41,6 +55,22 @@ export async function getUserQuizProgress(
     .maybeSingle();
   if (error) throw error;
   return data as UserQuizProgress | null;
+}
+
+/** Progreso del usuario en varios quizzes (para la lista de desafíos). */
+export async function getProgressForQuizzes(
+  userId: string,
+  quizIds: string[]
+): Promise<Record<string, UserQuizProgress>> {
+  if (!supabase || quizIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from("user_quiz_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .in("quiz_id", quizIds);
+  if (error) throw error;
+  const list = (data ?? []) as UserQuizProgress[];
+  return Object.fromEntries(list.map((p) => [p.quiz_id, p]));
 }
 
 export async function getOrCreateUserProgress(
@@ -114,7 +144,16 @@ export async function submitQuizAnswer(
   const newCorrectAnswers = progress.correct_answers + 1;
   const completed = questionNumber >= 10;
   const pepitasToAdd = PEPITAS_PER_CORRECT;
-  const ticketsToAdd = TICKETS_PER_CORRECT + (completed ? TICKETS_BONUS_COMPLETE : 0);
+  let ticketsToAdd = TICKETS_PER_CORRECT;
+  if (completed) {
+    const { data: quizRow } = await supabase
+      .from("daily_quiz")
+      .select("tickets_on_complete")
+      .eq("id", quizId)
+      .single();
+    const bonus = (quizRow as { tickets_on_complete?: number } | null)?.tickets_on_complete;
+    ticketsToAdd += typeof bonus === "number" && bonus >= 0 ? bonus : TICKETS_BONUS_COMPLETE_DEFAULT;
+  }
 
   const updatePayload = {
     current_question: completed ? 10 : nextQuestion,

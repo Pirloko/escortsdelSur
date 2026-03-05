@@ -45,12 +45,13 @@ export async function getParticipantsWithTickets(): Promise<Participant[]> {
     .map((r) => ({ user_id: r.id, tickets: r.tickets_rifa ?? 0 }));
 }
 
-/** Crear rifa. Falla si ya existe una activa. */
+/** Crear rifa. Falla si ya existe una activa. draw_date en formato YYYY-MM-DD. */
 export async function createRaffle(params: {
   title: string;
   description: string;
   month: number;
   year: number;
+  draw_date?: string | null;
 }): Promise<RafflesRow> {
   if (!supabase) throw new Error("Supabase no disponible");
   const active = await getActiveRaffle();
@@ -64,6 +65,7 @@ export async function createRaffle(params: {
       year: params.year,
       status: "active",
       total_tickets: 0,
+      draw_date: params.draw_date || null,
     })
     .select()
     .single();
@@ -103,6 +105,14 @@ export async function executeRaffleDraw(raffleId: string): Promise<{ winnerUserI
     .single();
   if (raffleErr || !raffle) throw new Error("Rifa no encontrada o ya cerrada.");
 
+  const drawDate = (raffle as RafflesRow).draw_date;
+  if (drawDate) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (today < drawDate) {
+      throw new Error(`El sorteo está programado para el ${drawDate}. Solo se puede ejecutar en o después de esa fecha.`);
+    }
+  }
+
   const participants = await getParticipantsWithTickets();
   if (participants.length === 0) throw new Error("No hay participantes con tickets.");
   const totalTickets = participants.reduce((s, p) => s + p.tickets, 0);
@@ -120,7 +130,8 @@ export async function executeRaffleDraw(raffleId: string): Promise<{ winnerUserI
 
   const { error: updateErr } = await (supabase as any)
     .from("profiles")
-    .update({ tickets_rifa: 0 });
+    .update({ tickets_rifa: 0 })
+    .eq("role", "visitor");
   if (updateErr) throw updateErr;
 
   await (supabase as any).from("raffle_prizes").insert({

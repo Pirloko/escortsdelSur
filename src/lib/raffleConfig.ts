@@ -10,8 +10,14 @@ export const RAFFLE_WHATSAPP_NUMBER = (
 
 export const RAFFLE_CLAIM_MESSAGE = "Hola, gané el sorteo mensual y quiero coordinar mi premio.";
 
-export function getRaffleClaimWhatsAppUrl(): string {
+/**
+ * URL de WhatsApp para cobrar premio. Incluye el nombre de usuario para que el admin valide que es el ganador real.
+ */
+export function getRaffleClaimWhatsAppUrl(winnerDisplayName?: string | null): string {
   const num = RAFFLE_WHATSAPP_NUMBER || DEFAULT_WHATSAPP;
-  const text = encodeURIComponent(RAFFLE_CLAIM_MESSAGE);
+  const userName = winnerDisplayName?.trim() || "Ganador";
+  const text = encodeURIComponent(
+    `Hola, soy *${userName}* (usuario ganador). Gané el sorteo mensual y quiero coordinar mi premio.`
+  );
   return `https://wa.me/${num}?text=${text}`;
 }

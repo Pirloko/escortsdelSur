@@ -125,6 +125,8 @@ export interface HotStoriesRow {
 export interface DailyQuizRow {
   id: string;
   date: string;
+  title: string | null;
+  tickets_on_complete: number;
   is_active: boolean;
   created_at: string;
 }
@@ -170,6 +172,8 @@ export interface RafflesRow {
   total_tickets: number;
   created_at: string;
   executed_at: string | null;
+  /** Fecha del sorteo (YYYY-MM-DD). El sorteo se puede ejecutar en o después de esta fecha. */
+  draw_date: string | null;
 }
 
 export interface RaffleParticipantsSnapshotRow {

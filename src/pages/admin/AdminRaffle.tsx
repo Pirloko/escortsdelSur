@@ -35,6 +35,7 @@ export default function AdminRaffle() {
   const [description, setDescription] = useState("1 hora de servicio exclusivo con el perfil que elijas.");
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
+  const [drawDate, setDrawDate] = useState("");
   const [message, setMessage] = useState("");
   const [confirmDrawOpen, setConfirmDrawOpen] = useState(false);
   const [raffleToExecute, setRaffleToExecute] = useState<RafflesRow | null>(null);
@@ -56,7 +57,7 @@ export default function AdminRaffle() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => createRaffle({ title, description, month, year }),
+    mutationFn: () => createRaffle({ title, description, month, year, draw_date: drawDate.trim() || null }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["raffle-active"] });
       queryClient.invalidateQueries({ queryKey: ["raffles-list"] });
@@ -65,6 +66,7 @@ export default function AdminRaffle() {
       setDescription("1 hora de servicio exclusivo con el perfil que elijas.");
       setMonth(new Date().getMonth() + 1);
       setYear(new Date().getFullYear());
+      setDrawDate("");
       setMessage("Rifa creada.");
     },
     onError: (e: Error) => setMessage(e.message || "Error"),
@@ -124,27 +126,43 @@ export default function AdminRaffle() {
             </Button>
           )}
 
-          {activeRaffle && (
-            <div className="rounded-2xl border border-copper/30 bg-card p-6 space-y-4">
-              <h2 className="font-semibold text-lg">Rifa activa</h2>
-              <p><strong>{activeRaffle.title}</strong></p>
-              <p className="text-sm text-muted-foreground">{activeRaffle.description}</p>
-              <p className="text-sm">
-                {MONTHS[activeRaffle.month]} {activeRaffle.year}
-              </p>
-              <p className="text-copper font-medium">Total tickets acumulados: {totalTickets}</p>
-              <Button
-                onClick={() => handleOpenConfirmDraw(activeRaffle)}
-                disabled={totalTickets === 0 || executeMutation.isPending}
-                className="bg-copper text-primary-foreground hover:bg-copper/90"
-              >
-                {executeMutation.isPending ? "Ejecutando…" : "Realizar sorteo"}
-              </Button>
-              {totalTickets === 0 && (
-                <p className="text-sm text-muted-foreground">No hay tickets acumulados. No se puede ejecutar el sorteo.</p>
-              )}
-            </div>
-          )}
+          {activeRaffle && (() => {
+            const drawDate = activeRaffle.draw_date ?? null;
+            const today = new Date().toISOString().slice(0, 10);
+            const canRunDraw = !drawDate || today >= drawDate;
+            return (
+              <div className="rounded-2xl border border-copper/30 bg-card p-6 space-y-4">
+                <h2 className="font-semibold text-lg">Rifa activa</h2>
+                <p><strong>{activeRaffle.title}</strong></p>
+                <p className="text-sm text-muted-foreground">{activeRaffle.description}</p>
+                <p className="text-sm">
+                  {MONTHS[activeRaffle.month]} {activeRaffle.year}
+                </p>
+                {drawDate && (
+                  <p className="text-sm">
+                    Sorteo programado: <strong>{new Date(drawDate + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}</strong>
+                    {!canRunDraw && (
+                      <span className="block text-amber-600 dark:text-amber-400 mt-1">El sorteo se podrá realizar a partir de esa fecha. Hasta entonces se siguen acumulando tickets.</span>
+                    )}
+                  </p>
+                )}
+                <p className="text-copper font-medium">Total tickets acumulados: {totalTickets}</p>
+                <Button
+                  onClick={() => handleOpenConfirmDraw(activeRaffle)}
+                  disabled={totalTickets === 0 || !canRunDraw || executeMutation.isPending}
+                  className="bg-copper text-primary-foreground hover:bg-copper/90"
+                >
+                  {executeMutation.isPending ? "Ejecutando…" : "Realizar sorteo"}
+                </Button>
+                {totalTickets === 0 && (
+                  <p className="text-sm text-muted-foreground">No hay tickets acumulados. No se puede ejecutar el sorteo.</p>
+                )}
+                {totalTickets > 0 && !canRunDraw && (
+                  <p className="text-sm text-muted-foreground">Espera a la fecha del sorteo para ejecutarlo.</p>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="rounded-2xl border border-border overflow-hidden">
             <table className="w-full text-sm">
@@ -210,6 +228,18 @@ export default function AdminRaffle() {
               <Input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="mt-1" min={2024} max={2100} />
             </div>
           </div>
+          <div>
+            <Label>Fecha del sorteo (opcional)</Label>
+            <Input
+              type="date"
+              value={drawDate}
+              onChange={(e) => setDrawDate(e.target.value)}
+              className="mt-1"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Hasta esta fecha se acumulan tickets. El sorteo solo podrá ejecutarse en o después de esta fecha.
+            </p>
+          </div>
           <div className="flex gap-2">
             <Button onClick={() => createMutation.mutate()} disabled={!title.trim() || createMutation.isPending}>
               {createMutation.isPending ? "Creando…" : "Crear rifa"}
@@ -260,7 +290,7 @@ function RaffleRow({
     queryKey: ["profile", prize?.user_id],
     queryFn: async () => {
       if (!supabase || !prize?.user_id) return null;
-      const { data } = await supabase.from("profiles").select("display_name").eq("id", prize.user_id).single();
+      const { data } = await supabase.from("profiles").select("display_name").eq("id", prize.user_id).maybeSingle();
       return data as { display_name: string | null } | null;
     },
     enabled: !!prize?.user_id,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 export interface ProfileForQuiz {
   id: string;
@@ -35,6 +36,8 @@ export function AdminQuizImageSelector({
 }: AdminQuizImageSelectorProps) {
   const [open, setOpen] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedProfile = selectedProfileId
     ? profiles.find((p) => p.id === selectedProfileId)
@@ -56,6 +59,32 @@ export function AdminQuizImageSelector({
   const handleOpenChange = (next: boolean) => {
     if (!next) setSelectedProfileId(null);
     setOpen(next);
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !supabase) return;
+    const valid = ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type);
+    if (!valid) return;
+    if (file.size > 5 * 1024 * 1024) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `quiz/quiz-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("escort-images").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
+      onChange(publicUrl);
+      setOpen(false);
+    } catch {
+      // silent fail or could set error state
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -93,9 +122,33 @@ export function AdminQuizImageSelector({
         </DialogTrigger>
         <DialogContent className="max-w-md max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>Elegir imagen de perfil</DialogTitle>
+            <DialogTitle>Elegir imagen</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 overflow-y-auto min-h-0">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-muted-foreground">Subir desde dispositivo</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={handleUpload}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-4 h-4" />
+                {uploading ? "Subiendo…" : "Subir desde dispositivo"}
+              </Button>
+            </div>
+            <div className="border-t border-border pt-2">
+              <p className="text-xs font-medium text-muted-foreground mb-2">O elegir de perfiles con promoción</p>
+            </div>
             {!selectedProfileId ? (
               <>
                 <p className="text-sm text-muted-foreground">
