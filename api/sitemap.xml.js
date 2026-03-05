@@ -6,6 +6,16 @@ const { createClient } = require("@supabase/supabase-js");
 
 const SITE_URL = process.env.VITE_SITE_URL || process.env.SITE_URL || "https://holacachero.cl";
 
+/** Slugs de páginas de filtro/categoría (alineado con src/lib/seo-programmatic.ts). */
+const FILTER_SLUGS = [
+  "escorts", "acompanantes", "damas-de-compania",
+  "pelinegras", "tetonas", "culonas", "bajitas", "depiladas",
+  "a-domicilio", "apartamento-propio", "masajes", "trios", "fetichismo", "atencion-parejas",
+  "escorts-pelinegras", "escorts-tetonas", "escorts-culonas", "escorts-bajitas", "escorts-depiladas",
+  "escorts-a-domicilio", "escorts-apartamento-propio", "escorts-masajes", "escorts-trios",
+  "acompanantes-a-domicilio", "acompanantes-masajes",
+];
+
 function escapeXml(s) {
   if (s == null) return "";
   return String(s)
@@ -29,10 +39,14 @@ export default async function handler(req, res) {
 
   const base = SITE_URL.replace(/\/$/, "");
   const today = new Date().toISOString().slice(0, 10);
-  let urls = [
+  const urls = [
     urlEl(`${base}/`, today, "daily", "1.0"),
-    urlEl(`${base}/rancagua`, today, "daily", "0.95"),
+    urlEl(`${base}/rancagua`, today, "weekly", "0.95"),
   ];
+
+  for (const slug of FILTER_SLUGS) {
+    urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.85"));
+  }
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
@@ -49,12 +63,6 @@ export default async function handler(req, res) {
         .single();
 
       if (rancaguaCity && rancaguaCity.is_active !== false && (!rancaguaCity.meta_robots || !/noindex/i.test(rancaguaCity.meta_robots))) {
-        const cityLastmod = rancaguaCity.updated_at ? rancaguaCity.updated_at.slice(0, 10) : today;
-        const cityLoc = `${base}/rancagua`;
-        if (!urls.some((u) => u.includes(cityLoc))) {
-          urls.push(urlEl(cityLoc, cityLastmod, "daily", "0.95"));
-        }
-
         const now = new Date().toISOString();
         const { data: profiles } = await supabase
           .from("escort_profiles")

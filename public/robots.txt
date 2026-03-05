@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Allow: /rancagua
+Allow: /rancagua/
 Allow: /perfil/
 Disallow: /login
 Disallow: /registro
