@@ -47,6 +47,15 @@ export interface EscortProfilesRow {
   updated_at: string;
 }
 
+export interface PublisherAuditLogRow {
+  id: string;
+  user_id: string;
+  event_type: string;
+  escort_profile_id: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+}
+
 export interface FavoritesRow {
   id: string;
   user_id: string;
@@ -275,6 +284,11 @@ export interface Database {
         Row: RafflePrizesRow;
         Insert: Omit<RafflePrizesRow, "id" | "created_at"> & { id?: string; created_at?: string };
         Update: Partial<Omit<RafflePrizesRow, "id">>;
+      };
+      publisher_audit_log: {
+        Row: PublisherAuditLogRow;
+        Insert: Omit<PublisherAuditLogRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<PublisherAuditLogRow, "id">>;
       };
     };
   };

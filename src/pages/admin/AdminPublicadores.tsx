@@ -14,11 +14,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Pause, Play, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Pause, Play, Trash2, History } from "lucide-react";
 import type { ProfilesRow } from "@/types/database";
 
 type PublisherRow = ProfilesRow & {
   escort_profiles: { id: string; credits?: number | null }[];
+};
+
+type AuditLogRow = {
+  id: string;
+  user_id: string;
+  event_type: string;
+  escort_profile_id: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+};
+
+const AUDIT_EVENT_LABELS: Record<string, string> = {
+  login: "Inicio de sesión",
+  logout: "Cierre de sesión",
+  edit_account: "Edición de cuenta",
+  edit_profile: "Edición de perfil/anuncio",
+  create_profile: "Creación de perfil",
+  delete_profile: "Eliminación de perfil",
+  promote_profile: "Promoción de perfil",
+  pause_profile: "Pausa de perfil",
+  unpause_profile: "Reactivación de perfil",
+  activate_7d: "Activación 7 días",
 };
 
 export default function AdminPublicadores() {
@@ -27,6 +55,7 @@ export default function AdminPublicadores() {
   const [creditsToAdd, setCreditsToAdd] = useState<string>("0");
   const [pauseTarget, setPauseTarget] = useState<PublisherRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<PublisherRow | null>(null);
+  const [historialTarget, setHistorialTarget] = useState<PublisherRow | null>(null);
 
   const { data: publishers, isLoading } = useQuery({
     queryKey: ["admin_publishers"],
@@ -168,6 +197,22 @@ export default function AdminPublicadores() {
     },
   });
 
+  const { data: auditLog = [], isLoading: auditLoading } = useQuery({
+    queryKey: ["admin_publisher_audit", historialTarget?.id],
+    queryFn: async (): Promise<AuditLogRow[]> => {
+      if (!supabase || !historialTarget?.id) return [];
+      const { data, error } = await supabase
+        .from("publisher_audit_log")
+        .select("id, user_id, event_type, escort_profile_id, details, created_at")
+        .eq("user_id", historialTarget.id)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return (data ?? []) as AuditLogRow[];
+    },
+    enabled: !!supabase && !!historialTarget?.id,
+  });
+
   if (!supabase) {
     return (
       <div>
@@ -262,6 +307,15 @@ export default function AdminPublicadores() {
                     variant="outline"
                     size="sm"
                     className="h-8 text-xs"
+                    onClick={() => setHistorialTarget(p)}
+                    title="Ver historial de auditoría"
+                  >
+                    <History className="w-3.5 h-3.5 mr-1" /> Ver historial
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs"
                     onClick={() => {
                       setSelected(p);
                       setCreditsToAdd("0");
@@ -275,6 +329,49 @@ export default function AdminPublicadores() {
           ))}
         </div>
       )}
+
+      <Dialog open={!!historialTarget} onOpenChange={(open) => !open && setHistorialTarget(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>
+              Historial de auditoría — {historialTarget?.display_name || historialTarget?.id}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Inicios/cierres de sesión y acciones sobre perfiles o anuncios.
+          </p>
+          <div className="flex-1 overflow-y-auto border rounded-lg mt-2">
+            {auditLoading ? (
+              <div className="p-6 text-center text-muted-foreground text-sm">Cargando…</div>
+            ) : auditLog.length === 0 ? (
+              <div className="p-6 text-center text-muted-foreground text-sm">Sin eventos registrados.</div>
+            ) : (
+              <ul className="divide-y divide-border text-sm">
+                {auditLog.map((row) => (
+                  <li key={row.id} className="px-4 py-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className="font-medium text-foreground shrink-0">
+                      {AUDIT_EVENT_LABELS[row.event_type] ?? row.event_type}
+                    </span>
+                    {row.escort_profile_id && (
+                      <span className="text-muted-foreground truncate" title={row.escort_profile_id}>
+                        Perfil: {row.escort_profile_id.slice(0, 8)}…
+                      </span>
+                    )}
+                    {row.details && Object.keys(row.details).length > 0 && (
+                      <span className="text-muted-foreground text-xs">
+                        {JSON.stringify(row.details)}
+                      </span>
+                    )}
+                    <span className="text-muted-foreground text-xs ml-auto shrink-0">
+                      {new Date(row.created_at).toLocaleString("es-CL")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!selected} onOpenChange={() => setSelected(null)}>
         <AlertDialogContent>

@@ -9,6 +9,7 @@ import {
 import type { User, Session } from "@supabase/supabase-js";
 import type { UserRole } from "@/types/database";
 import { supabase } from "@/lib/supabase";
+import { recordPublisherAudit } from "@/lib/publisher-audit";
 
 interface Profile {
   id: string;
@@ -113,6 +114,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession({ ...data.session! });
       setUser(data.user);
       setProfile(profile);
+      if (profile?.role === "registered_user" && data.user?.id) {
+        recordPublisherAudit(data.user.id, "login").catch(() => {});
+      }
       return { error: null, profile, user: data.user ?? null };
     },
     [fetchProfile]
@@ -175,11 +179,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    const uid = user?.id;
+    const role = profile?.role;
+    if (supabase && uid && role === "registered_user") {
+      recordPublisherAudit(uid, "logout").catch(() => {});
+    }
     if (supabase) await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);
-  }, []);
+  }, [user?.id, profile?.role]);
 
   const value: AuthState = {
     user,

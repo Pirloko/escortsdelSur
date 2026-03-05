@@ -16,6 +16,7 @@ import {
 import type { CitiesRow } from "@/types/database";
 import { PAISES_LATINOAMERICANOS } from "@/lib/paises-latinoamericanos";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
+import { recordPublisherAudit } from "@/lib/publisher-audit";
 import { Shuffle } from "lucide-react";
 
 /** Palabras clave para el botón "Texto aleatorio" en Descripción. */
@@ -336,6 +337,9 @@ export default function CompletarPerfil() {
       return;
     }
     const newId = (data as { id: string } | null)?.id;
+    if (newId && user?.id) {
+      recordPublisherAudit(user.id, "create_profile", { escortProfileId: newId }).catch(() => {});
+    }
     if (newId) navigate(`/cuenta/perfil/${newId}`, { replace: true });
     else navigate("/cuenta", { replace: true });
   };

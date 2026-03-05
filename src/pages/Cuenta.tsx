@@ -32,6 +32,7 @@ import { TIME_SLOTS, getSubidaScheduleForDay } from "@/lib/franjas";
 import { PAISES_LATINOAMERICANOS } from "@/lib/paises-latinoamericanos";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
 import { jsPDF } from "jspdf";
+import { recordPublisherAudit } from "@/lib/publisher-audit";
 
 /** Palabras clave para el botón "Texto aleatorio" en Descripción. Incluye keywords SEO. */
 const DESC_PALABRAS = {
@@ -236,6 +237,7 @@ export default function Cuenta() {
         })
         .eq("id", user.id);
       await refreshProfile();
+      recordPublisherAudit(user.id, "edit_account").catch(() => {});
       setEditingAccount(false);
     } finally {
       setAccountSaving(false);
@@ -250,6 +252,7 @@ export default function Cuenta() {
     setDeletingFromList(false);
     setDeleteFromListProfile(null);
     if (error) return;
+    recordPublisherAudit(user.id, "delete_profile", { escortProfileId: p.id }).catch(() => {});
     const { data: remaining } = await supabase
       .from("escort_profiles")
       .select("*, cities(*)")
@@ -1096,6 +1099,7 @@ export default function Cuenta() {
       .eq("id", profile.id);
     setActivating(false);
     if (!error) {
+      recordPublisherAudit(user.id, "activate_7d", { escortProfileId: profile.id }).catch(() => {});
       setActiveUntil(newActiveUntil);
       setAvailable(true);
       setMessage("Perfil visible 7 días más.");
@@ -1113,6 +1117,7 @@ export default function Cuenta() {
       .eq("id", profile.id);
     setPausing(false);
     if (!error) {
+      recordPublisherAudit(user.id, "pause_profile", { escortProfileId: profile.id }).catch(() => {});
       setActiveUntil(nowIso);
       setAvailable(false);
       setMessage("Perfil pausado. Ya no apareces en los listados.");
@@ -1240,6 +1245,10 @@ export default function Cuenta() {
     setPromoSaving(false);
     if (error) setPromoMessage(error.message);
     else {
+      recordPublisherAudit(user.id, "promote_profile", {
+        escortProfileId: escortProfile.id,
+        details: { type: promotion.trim(), tienePromo },
+      }).catch(() => {});
       setPromoMessage("Promoción guardada.");
       if (tienePromo && coste != null && coste > 0) {
         setCreditsTotalInEditView((prev) => (prev != null ? prev - coste : null));
@@ -1299,6 +1308,7 @@ export default function Cuenta() {
     setSaving(false);
     if (error) setMessage(error.message);
     else {
+      recordPublisherAudit(user.id, "edit_profile", { escortProfileId: profile.id }).catch(() => {});
       setMessage("Guardado.");
       setShowEditForm(false);
     }
@@ -1315,6 +1325,7 @@ export default function Cuenta() {
       .eq("id", profile.id);
     setSaving(false);
     if (!error) {
+      recordPublisherAudit(user.id, newAvailable ? "unpause_profile" : "pause_profile", { escortProfileId: profile.id }).catch(() => {});
       setAvailable(newAvailable);
       setMessage(newAvailable ? "Perfil activado." : "Perfil pausado.");
     } else setMessage(error.message);
@@ -1330,6 +1341,7 @@ export default function Cuenta() {
       setMessage(error.message);
       return;
     }
+    recordPublisherAudit(user.id, "delete_profile", { escortProfileId: profile.id }).catch(() => {});
     const { data: remaining } = await supabase.from("escort_profiles").select("id").eq("user_id", user.id);
     if (!remaining || remaining.length === 0) {
       // @ts-expect-error Supabase generated types pueden quedarse desfasados frente al schema real
