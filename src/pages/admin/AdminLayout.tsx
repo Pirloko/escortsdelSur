@@ -59,7 +59,7 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
-      <SeoHead title="Administración | Punto Cachero" description="Panel de administración." canonicalPath="/admin" robots="noindex, nofollow" noSocial />
+      <SeoHead title="Administración | Hola Cachero" description="Panel de administración." canonicalPath="/admin" robots="noindex, nofollow" noSocial />
 
       {/* Mobile: header con menú hamburguesa */}
       <header className="md:hidden flex items-center justify-between gap-4 px-4 py-3 border-b border-border bg-background sticky top-0 z-30">

@@ -427,7 +427,7 @@ export default function MiPerfil() {
 
   return (
     <div className="min-h-screen bg-background px-4 py-8 pb-28">
-      <SeoHead title="Mi perfil | Punto Cachero" description="Perfil de cliente." canonicalPath="/mi-perfil" robots="noindex, nofollow" noSocial />
+      <SeoHead title="Mi perfil | Hola Cachero" description="Perfil de cliente." canonicalPath="/mi-perfil" robots="noindex, nofollow" noSocial />
       <div className="max-w-md mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-display font-bold">Mi perfil</h1>

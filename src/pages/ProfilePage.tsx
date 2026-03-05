@@ -247,8 +247,8 @@ const ProfilePage = () => {
       : profileGallery;
   const isRancagua = profile.city?.toLowerCase().includes("rancagua");
   const title = isRancagua
-    ? `${profile.name}, Escort en Rancagua | Acompañantes en Rancagua – Hola Cachero`
-    : `${profile.name}, Escort en ${profile.city} | Perfil Disponible`;
+    ? `${profile.name} Escort en Rancagua | Acompañante VIP – Hola Cachero`
+    : `${profile.name}, Escort en ${profile.city} | Perfil Disponible – Hola Cachero`;
   const description =
     "description" in profile && profile.description
       ? profile.description
@@ -257,6 +257,7 @@ const ProfilePage = () => {
         : `${profile.name}, ${profile.age} años. Perfil verificado y disponible en ${profile.city}. Conecta con acompañantes premium en el sur de Chile.`;
 
   const ogImage = profile.image || (Array.isArray(profile.gallery) && profile.gallery.length > 0 ? profile.gallery[0] : undefined);
+  const robots = isProfileExpired ? "noindex, nofollow" : "index, follow";
 
   if (profileLoading && isUuid) {
     return (
@@ -281,6 +282,8 @@ const ProfilePage = () => {
         description={description}
         canonicalPath={`/perfil/${profileId}`}
         ogImage={ogImage}
+        robots={robots}
+        noSocial={isProfileExpired}
       />
       <JsonLdProfile
         profileName={profile.name}
@@ -368,11 +371,12 @@ const ProfilePage = () => {
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-3xl md:text-4xl font-display font-bold">
-                  {profile.name}, {profile.age}
+                  {isRancagua ? `${profile.name} escort en Rancagua` : `${profile.name}, ${profile.age}`}
                 </h1>
                 <p className="text-muted-foreground flex items-center gap-1.5 mt-1">
                   <MapPin className="w-4 h-4" />
                   {profile.city}
+                  {profile.age ? ` · ${profile.age} años` : ""}
                 </p>
               </div>
               <span className="px-3 py-1 rounded-full bg-gold/90 text-xs font-semibold text-primary-foreground">

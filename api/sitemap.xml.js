@@ -4,7 +4,7 @@
  */
 const { createClient } = require("@supabase/supabase-js");
 
-const SITE_URL = process.env.VITE_SITE_URL || process.env.SITE_URL || "https://puntocachero.cl";
+const SITE_URL = process.env.VITE_SITE_URL || process.env.SITE_URL || "https://holacachero.cl";
 
 function escapeXml(s) {
   if (s == null) return "";
@@ -29,7 +29,10 @@ export default async function handler(req, res) {
 
   const base = SITE_URL.replace(/\/$/, "");
   const today = new Date().toISOString().slice(0, 10);
-  let urls = [urlEl(`${base}/`, today, "daily", "1.0")];
+  let urls = [
+    urlEl(`${base}/`, today, "daily", "1.0"),
+    urlEl(`${base}/rancagua`, today, "daily", "0.95"),
+  ];
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
@@ -38,29 +41,25 @@ export default async function handler(req, res) {
     try {
       const supabase = createClient(supabaseUrl, supabaseKey);
 
-      const { data: cities } = await supabase
+      // FASE 1: solo Rancagua. Obtener city_id de Rancagua.
+      const { data: rancaguaCity } = await supabase
         .from("cities")
         .select("id, slug, updated_at, is_active, meta_robots")
-        .order("slug");
+        .eq("slug", "rancagua")
+        .single();
 
-      const activeCities = (cities || []).filter((c) => {
-        if (c.is_active === false) return false;
-        if (c.meta_robots && /noindex/i.test(c.meta_robots)) return false;
-        return true;
-      });
+      if (rancaguaCity && rancaguaCity.is_active !== false && (!rancaguaCity.meta_robots || !/noindex/i.test(rancaguaCity.meta_robots))) {
+        const cityLastmod = rancaguaCity.updated_at ? rancaguaCity.updated_at.slice(0, 10) : today;
+        const cityLoc = `${base}/rancagua`;
+        if (!urls.some((u) => u.includes(cityLoc))) {
+          urls.push(urlEl(cityLoc, cityLastmod, "daily", "0.95"));
+        }
 
-      for (const c of activeCities) {
-        const lastmod = c.updated_at ? c.updated_at.slice(0, 10) : today;
-        urls.push(urlEl(`${base}/${c.slug}`, lastmod, "daily", "0.9"));
-      }
-
-      const cityIds = activeCities.map((x) => x.id);
-      if (cityIds.length > 0) {
         const now = new Date().toISOString();
         const { data: profiles } = await supabase
           .from("escort_profiles")
           .select("id, updated_at")
-          .in("city_id", cityIds)
+          .eq("city_id", rancaguaCity.id)
           .or(`active_until.is.null,active_until.gt.${now}`);
 
         for (const p of profiles || []) {
@@ -71,9 +70,6 @@ export default async function handler(req, res) {
     } catch (e) {
       console.error("Sitemap Supabase error:", e);
     }
-  } else {
-    const slugs = ["rancagua", "talca", "chillan", "concepcion", "temuco", "valdivia", "osorno", "puerto-montt"];
-    slugs.forEach((slug) => urls.push(urlEl(`${base}/${slug}`, today, "daily", "0.9")));
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

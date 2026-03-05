@@ -38,7 +38,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <SeoHead title="Iniciar sesión | Punto Cachero" description="Acceso al panel de acompañantes." canonicalPath="/login" robots="noindex, nofollow" noSocial />
+      <SeoHead title="Iniciar sesión | Hola Cachero" description="Acceso al panel de acompañantes." canonicalPath="/login" robots="noindex, nofollow" noSocial />
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold text-foreground">Iniciar sesión</h1>

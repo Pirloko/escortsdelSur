@@ -45,6 +45,11 @@ const CityPage = () => {
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [activeAge, setActiveAge] = useState<string | null>(null);
 
+  // Al ingresar a la página de ciudad, mostrar la parte superior (hero, título, filtros)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [citySlug]);
+
   type CityRow = { id: string; slug: string; name: string; profiles: number; image: string | null; is_active?: boolean; meta_robots?: string | null };
   type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null };
 
@@ -210,7 +215,7 @@ const CityPage = () => {
     (isRancagua
       ? "Escorts en Rancagua, putas en Rancagua, damas de compañía y acompañantes en Rancagua. Sexo en Rancagua y Sexosur. Perfiles premium en Hola Cachero."
       : `Perfiles y acompañantes en ${city.name}. Escort en ${city.name}. Servicio premium en el sur de Chile.`);
-  const thinContent = seo && getSeoContentWordCount(seo.seo_content) < 600;
+  const thinContent = seo && getSeoContentWordCount(seo.seo_content ?? "") < 600;
   const robots =
     thinContent ? "noindex, nofollow" : dbCity?.meta_robots != null ? dbCity.meta_robots : dbCity?.is_active === false ? "noindex, nofollow" : "index, follow";
   const noIndex = robots.startsWith("noindex");
@@ -277,12 +282,12 @@ const CityPage = () => {
       {/* Header: dimensiones fijas para CLS */}
       <div className="relative h-48 md:h-64 overflow-hidden">
         <img
-          src={city.image}
+          src={city.image || "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80"}
           alt={`Perfiles y acompañantes en ${city.name}, sur de Chile`}
           className="absolute inset-0 w-full h-full object-cover"
           width={1200}
           height={480}
-          fetchpriority="high"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
 
@@ -298,7 +303,9 @@ const CityPage = () => {
             <span>/</span>
             <span className="text-gold">{city.name}</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold">{city.name}</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-bold">
+            {isRancagua ? "Escorts en Rancagua" : city.name}
+          </h1>
           <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
             <MapPin className="w-3.5 h-3.5" />
             {profiles.length} perfil{profiles.length !== 1 ? "es" : ""} disponible{profiles.length !== 1 ? "s" : ""}

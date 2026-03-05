@@ -447,7 +447,7 @@ export default function Cuenta() {
 
     return (
       <div className="min-h-screen bg-background px-4 py-8 pb-28">
-        <SeoHead title="Dashboard | Punto Cachero" description="Panel de acompañantes." canonicalPath="/cuenta" robots="noindex, nofollow" noSocial />
+        <SeoHead title="Dashboard | Hola Cachero" description="Panel de acompañantes." canonicalPath="/cuenta" robots="noindex, nofollow" noSocial />
         <div className="max-w-2xl mx-auto space-y-8">
           <h1 className="text-2xl font-display font-bold">Mi cuenta</h1>
 
@@ -1346,7 +1346,7 @@ export default function Cuenta() {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <SeoHead title="Editar perfil | Punto Cachero" description="Editar perfil de acompañante." canonicalPath="/cuenta" robots="noindex, nofollow" noSocial />
+      <SeoHead title="Editar perfil | Hola Cachero" description="Editar perfil de acompañante." canonicalPath="/cuenta" robots="noindex, nofollow" noSocial />
       <div className="max-w-3xl mx-auto">
         <div className="px-4 pt-4 pb-2">
           <Link to="/cuenta" className="text-sm text-gold hover:underline flex items-center gap-1">
