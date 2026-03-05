@@ -1,19 +1,4 @@
-import { motion } from "framer-motion";
 import { Users, MessageSquare, MapPin } from "lucide-react";
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" as const },
-  },
-};
 
 export interface SocialProofSectionProps {
   usuarios?: number | null;
@@ -22,10 +7,7 @@ export interface SocialProofSectionProps {
 }
 
 function formatNumber(n: number): string {
-  if (n >= 1000) {
-    const s = n.toString();
-    return s.slice(0, -3) + "," + s.slice(-3);
-  }
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(".", ",") + "k";
   return String(n);
 }
 
@@ -35,62 +17,24 @@ export function SocialProofSection({
   ciudades,
 }: SocialProofSectionProps) {
   const items = [
-    {
-      icon: Users,
-      value: usuarios != null ? formatNumber(usuarios) + "+" : "—",
-      label: "Usuarios registrados",
-    },
-    {
-      icon: MessageSquare,
-      value: comentarios != null ? formatNumber(comentarios) + "+" : "—",
-      label: "Comentarios",
-    },
-    {
-      icon: MapPin,
-      value: ciudades != null ? String(ciudades) : "—",
-      label: "Ciudades activas",
-    },
+    { icon: Users, value: usuarios != null ? formatNumber(usuarios) + "+" : "—", label: "usuarios" },
+    { icon: MessageSquare, value: comentarios != null ? formatNumber(comentarios) + "+" : "—", label: "comentarios" },
+    { icon: MapPin, value: ciudades != null ? String(ciudades) : "—", label: "ciudades" },
   ];
 
   return (
-    <section
-      className="px-4 py-20 bg-card"
-      aria-labelledby="social-proof-heading"
-    >
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        variants={stagger}
-        className="max-w-5xl mx-auto"
-      >
-        <motion.h2
-          id="social-proof-heading"
-          variants={fadeUp}
-          className="text-2xl md:text-4xl font-display font-bold text-center mb-14 text-foreground"
-        >
+    <section className="px-4 py-4 max-w-4xl mx-auto" aria-labelledby="social-proof-heading">
+      <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center">
+        <span id="social-proof-heading" className="text-xs font-medium text-muted-foreground w-full sm:w-auto">
           La comunidad <span className="text-copper">crece</span>
-        </motion.h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
-          {items.map((item) => (
-            <motion.div
-              key={item.label}
-              variants={fadeUp}
-              className="text-center"
-            >
-              <item.icon
-                className="w-10 h-10 mx-auto mb-4 text-copper"
-                aria-hidden
-              />
-              <p className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-copper">
-                {item.value}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">{item.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
+        </span>
+        {items.map((item) => (
+          <span key={item.label} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <item.icon className="w-3.5 h-3.5 text-copper" aria-hidden />
+            <strong className="text-foreground tabular-nums">{item.value}</strong> {item.label}
+          </span>
+        ))}
+      </div>
     </section>
   );
 }

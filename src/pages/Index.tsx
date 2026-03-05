@@ -117,20 +117,8 @@ export default function Index() {
       <JsonLdHome />
 
       <HeroSection firstCitySlug={firstCitySlug} />
-      <RaffleHighlightCard />
-      <BenefitsSection />
-      <RaffleSection
-        participantesCount={stats?.usuarios}
-        proximoSorteo={PROXIMO_SORTEO}
-      />
-      <SocialProofSection
-        usuarios={stats?.usuarios}
-        comentarios={stats?.comentarios}
-        ciudades={stats?.ciudades}
-      />
-      <FinalCTASection />
 
-      {/* Destacadas */}
+      {/* Destacadas: lo importante son los perfiles, van primero */}
       <section className="px-4 py-16 max-w-7xl mx-auto" aria-labelledby="destacadas-heading">
         <motion.div
           initial="hidden"
@@ -197,8 +185,24 @@ export default function Index() {
         </motion.div>
       </section>
 
+      {/* Bloque compacto: beneficios, rifa, comunidad y CTA (menos espacio para priorizar perfiles) */}
+      <div className="border-t border-copper/20 py-4 space-y-2 bg-card/30">
+        <RaffleHighlightCard />
+        <BenefitsSection />
+        <RaffleSection
+          participantesCount={stats?.usuarios}
+          proximoSorteo={PROXIMO_SORTEO}
+        />
+        <SocialProofSection
+          usuarios={stats?.usuarios}
+          comentarios={stats?.comentarios}
+          ciudades={stats?.ciudades}
+        />
+        <FinalCTASection />
+      </div>
+
       {/* Footer mínimo: enlace legal + copyright */}
-      <footer className="border-t border-copper/30 mt-16">
+      <footer className="border-t border-copper/30 mt-8">
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
           <p className="text-center">
             <Link

@@ -70,7 +70,8 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
           variants={fadeUp(0.3)}
           className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto mb-10"
         >
-          Crea tu cuenta, comenta y participa en nuestra rifa mensual exclusiva.
+          Crea tu cuenta, comenta y participa en la rifa mensual.{" "}
+          <span className="text-copper font-medium">Gana 1 hora de masaje exclusivo</span> con el perfil que elijas.
         </motion.p>
 
         <motion.div
