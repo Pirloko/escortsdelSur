@@ -279,17 +279,17 @@ const CityPage = () => {
         profileNames={profiles.map((p) => p.name)}
       />
 
-      {/* Header: dimensiones fijas para CLS */}
-      <div className="relative h-48 md:h-64 overflow-hidden">
+      {/* Header: dimensiones fijas para CLS — overlay suave para que la imagen se vea mejor */}
+      <div className="relative h-52 md:h-72 overflow-hidden">
         <img
-          src={city.image || "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80"}
+          src={city.image || "/Sewell.jpg"}
           alt={`Perfiles y acompañantes en ${city.name}, sur de Chile`}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-center"
           width={1200}
           height={480}
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/95 from-15% via-background/35 via-45% to-transparent" />
 
         <div className="absolute top-4 left-4 z-10">
           <Link to="/" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">

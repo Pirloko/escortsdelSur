@@ -1,5 +1,5 @@
 export const cities = [
-  { id: "rancagua", name: "Rancagua", profiles: 24, image: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80" },
+  { id: "rancagua", name: "Rancagua", profiles: 24, image: "/Sewell.jpg" },
   { id: "talca", name: "Talca", profiles: 18, image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&q=80" },
   { id: "chillan", name: "Chillán", profiles: 15, image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80" },
   { id: "concepcion", name: "Concepción", profiles: 42, image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&q=80" },
