@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import { CityRoute } from "./pages/CityRoute";
+import { CitySegmentRoute } from "./pages/CitySegmentRoute";
 import { BottomNav } from "./components/BottomNav";
 import { AgeGate } from "./components/AgeGate";
 import { CookieBanner } from "./components/CookieBanner";
@@ -126,6 +127,7 @@ const App = () => (
               <Route path="/privacidad" element={<PrivacyPolicyPage />} />
               <Route path="/politica-de-privacidad" element={<PoliticaPrivacidad />} />
               <Route path="/perfil/:profileId" element={<ProfilePage />} />
+              <Route path="/:citySlug/:segment" element={<CitySegmentRoute />} />
               <Route path="/:citySlug" element={<CityRoute />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

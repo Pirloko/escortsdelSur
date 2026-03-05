@@ -13,7 +13,15 @@ export const CATEGORY_SLUGS = [
   "damas-de-compania",
 ] as const;
 
-/** Slugs de filtro por característica (long-tail): /rancagua/pelinegras, etc. */
+/** Slugs por intención de búsqueda: sexo, sexosur, skokka, scort */
+export const INTENT_SLUGS = [
+  "sexo",
+  "sexosur",
+  "skokka",
+  "scort",
+] as const;
+
+/** Slugs de filtro por característica (plural): /rancagua/pelinegras, etc. */
 export const FEATURE_FILTER_SLUGS = [
   "pelinegras",
   "tetonas",
@@ -22,20 +30,39 @@ export const FEATURE_FILTER_SLUGS = [
   "depiladas",
 ] as const;
 
-/** Slugs de filtro por servicio: /rancagua/masajes, /rancagua/a-domicilio, etc. */
+/** Slugs long-tail singular: /rancagua/escort-pelinegra, etc. */
+export const LONGTAIL_SINGULAR_SLUGS = [
+  "escort-pelinegra",
+  "escort-tetona",
+  "escort-culona",
+  "escort-bajita",
+  "escort-depilada",
+  "escort-a-domicilio",
+  "escort-masajes-eroticos",
+  "escort-vip",
+  "escort-independiente",
+] as const;
+
+/** Slugs de filtro por servicio */
 export const SERVICE_FILTER_SLUGS = [
   "a-domicilio",
   "apartamento-propio",
   "masajes",
+  "masajes-eroticos",
   "trios",
   "fetichismo",
   "atencion-parejas",
+  "oral-con-condon",
+  "sexo-anal",
+  "juguetes-eroticos",
 ] as const;
 
 /** Todos los slugs que corresponden a página de filtro (no perfil). */
 export const ALL_FILTER_SLUGS: readonly string[] = [
   ...CATEGORY_SLUGS,
+  ...INTENT_SLUGS,
   ...FEATURE_FILTER_SLUGS,
+  ...LONGTAIL_SINGULAR_SLUGS,
   ...SERVICE_FILTER_SLUGS,
 ];
 
@@ -97,16 +124,25 @@ export const SERVICE_SLUG_TO_TERMS: Record<string, string[]> = {
   "a-domicilio": ["a domicilio", "domicilio"],
   "apartamento-propio": ["apartamento propio", "apartamento"],
   masajes: ["masajes eroticos", "masajes", "masaje erótico"],
+  "masajes-eroticos": ["masajes eroticos", "masajes", "masaje erótico"],
   trios: ["trios", "trío", "trio"],
   fetichismo: ["fetichismo", "fetiche"],
   "atencion-parejas": ["atencion a parejas", "parejas", "atención a parejas"],
+  "oral-con-condon": ["oral con condon", "oral con condón"],
+  "sexo-anal": ["sexo anal", "anal"],
+  "juguetes-eroticos": ["juguetes eroticos", "juguetes", "juguete erótico"],
 };
 
-/** Mapeo slug de característica → términos para búsqueda (tags o descripción) */
+/** Mapeo slug de característica → términos para búsqueda (descripción) */
 export const FEATURE_SLUG_TO_TERMS: Record<string, string[]> = {
   pelinegras: ["pelinegra", "pelo negro", "cabello negro"],
   tetonas: ["tetona", "busty", "busto grande"],
   culonas: ["culona", "colas", "glúteos"],
   bajitas: ["bajita", "baja estatura", "petite"],
   depiladas: ["depilada", "depilación", "sin vello"],
+  "escort-pelinegra": ["pelinegra", "pelo negro"],
+  "escort-tetona": ["tetona", "busty"],
+  "escort-culona": ["culona", "colas"],
+  "escort-bajita": ["bajita", "petite"],
+  "escort-depilada": ["depilada", "depilación"],
 };

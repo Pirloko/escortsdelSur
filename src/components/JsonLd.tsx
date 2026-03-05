@@ -82,6 +82,59 @@ export function JsonLdCity({ cityName, citySlug, profileCount, profileNames = []
   );
 }
 
+export interface JsonLdFilterPageProps {
+  cityName: string;
+  citySlug: string;
+  filterSlug: string;
+  filterLabel: string;
+  profileNames: string[];
+  profileUrls?: string[];
+}
+
+export function JsonLdFilterPage({
+  cityName,
+  citySlug,
+  filterSlug,
+  filterLabel,
+  profileNames,
+  profileUrls = [],
+}: JsonLdFilterPageProps) {
+  const cityUrl = `${SITE_URL}/${sanitizeForJsonLd(citySlug)}`;
+  const filterUrlPath = `${cityUrl}/${sanitizeForJsonLd(filterSlug)}`;
+  const safeCity = sanitizeForJsonLd(cityName);
+  const safeFilter = sanitizeForJsonLd(filterLabel);
+
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: SITE_URL + "/" },
+      { "@type": "ListItem", position: 2, name: safeCity, item: cityUrl },
+      { "@type": "ListItem", position: 3, name: safeFilter, item: filterUrlPath },
+    ],
+  };
+
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${safeFilter} en ${safeCity}`,
+    numberOfItems: profileNames.length,
+    itemListElement: profileNames.slice(0, 20).map((name, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: sanitizeForJsonLd(name),
+      ...(profileUrls[i] ? { url: profileUrls[i] } : {}),
+    })),
+  };
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
+    </>
+  );
+}
+
 export interface JsonLdProfileProps {
   profileName: string;
   profileId: string;

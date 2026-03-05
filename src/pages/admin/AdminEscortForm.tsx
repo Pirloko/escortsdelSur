@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,7 +119,9 @@ interface AdminEscortFormProps {
 }
 
 export function AdminEscortForm({ initial, onClose, onSuccess }: AdminEscortFormProps) {
-  const uploadPrefix = useRef(`admin-${Date.now()}`).current;
+  const { user } = useAuth();
+  const adminSubfolder = useRef(`admin-${Date.now()}`).current;
+  const uploadPrefix = user?.id ? `${user.id}/${adminSubfolder}` : adminSubfolder;
   const [cities, setCities] = useState<CitiesRow[]>([]);
   const [name, setName] = useState("");
   const [age, setAge] = useState("");

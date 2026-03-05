@@ -6,11 +6,15 @@ const { createClient } = require("@supabase/supabase-js");
 
 const SITE_URL = process.env.VITE_SITE_URL || process.env.SITE_URL || "https://holacachero.cl";
 
-/** Slugs de páginas de filtro/categoría (alineado con src/lib/seo-programmatic.ts). */
+/** Slugs de páginas SEO (alineado con src/lib/seo-programmatic.ts). Categorías, intención, servicios, atributos, long-tail y combos. */
 const FILTER_SLUGS = [
   "escorts", "acompanantes", "damas-de-compania",
+  "sexo", "sexosur", "skokka", "scort",
   "pelinegras", "tetonas", "culonas", "bajitas", "depiladas",
-  "a-domicilio", "apartamento-propio", "masajes", "trios", "fetichismo", "atencion-parejas",
+  "escort-pelinegra", "escort-tetona", "escort-culona", "escort-bajita", "escort-depilada",
+  "escort-a-domicilio", "escort-masajes-eroticos", "escort-vip", "escort-independiente",
+  "a-domicilio", "apartamento-propio", "masajes", "masajes-eroticos", "trios", "fetichismo", "atencion-parejas",
+  "oral-con-condon", "sexo-anal", "juguetes-eroticos",
   "escorts-pelinegras", "escorts-tetonas", "escorts-culonas", "escorts-bajitas", "escorts-depiladas",
   "escorts-a-domicilio", "escorts-apartamento-propio", "escorts-masajes", "escorts-trios",
   "acompanantes-a-domicilio", "acompanantes-masajes",
