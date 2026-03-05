@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe, BadgeCheck } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,10 +18,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { RegistroClienteForm } from "@/components/RegistroClienteForm";
+import { ReviewExperienceForm } from "@/components/ReviewExperienceForm";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import type { ProfileCommentsRow } from "@/types/database";
+import type { ProfileCommentsRow, ReviewExperiencesRow } from "@/types/database";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 15 },
@@ -35,6 +36,7 @@ const ProfilePage = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [openRegistroCliente, setOpenRegistroCliente] = useState(false);
+  const [openReviewForm, setOpenReviewForm] = useState(false);
   const [favoriteToggling, setFavoriteToggling] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [commentSubmitting, setCommentSubmitting] = useState(false);
@@ -167,6 +169,50 @@ const ProfilePage = () => {
   });
   const displayNameByUserId = Object.fromEntries(commenterProfiles.map((p) => [p.id, p.display_name ?? "Anónimo"]));
 
+  const sevenDaysAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["review_experiences", profileId],
+    queryFn: async (): Promise<ReviewExperiencesRow[]> => {
+      if (!supabase || !profileId) return [];
+      const { data } = await supabase
+        .from("review_experiences")
+        .select("*")
+        .eq("escort_profile_id", profileId)
+        .order("created_at", { ascending: false });
+      return (data ?? []) as ReviewExperiencesRow[];
+    },
+    enabled: !!profileId && !!supabase,
+  });
+  const reviewsAvg = reviews.length
+    ? reviews.reduce((s, r) => s + (r.promedio_final ?? 0), 0) / reviews.length
+    : null;
+  const reviewUserIds = [...new Set(reviews.map((r) => r.user_id))];
+  const { data: reviewAuthorProfiles = [] } = useQuery({
+    queryKey: ["profiles_display_names_reviews", reviewUserIds],
+    queryFn: async () => {
+      if (!supabase || reviewUserIds.length === 0) return [];
+      const { data } = await supabase.from("profiles").select("id, display_name").in("id", reviewUserIds);
+      return (data ?? []) as { id: string; display_name: string | null }[];
+    },
+    enabled: !!supabase && reviewUserIds.length > 0,
+  });
+  const displayNameByReviewUserId = Object.fromEntries(reviewAuthorProfiles.map((p) => [p.id, p.display_name ?? "Anónimo"]));
+  const { data: myReviewIn7Days = [] } = useQuery({
+    queryKey: ["review_experiences_mine_7d", profileId, user?.id],
+    queryFn: async () => {
+      if (!supabase || !profileId || !user?.id) return [];
+      const { data } = await supabase
+        .from("review_experiences")
+        .select("id")
+        .eq("escort_profile_id", profileId)
+        .eq("user_id", user.id)
+        .gte("created_at", sevenDaysAgoIso);
+      return (data ?? []) as { id: string }[];
+    },
+    enabled: !!profileId && !!user?.id && !!supabase,
+  });
+  const alreadyReviewedIn7Days = myReviewIn7Days.length > 0;
+
   const startOfTodayUtc = new Date();
   startOfTodayUtc.setUTCHours(0, 0, 0, 0);
   const startOfTodayIso = startOfTodayUtc.toISOString();
@@ -206,7 +252,14 @@ const ProfilePage = () => {
     setCommentBody("");
     queryClient.invalidateQueries({ queryKey: ["profile_comments", profileId] });
     queryClient.invalidateQueries({ queryKey: ["profile_comments_mine_today", profileId, user.id, todayKey] });
-    toast.success("Comentario publicado.");
+    toast.success("Comentario publicado. +1 ticket.");
+  };
+
+  const submitReviewExperience = async (payload: Record<string, unknown>) => {
+    if (!supabase) return { error: new Error("Sin conexión") };
+    // @ts-expect-error - review_experiences Insert type may not be in generated client
+    const { error } = await supabase.from("review_experiences").insert(payload);
+    return { error: error ? new Error(error.message) : null };
   };
 
   const toggleFavorite = async () => {
@@ -462,7 +515,57 @@ const ProfilePage = () => {
             </motion.div>
           ) : null}
 
-          {/* Comentarios: visibles para todos; solo visitantes/clientes pueden dejar 1 por día */}
+          {/* Reseñas verificadas de experiencia */}
+          <motion.div variants={fadeUp} className="space-y-4 mb-10">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Reseñas de clientes
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Opiniones sobre {profile.name} en {profile.city}
+            </p>
+            {reviews.length > 0 ? (
+              <>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="flex items-center gap-1.5">
+                    <Star className="w-4 h-4 fill-gold text-gold" />
+                    <strong className="text-foreground">{reviewsAvg != null ? reviewsAvg.toFixed(1) : "—"}</strong>
+                    <span className="text-muted-foreground">({reviews.length} reseña{reviews.length !== 1 ? "s" : ""})</span>
+                  </span>
+                </div>
+                <ul className="space-y-3">
+                  {reviews.slice(0, 5).map((r) => (
+                    <li key={r.id} className="p-4 rounded-xl bg-muted/30 border border-border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <BadgeCheck className="w-4 h-4 text-gold shrink-0" aria-hidden />
+                        <span className="text-sm font-medium text-foreground">
+                          {displayNameByReviewUserId[r.user_id] ?? "Anónimo"}
+                        </span>
+                        <span className="text-sm text-gold">{r.promedio_final?.toFixed(1)}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(r.created_at).toLocaleDateString("es-CL", { dateStyle: "short" })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{r.comentario_experiencia}</p>
+                      {r.tags?.length ? (
+                        <p className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-1">
+                          {r.tags.map((t) => (
+                            <span key={t} className="px-1.5 py-0.5 rounded bg-muted">{t}</span>
+                          ))}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+                {reviews.length > 5 && (
+                  <p className="text-sm text-muted-foreground">Mostrando las 5 reseñas más recientes.</p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">Aún no hay reseñas verificadas.</p>
+            )}
+          </motion.div>
+
+          {/* Comentarios simples y acciones: comentario + reseña */}
           <motion.div variants={fadeUp} className="space-y-4 mb-10">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Comentarios</p>
             {comments.length > 0 ? (
@@ -479,32 +582,67 @@ const ProfilePage = () => {
             ) : (
               <p className="text-sm text-muted-foreground">Aún no hay comentarios.</p>
             )}
-            {!user ? (
-              <p className="text-sm text-muted-foreground">
-                Inicia sesión como cliente para dejar un comentario (máx. 1 por día por perfil).
-              </p>
-            ) : role !== "visitor" ? (
-              <p className="text-sm text-muted-foreground">Solo los usuarios clientes pueden dejar comentarios.</p>
-            ) : alreadyCommentedToday ? (
-              <p className="text-sm text-amber-500">Ya has dejado tu comentario de hoy en este perfil. Podrás dejar otro mañana.</p>
-            ) : (
-              <div className="space-y-2">
-                <Textarea
-                  placeholder="Escribe tu comentario…"
-                  value={commentBody}
-                  onChange={(e) => setCommentBody(e.target.value)}
-                  className="min-h-[80px] resize-y rounded-xl"
-                  maxLength={500}
-                />
-                <Button
-                  className="rounded-xl bg-gold text-primary-foreground hover:bg-gold/90"
-                  onClick={submitComment}
-                  disabled={!commentBody.trim() || commentSubmitting}
-                >
-                  {commentSubmitting ? "Enviando…" : "Enviar comentario"}
-                </Button>
-              </div>
-            )}
+            <div className="flex flex-wrap gap-2 items-center">
+              {!user ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className="rounded-xl border-gold text-gold hover:bg-gold/10"
+                    onClick={() => setOpenRegistroCliente(true)}
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Dejar comentario
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="rounded-xl border-gold text-gold hover:bg-gold/10"
+                    onClick={() => setOpenRegistroCliente(true)}
+                  >
+                    <BadgeCheck className="mr-2 h-4 w-4" />
+                    Dejar reseña verificada
+                  </Button>
+                </>
+              ) : role !== "visitor" ? (
+                <p className="text-sm text-muted-foreground">Solo los usuarios clientes pueden dejar comentarios y reseñas.</p>
+              ) : (
+                <>
+                  {alreadyCommentedToday ? (
+                    <p className="text-sm text-amber-500">Ya has dejado tu comentario de hoy. Podrás dejar otro mañana.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 items-end">
+                      <div className="min-w-[200px] flex-1">
+                        <Textarea
+                          placeholder="Escribe tu comentario… (+1 ticket)"
+                          value={commentBody}
+                          onChange={(e) => setCommentBody(e.target.value)}
+                          className="min-h-[80px] resize-y rounded-xl"
+                          maxLength={500}
+                        />
+                      </div>
+                      <Button
+                        className="rounded-xl bg-gold text-primary-foreground hover:bg-gold/90"
+                        onClick={submitComment}
+                        disabled={!commentBody.trim() || commentSubmitting}
+                      >
+                        {commentSubmitting ? "Enviando…" : "Enviar comentario"}
+                      </Button>
+                    </div>
+                  )}
+                  {alreadyReviewedIn7Days ? (
+                    <p className="text-sm text-amber-500">Ya has dejado una reseña en este perfil en los últimos 7 días.</p>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="rounded-xl border-gold text-gold hover:bg-gold/10"
+                      onClick={() => setOpenReviewForm(true)}
+                    >
+                      <BadgeCheck className="mr-2 h-4 w-4" />
+                      Dejar reseña verificada (+3 tickets)
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           </motion.div>
         </motion.div>
 
@@ -605,6 +743,29 @@ const ProfilePage = () => {
               toast.success("Cuenta creada. Ya puedes agregar a favoritos.");
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal: Reseña verificada de experiencia */}
+      <Dialog open={openReviewForm} onOpenChange={setOpenReviewForm}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Reseña verificada de experiencia</DialogTitle>
+          </DialogHeader>
+          {profileId && user?.id && (
+            <ReviewExperienceForm
+              escortProfileId={profileId}
+              userId={user.id}
+              submitReview={submitReviewExperience}
+              onSuccess={() => {
+                setOpenReviewForm(false);
+                queryClient.invalidateQueries({ queryKey: ["review_experiences", profileId] });
+                queryClient.invalidateQueries({ queryKey: ["review_experiences_mine_7d", profileId, user.id] });
+                toast.success("Reseña publicada. +3 tickets.");
+              }}
+              onError={(msg) => toast.error(msg)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

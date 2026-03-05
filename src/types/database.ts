@@ -71,6 +71,37 @@ export interface ProfileCommentsRow {
   created_at: string;
 }
 
+export interface ReviewExperiencesRow {
+  id: string;
+  escort_profile_id: string;
+  user_id: string;
+  precio_pagado: string | null;
+  duracion_servicio: string | null;
+  lugar_encuentro: string | null;
+  rating_comunicacion: number | null;
+  respuesta_whatsapp: string | null;
+  coincidencia_fotos: string | null;
+  nivel_photoshop: number | null;
+  estatura_aproximada: string | null;
+  contextura: string | null;
+  higiene: number | null;
+  besos: number | null;
+  oral: number | null;
+  movimiento_corporal: number | null;
+  actitud: number | null;
+  quimica: number | null;
+  participacion: number | null;
+  calidad_lugar: number | null;
+  privacidad: string | null;
+  atencion_general: number | null;
+  cumplio_prometido: string | null;
+  volveria_contactar: string | null;
+  promedio_final: number;
+  comentario_experiencia: string;
+  tags: string[] | null;
+  created_at: string;
+}
+
 export interface ProfileViewsRow {
   id: string;
   user_id: string;
@@ -213,6 +244,11 @@ export interface Database {
         Row: ProfileCommentsRow;
         Insert: Omit<ProfileCommentsRow, "id" | "created_at"> & { id?: string; created_at?: string };
         Update: Partial<Omit<ProfileCommentsRow, "id">>;
+      };
+      review_experiences: {
+        Row: ReviewExperiencesRow;
+        Insert: Omit<ReviewExperiencesRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<ReviewExperiencesRow, "id">>;
       };
       profile_views: {
         Row: ProfileViewsRow;

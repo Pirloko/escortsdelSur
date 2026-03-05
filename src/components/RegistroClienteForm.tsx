@@ -93,14 +93,12 @@ export function RegistroClienteForm({ onSuccess, compact = false }: RegistroClie
           {loading ? "Creando cuenta…" : "Registrarme"}
         </Button>
       </form>
-      {!compact && (
-        <p className="text-center text-sm text-muted-foreground">
-          ¿Ya tienes cuenta?{" "}
-          <Link to="/login" className="text-gold hover:underline">
-            Inicia sesión
-          </Link>
-        </p>
-      )}
+      <p className="text-center text-sm text-muted-foreground">
+        ¿Ya tienes cuenta?{" "}
+        <Link to="/login" className="text-gold hover:underline" onClick={() => onSuccess?.()}>
+          Inicia sesión
+        </Link>
+      </p>
     </div>
   );
 }
