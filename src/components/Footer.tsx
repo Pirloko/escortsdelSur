@@ -36,13 +36,18 @@ export function Footer() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-gold mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/terminos-y-condiciones" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Términos y condiciones
+                <Link to="/terminos-de-uso" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Términos de uso
                 </Link>
               </li>
               <li>
-                <Link to="/politica-de-privacidad" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/privacidad" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Política de privacidad
+                </Link>
+              </li>
+              <li>
+                <Link to="/rifa/terminos" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Reglas de la rifa
                 </Link>
               </li>
               <li>

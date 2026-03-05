@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { CITIES_DROPDOWN_SLUGS } from "@/lib/data";
+import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,19 +149,25 @@ export default function CompletarPerfil() {
       return;
     }
     setUploadingImage(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${user.id}/new/${Date.now()}-main.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("escort-images").upload(path, file, {
-      cacheControl: "3600",
-      upsert: true,
-    });
-    setUploadingImage(false);
-    if (uploadError) {
-      setUploadImageError(uploadError.message || "Error al subir la imagen");
-      return;
+    try {
+      const fileWithWatermark = await addWatermarkToImageFileAsFile(file);
+      const ext = fileWithWatermark.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/new/${Date.now()}-main.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("escort-images").upload(path, fileWithWatermark, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (uploadError) {
+        setUploadImageError(uploadError.message || "Error al subir la imagen");
+        return;
+      }
+      const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
+      setImage(publicUrl);
+    } catch (err) {
+      setUploadImageError(err instanceof Error ? err.message : "Error al aplicar marca de agua");
+    } finally {
+      setUploadingImage(false);
     }
-    const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
-    setImage(publicUrl);
   };
 
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,24 +192,29 @@ export default function CompletarPerfil() {
     }
     setUploadingGallery(true);
     const newUrls: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${user.id}/new/${Date.now()}-${i}-gal.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("escort-images").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (uploadError) {
-        setGalleryError(uploadError.message || "Error al subir");
-        setUploadingGallery(false);
-        return;
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileWithWatermark = await addWatermarkToImageFileAsFile(file);
+        const ext = fileWithWatermark.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${user.id}/new/${Date.now()}-${i}-gal.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("escort-images").upload(path, fileWithWatermark, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (uploadError) {
+          setGalleryError(uploadError.message || "Error al subir");
+          return;
+        }
+        const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
+        newUrls.push(publicUrl);
       }
-      const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
-      newUrls.push(publicUrl);
+      setGallery((prev) => [...prev, ...newUrls].slice(0, MAX_GALLERY));
+    } catch (err) {
+      setGalleryError(err instanceof Error ? err.message : "Error al aplicar marca de agua");
+    } finally {
+      setUploadingGallery(false);
     }
-    setGallery((prev) => [...prev, ...newUrls].slice(0, MAX_GALLERY));
-    setUploadingGallery(false);
   };
 
   const removeGalleryImage = (index: number) => {
@@ -243,9 +255,9 @@ export default function CompletarPerfil() {
       whatsapp: whatsapp.trim() || null,
       available: true,
       active_until: activeUntil,
-      time_slot: "09-12",
-      time_slots: ["09-12"],
-      subidas_per_day: 10,
+      time_slot: null,
+      time_slots: [],
+      subidas_per_day: null,
       promotion: null,
     });
     if (insertErr) {

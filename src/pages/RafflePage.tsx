@@ -119,7 +119,7 @@ export default function RafflePage() {
             <li>Cada ticket = 1 papeleta. Más tickets = más probabilidad.</li>
             <li>Al ejecutarse el sorteo, todos los tickets se reinician a 0.</li>
           </ul>
-          <Link to="/terminos-y-condiciones#sorteo" className="inline-block mt-4 text-sm text-copper hover:underline">
+          <Link to="/rifa/terminos" className="inline-block mt-4 text-sm text-copper hover:underline">
             Términos del Sorteo →
           </Link>
         </div>

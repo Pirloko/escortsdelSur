@@ -30,6 +30,7 @@ import { RaffleTicketsCard } from "@/components/RaffleTicketsCard";
 import { useQuizDayForUser } from "@/hooks/useQuizDay";
 import { getMyRafflePrize } from "@/lib/raffleService";
 import { getRaffleClaimWhatsAppUrl } from "@/lib/raffleConfig";
+import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
 import type { UserProgress, UserBadge } from "@/types/gamification";
 import { LogOut, Trash2, Heart, MessageSquare, Eye, Pencil, Gift, ExternalLink } from "lucide-react";
 
@@ -301,24 +302,30 @@ export default function MiPerfil() {
       return;
     }
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${user.id}/avatar.${ext}`;
-    const { error } = await supabase.storage.from("avatars").upload(path, file, {
-      cacheControl: "3600",
-      upsert: true,
-    });
-    setUploadingAvatar(false);
-    if (error) {
-      setAvatarError(error.message || "Error al subir");
-      return;
-    }
-    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-    setAvatarUrl(publicUrl);
+    try {
+      const fileWithWatermark = await addWatermarkToImageFileAsFile(file);
+      const ext = fileWithWatermark.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/avatar.${ext}`;
+      const { error } = await supabase.storage.from("avatars").upload(path, fileWithWatermark, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (error) {
+        setAvatarError(error.message || "Error al subir");
+        return;
+      }
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      setAvatarUrl(publicUrl);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from("profiles") as any)
       .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
       .eq("id", user.id);
-    refreshProfile();
+      refreshProfile();
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "Error al aplicar marca de agua");
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

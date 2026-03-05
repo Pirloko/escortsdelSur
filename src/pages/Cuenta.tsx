@@ -29,6 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus, Eye } from "lucide-react";
 import type { EscortProfilesRow, CitiesRow, CreditTransactionsRow } from "@/types/database";
 import { TIME_SLOTS, getSubidaScheduleForDay } from "@/lib/franjas";
+import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
 import { jsPDF } from "jspdf";
 
 /** Palabras clave para el botón "Texto aleatorio" en Descripción. Edita estos arrays manualmente. */
@@ -242,14 +243,16 @@ export default function Cuenta() {
           setZone(p.zone ?? "");
           setSchedule(p.schedule ?? "");
           setWhatsapp(p.whatsapp ?? "");
+          const rawSlots = (p as { time_slots?: string[]; time_slot?: string }).time_slots;
+          const rawSlot = (p as { time_slot?: string }).time_slot;
           const loadedSlots =
-            (p as { time_slots?: string[]; time_slot?: string }).time_slots?.length
-              ? (p as { time_slots: string[] }).time_slots
-              : [(p as { time_slot?: string }).time_slot ?? "09-12"];
+            rawSlots?.length ? rawSlots : (rawSlot ? [rawSlot] : []);
           setTimeSlots(loadedSlots);
-          const totalSubidasDb = (p as { subidas_per_day?: number }).subidas_per_day ?? 10;
+          const totalSubidasDb = (p as { subidas_per_day?: number | null }).subidas_per_day;
           const perFranja =
-            loadedSlots.length > 0 ? Math.round(totalSubidasDb / loadedSlots.length) : totalSubidasDb;
+            loadedSlots.length > 0 && totalSubidasDb != null
+              ? Math.round(totalSubidasDb / loadedSlots.length)
+              : 10;
           setSubidasPorFranja(perFranja === 5 ? 5 : 10);
           setGallery(Array.isArray(p.gallery) ? p.gallery : []);
           setServicesIncluded(Array.isArray((p as { services_included?: string[] }).services_included) ? (p as { services_included: string[] }).services_included : []);
@@ -951,19 +954,25 @@ export default function Cuenta() {
       return;
     }
     setUploadingImage(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${user.id}/main.${ext}`;
-    const { error } = await supabase.storage.from("escort-images").upload(path, file, {
-      cacheControl: "3600",
-      upsert: true,
-    });
-    setUploadingImage(false);
-    if (error) {
-      setUploadImageError(error.message || "Error al subir la imagen");
-      return;
+    try {
+      const fileWithWatermark = await addWatermarkToImageFileAsFile(file);
+      const ext = fileWithWatermark.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/main.${ext}`;
+      const { error } = await supabase.storage.from("escort-images").upload(path, fileWithWatermark, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (error) {
+        setUploadImageError(error.message || "Error al subir la imagen");
+        return;
+      }
+      const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
+      setImage(publicUrl);
+    } catch (err) {
+      setUploadImageError(err instanceof Error ? err.message : "Error al aplicar marca de agua");
+    } finally {
+      setUploadingImage(false);
     }
-    const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
-    setImage(publicUrl);
   };
 
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -988,24 +997,29 @@ export default function Cuenta() {
     }
     setUploadingGallery(true);
     const newUrls: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${user.id}/gallery-${Date.now()}-${i}.${ext}`;
-      const { error } = await supabase.storage.from("escort-images").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (error) {
-        setGalleryError(error.message || "Error al subir");
-        setUploadingGallery(false);
-        return;
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileWithWatermark = await addWatermarkToImageFileAsFile(file);
+        const ext = fileWithWatermark.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${user.id}/gallery-${Date.now()}-${i}.${ext}`;
+        const { error } = await supabase.storage.from("escort-images").upload(path, fileWithWatermark, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (error) {
+          setGalleryError(error.message || "Error al subir");
+          return;
+        }
+        const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
+        newUrls.push(publicUrl);
       }
-      const { data: { publicUrl } } = supabase.storage.from("escort-images").getPublicUrl(path);
-      newUrls.push(publicUrl);
+      setGallery((prev) => [...prev, ...newUrls].slice(0, MAX_GALLERY));
+    } catch (err) {
+      setGalleryError(err instanceof Error ? err.message : "Error al aplicar marca de agua");
+    } finally {
+      setUploadingGallery(false);
     }
-    setGallery((prev) => [...prev, ...newUrls].slice(0, MAX_GALLERY));
-    setUploadingGallery(false);
   };
 
   const removeGalleryImage = (index: number) => {
@@ -1014,9 +1028,15 @@ export default function Cuenta() {
 
   // Consideramos "vencido" cuando no hay fecha o cuando ya pasó.
   const isProfileExpired = activeUntil ? new Date(activeUntil) < new Date() : true;
-  /** Franja y subidas editables: primera vez (sin promoción activa) o cuando terminó el período de 7 días */
-  const tienePromoActiva = promotion.trim() === "galeria" || promotion.trim() === "destacada";
-  const canEditSubidas = isProfileExpired || !tienePromoActiva;
+  /** Promoción activa guardada en BD (no la selección actual del dropdown): bloquea franjas solo si ya tiene galería/destacada y período vigente */
+  const escortProfileForPromo = (profileData as ProfileWithCity | null) ?? (profilesList[0] as ProfileWithCity | undefined);
+  const savedPromotion = (escortProfileForPromo as { promotion?: string | null })?.promotion ?? null;
+  const hasActivePromotionInDb =
+    (savedPromotion === "galeria" || savedPromotion === "destacada") &&
+    activeUntil != null &&
+    new Date(activeUntil) > new Date();
+  /** Franja y subidas editables: sin promoción activa en BD o cuando el período de 7 días ya terminó */
+  const canEditSubidas = isProfileExpired || !hasActivePromotionInDb;
 
   const handleActivar7Dias = async () => {
     if (!supabase || !profile?.id) return;
@@ -1148,15 +1168,13 @@ export default function Cuenta() {
       .from("escort_profiles")
       // @ts-expect-error Supabase generated types pueden no incluir time_slot/time_slots/subidas_per_day/promotion/active_until
       .update({
-        time_slot: canEditSubidas ? (timeSlots[0]?.trim() || null) : ((escortProfile as { time_slot?: string }).time_slot ?? "09-12"),
+        time_slot: canEditSubidas ? (timeSlots[0]?.trim() || null) : ((escortProfile as { time_slot?: string }).time_slot ?? null),
         time_slots: canEditSubidas
           ? timeSlots
-          : ((escortProfile as { time_slots?: string[] }).time_slots ?? [(escortProfile as { time_slot?: string }).time_slot ?? "09-12"]),
+          : ((escortProfile as { time_slots?: string[] }).time_slots ?? []),
         subidas_per_day: canEditSubidas
-          ? timeSlots.length * subidasPorFranja
-          : (escortProfile as { subidas_per_day?: number }).subidas_per_day === 5
-            ? 5
-            : (escortProfile as { subidas_per_day?: number }).subidas_per_day ?? 10,
+          ? (timeSlots.length > 0 ? timeSlots.length * subidasPorFranja : null)
+          : (escortProfile as { subidas_per_day?: number | null }).subidas_per_day ?? null,
         promotion:
           promotion.trim() === "galeria"
             ? "galeria"

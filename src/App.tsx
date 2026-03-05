@@ -11,6 +11,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import { CityRoute } from "./pages/CityRoute";
 import { BottomNav } from "./components/BottomNav";
+import { AgeGate } from "./components/AgeGate";
+import { CookieBanner } from "./components/CookieBanner";
 
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 import NotFound from "./pages/NotFound";
@@ -23,7 +25,10 @@ const MiPerfil = lazy(() => import("./pages/MiPerfil"));
 const DesafioDelDia = lazy(() => import("./pages/DesafioDelDia"));
 const Cuenta = lazy(() => import("./pages/Cuenta"));
 const TerminosYCondiciones = lazy(() => import("./pages/TerminosYCondiciones"));
+const TermsOfUsePage = lazy(() => import("./pages/TermsOfUsePage"));
+const RaffleTermsPage = lazy(() => import("./pages/RaffleTermsPage"));
 const PoliticaPrivacidad = lazy(() => import("./pages/PoliticaPrivacidad"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const RafflePage = lazy(() => import("./pages/RafflePage"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -46,6 +51,7 @@ const App = () => (
         <Sonner />
         <Analytics />
         <BrowserRouter>
+          <AgeGate>
           <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><span className="text-muted-foreground text-sm">Cargando…</span></div>}>
           <AnimatePresence mode="wait">
             <Routes>
@@ -113,7 +119,10 @@ const App = () => (
                 <Route path="rifa" element={<AdminRaffle />} />
               </Route>
               <Route path="/rifa" element={<RafflePage />} />
+              <Route path="/rifa/terminos" element={<RaffleTermsPage />} />
+              <Route path="/terminos-de-uso" element={<TermsOfUsePage />} />
               <Route path="/terminos-y-condiciones" element={<TerminosYCondiciones />} />
+              <Route path="/privacidad" element={<PrivacyPolicyPage />} />
               <Route path="/politica-de-privacidad" element={<PoliticaPrivacidad />} />
               <Route path="/perfil/:profileId" element={<ProfilePage />} />
               <Route path="/:citySlug" element={<CityRoute />} />
@@ -122,6 +131,8 @@ const App = () => (
           </AnimatePresence>
           </Suspense>
           <BottomNav />
+          <CookieBanner />
+          </AgeGate>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
