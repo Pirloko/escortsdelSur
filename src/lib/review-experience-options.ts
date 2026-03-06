@@ -81,6 +81,44 @@ export const REVIEW_TAGS_OPTIONS = [
   { value: "repetiria", label: "Repetiría" },
 ] as const;
 
+/** Obtener etiqueta legible por valor (para visualización de reseñas) */
+function getLabel<T extends { value: string; label: string }>(options: readonly T[], value: string | null | undefined): string {
+  if (value == null || value === "") return "";
+  const found = options.find((o) => o.value === value);
+  return found ? found.label : value;
+}
+
+export function getReviewLabels(r: {
+  precio_pagado?: string | null;
+  duracion_servicio?: string | null;
+  lugar_encuentro?: string | null;
+  respuesta_whatsapp?: string | null;
+  coincidencia_fotos?: string | null;
+  estatura_aproximada?: string | null;
+  contextura?: string | null;
+  privacidad?: string | null;
+  cumplio_prometido?: string | null;
+  volveria_contactar?: string | null;
+}) {
+  return {
+    precio_pagado: getLabel(PRECIO_PAGADO_OPTIONS, r.precio_pagado),
+    duracion_servicio: getLabel(DURACION_SERVICIO_OPTIONS, r.duracion_servicio),
+    lugar_encuentro: getLabel(LUGAR_ENCUENTRO_OPTIONS, r.lugar_encuentro),
+    respuesta_whatsapp: getLabel(RESPUESTA_WHATSAPP_OPTIONS, r.respuesta_whatsapp),
+    coincidencia_fotos: getLabel(COINCIDENCIA_FOTOS_OPTIONS, r.coincidencia_fotos),
+    estatura_aproximada: getLabel(ESTATURA_APROXIMADA_OPTIONS, r.estatura_aproximada),
+    contextura: getLabel(CONTEXTURA_OPTIONS, r.contextura),
+    privacidad: getLabel(PRIVACIDAD_OPTIONS, r.privacidad),
+    cumplio_prometido: getLabel(CUMPLIO_PROMETIDO_OPTIONS, r.cumplio_prometido),
+    volveria_contactar: getLabel(VOLVERIA_CONTACTAR_OPTIONS, r.volveria_contactar),
+  };
+}
+
+export function getTagLabel(tagValue: string): string {
+  const found = REVIEW_TAGS_OPTIONS.find((o) => o.value === tagValue);
+  return found ? found.label : tagValue;
+}
+
 /** Calcular promedio_final (escala 1-5) a partir de los campos de la reseña */
 export function computePromedioFinal(data: {
   rating_comunicacion?: number | null;

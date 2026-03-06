@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { RegistroClienteForm } from "@/components/RegistroClienteForm";
 import { ReviewExperienceForm } from "@/components/ReviewExperienceForm";
+import { ReviewExperienceCard } from "@/components/ReviewExperienceCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -532,27 +533,13 @@ const ProfilePage = () => {
                     <span className="text-muted-foreground">({reviews.length} reseña{reviews.length !== 1 ? "s" : ""})</span>
                   </span>
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-4">
                   {reviews.slice(0, 5).map((r) => (
-                    <li key={r.id} className="p-4 rounded-xl bg-muted/30 border border-border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <BadgeCheck className="w-4 h-4 text-gold shrink-0" aria-hidden />
-                        <span className="text-sm font-medium text-foreground">
-                          {displayNameByReviewUserId[r.user_id] ?? "Anónimo"}
-                        </span>
-                        <span className="text-sm text-gold">{r.promedio_final?.toFixed(1)}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString("es-CL", { dateStyle: "short" })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground whitespace-pre-wrap">{r.comentario_experiencia}</p>
-                      {r.tags?.length ? (
-                        <p className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-1">
-                          {r.tags.map((t) => (
-                            <span key={t} className="px-1.5 py-0.5 rounded bg-muted">{t}</span>
-                          ))}
-                        </p>
-                      ) : null}
+                    <li key={r.id}>
+                      <ReviewExperienceCard
+                        review={r}
+                        authorDisplayName={displayNameByReviewUserId[r.user_id] ?? "Anónimo"}
+                      />
                     </li>
                   ))}
                 </ul>
