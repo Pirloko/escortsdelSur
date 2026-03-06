@@ -1,24 +1,25 @@
 /**
- * Aplica la marca de agua HolaCachero al centro de la imagen.
+ * Aplica la marca de agua HolaCachero.cl al centro de la imagen.
  * El resultado se quema en los píxeles (el archivo subido ya contiene la marca).
  *
- * Requisito: el archivo public/HolaCachero.png debe existir (se sirve como /HolaCachero.png).
+ * Requisito: public/marcadeagua.png debe existir (se sirve como /marcadeagua.png).
  */
 
-/** URL del logo: mismo origen para evitar CORS. */
+/** URL de la marca de agua: mismo origen para evitar CORS. */
 function getWatermarkUrl(): string {
-  if (typeof window === "undefined") return "/HolaCachero.png";
-  return `${window.location.origin}/HolaCachero.png`;
+  if (typeof window === "undefined") return "/marcadeagua.png";
+  return `${window.location.origin}/marcadeagua.png`;
 }
 
-const WATERMARK_OPACITY = 0.55;
-const WATERMARK_SIZE_RATIO = 0.5;
+const WATERMARK_OPACITY = 0.6;
+/** Ancho de la marca respecto al ancho de la imagen (marcadeagua es horizontal). */
+const WATERMARK_WIDTH_RATIO = 0.5;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`No se pudo cargar el logo. ¿Existe public/HolaCachero.png? (${src})`));
+    img.onerror = () => reject(new Error(`No se pudo cargar la marca de agua. ¿Existe public/marcadeagua.png? (${src})`));
     img.src = src;
   });
 }
@@ -60,13 +61,13 @@ export function addWatermarkToImageFile(file: File): Promise<Blob> {
 
     ctx.drawImage(photoImg, 0, 0, w, h);
 
-    const minSide = Math.min(w, h);
-    const logoSize = Math.max(100, Math.round(minSide * WATERMARK_SIZE_RATIO));
-    const x = (w - logoSize) / 2;
-    const y = (h - logoSize) / 2;
+    const logoW = Math.max(120, Math.round(w * WATERMARK_WIDTH_RATIO));
+    const logoH = (logoImg.naturalHeight / logoImg.naturalWidth) * logoW;
+    const x = (w - logoW) / 2;
+    const y = (h - logoH) / 2;
 
     ctx.globalAlpha = WATERMARK_OPACITY;
-    ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+    ctx.drawImage(logoImg, x, y, logoW, logoH);
     ctx.globalAlpha = 1;
 
     return new Promise<Blob>((resolve, reject) => {

@@ -20,6 +20,7 @@ import {
 import { RegistroClienteForm } from "@/components/RegistroClienteForm";
 import { ReviewExperienceForm } from "@/components/ReviewExperienceForm";
 import { ReviewExperienceCard } from "@/components/ReviewExperienceCard";
+import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -354,7 +355,13 @@ const ProfilePage = () => {
             {galleryImages.map((img, i) => (
               <div key={i} className="flex-[0_0_100%] min-w-0">
                 <div className="relative aspect-[3/4] md:aspect-[16/9] md:max-h-[70vh]">
-                  <img src={img} alt={i === 0 ? `${profile.name}, perfil en ${profile.city}` : `Galería ${profile.name} - imagen ${i + 1}`} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
+                  <WatermarkedImage
+                    src={img}
+                    alt={i === 0 ? `${profile.name}, perfil en ${profile.city}` : `Galería ${profile.name} - imagen ${i + 1}`}
+                    className="absolute inset-0 w-full h-full"
+                    imgClassName="w-full h-full object-cover"
+                    loading={i === 0 ? "eager" : "lazy"}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                 </div>
               </div>
@@ -399,7 +406,12 @@ const ProfilePage = () => {
                 i === selectedIndex ? "border-gold scale-110" : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
-              <img src={img} alt={`${profile.name} - miniatura ${i + 1}`} className="w-full h-full object-cover" />
+              <WatermarkedImage
+                src={img}
+                alt={`${profile.name} - miniatura ${i + 1}`}
+                className="w-full h-full"
+                imgClassName="w-full h-full object-cover"
+              />
             </button>
           ))}
         </div>

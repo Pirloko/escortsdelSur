@@ -8,6 +8,7 @@ import { getCityBySlug, filterCategories, filterAges } from "@/lib/data";
 import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
 import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
 import { ProfileCard } from "@/components/ProfileCard";
+import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
 import { useState, useEffect, useMemo } from "react";
@@ -373,10 +374,11 @@ const CityPage = () => {
                 }}
                 className={`absolute inset-0 block transition-opacity duration-500 cursor-pointer ${i === galleryIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"}`}
               >
-                <img
+                <WatermarkedImage
                   src={profile.image}
                   alt={profile.name}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full"
+                  imgClassName="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 gradient-card" />
                 {profile.badge && profile.badge !== "Perfil" && (

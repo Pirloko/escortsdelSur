@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { MapPin, Phone } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
+import { WatermarkedImage } from "@/components/WatermarkedImage";
 
 function toWhatsAppUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
@@ -54,10 +55,11 @@ export function ProfileCard({ profile }: ProfileProps) {
         className="block cursor-pointer"
       >
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-surface">
-          <img
+          <WatermarkedImage
             src={profile.image}
             alt={profile.name}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="absolute inset-0"
+            imgClassName="transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
           <div className="absolute inset-0 gradient-card" />
