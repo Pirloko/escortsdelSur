@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WhatsAppChileInput } from "@/components/WhatsAppChileInput";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -292,10 +293,6 @@ export default function CompletarPerfil() {
       setError("La descripción es obligatoria.");
       return;
     }
-    if (!nationality.trim()) {
-      setError("La nacionalidad es obligatoria.");
-      return;
-    }
     if (!whatsapp.trim()) {
       setError("El WhatsApp es obligatorio.");
       return;
@@ -548,6 +545,36 @@ export default function CompletarPerfil() {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="nationality">Nacionalidad</Label>
+            <select
+              id="nationality"
+              value={nationality}
+              onChange={(e) => setNationality(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
+            >
+              <option value="">Selecciona nacionalidad</option>
+              {PAISES_LATINOAMERICANOS.map((pais) => (
+                <option key={pais} value={pais}>
+                  {pais}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label>WhatsApp (obligatorio)</Label>
+            <WhatsAppChileInput value={whatsapp} onChange={setWhatsapp} required />
+          </div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={available}
+              onChange={(e) => setAvailable(e.target.checked)}
+              className="rounded border-border"
+            />
+            <span className="text-sm">Disponible</span>
+          </label>
+
+          <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <Label>Descripción</Label>
               <Button
@@ -571,36 +598,6 @@ export default function CompletarPerfil() {
               placeholder="Escribe una descripción de tu perfil"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="nationality">Nacionalidad (obligatorio)</Label>
-            <select
-              id="nationality"
-              value={nationality}
-              onChange={(e) => setNationality(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
-              required
-            >
-              <option value="">Selecciona nacionalidad</option>
-              {PAISES_LATINOAMERICANOS.map((pais) => (
-                <option key={pais} value={pais}>
-                  {pais}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label>WhatsApp (obligatorio)</Label>
-            <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+569..." className="bg-surface" required />
-          </div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={available}
-              onChange={(e) => setAvailable(e.target.checked)}
-              className="rounded border-border"
-            />
-            <span className="text-sm">Disponible</span>
-          </label>
 
           <div className="flex gap-3 pt-4">
             <Button type="submit" className="flex-1 h-12 rounded-2xl bg-gold text-primary-foreground font-semibold" disabled={saving}>

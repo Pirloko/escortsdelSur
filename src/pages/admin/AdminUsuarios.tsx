@@ -54,6 +54,29 @@ export default function AdminUsuarios() {
     enabled: !!supabase,
   });
 
+  const userIds = useMemo(() => {
+    const list = escorts ?? [];
+    return [...new Set(list.map((e) => e.user_id).filter(Boolean))] as string[];
+  }, [escorts]);
+
+  const { data: publisherByUserId } = useQuery({
+    queryKey: ["admin-publisher-profiles", userIds],
+    queryFn: async () => {
+      if (!supabase || userIds.length === 0) return {} as Record<string, string>;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", userIds);
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      (data ?? []).forEach((row: { id: string; display_name: string | null }) => {
+        map[row.id] = (row.display_name && row.display_name.trim()) ? row.display_name.trim() : "—";
+      });
+      return map;
+    },
+    enabled: !!supabase && userIds.length > 0,
+  });
+
   const { citiesOpts, categoriasOpts } = useMemo(() => {
     const list = escorts ?? [];
     const cities = [...new Set(list.map((e) => e.cities?.name).filter(Boolean))] as string[];
@@ -272,6 +295,11 @@ export default function AdminUsuarios() {
                     <span>Visible: {e.active_until ? (isHidden ? "Oculto" : new Date(e.active_until).toLocaleDateString("es-CL", { dateStyle: "short" })) : "—"}</span>
                     <span>Acceso: {e.user_id ? "Sí" : "No"}</span>
                   </div>
+                  {e.user_id && (
+                    <p className="text-[11px] text-muted-foreground mt-1.5 truncate" title={publisherByUserId?.[e.user_id] ?? e.user_id}>
+                      Publicado por: {publisherByUserId?.[e.user_id] ?? "—"}
+                    </p>
+                  )}
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link to={`/perfil/${e.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex">

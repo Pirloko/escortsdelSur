@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCityBySlug, filterCategories, filterAges } from "@/lib/data";
 import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
 import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
-import { ProfileCard } from "@/components/ProfileCard";
+import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
@@ -52,7 +52,7 @@ const CityPage = () => {
   }, [citySlug]);
 
   type CityRow = { id: string; slug: string; name: string; profiles: number; image: string | null; is_active?: boolean; meta_robots?: string | null };
-  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null };
+  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null };
 
   const { data: dbCity } = useQuery({
     queryKey: ["city", citySlug],
@@ -85,7 +85,7 @@ const CityPage = () => {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion")
+        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion, description, nationality, gallery")
         .eq("city_id", cityId)
         .not("promotion", "is", null)
         .gt("active_until", now);
@@ -107,15 +107,16 @@ const CityPage = () => {
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   type HotStoryRow = { id: string; content: string; story_date: string; escort_profile_id: string; escort_profiles: { id: string; name: string; city_id: string } | null };
-  const { data: hotStoriesRaw = [] } = useQuery({
+  const { data: hotStoriesRaw = [], error: hotStoriesError } = useQuery({
     queryKey: ["hot_stories"],
     queryFn: async (): Promise<HotStoryRow[]> => {
       if (!supabase) return [];
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("hot_stories")
         .select("id, content, story_date, escort_profile_id, escort_profiles(id, name, city_id)")
         .order("story_date", { ascending: false })
         .limit(100);
+      if (error) throw error;
       return (data ?? []) as HotStoryRow[];
     },
     enabled: !!supabase,
@@ -136,6 +137,9 @@ const CityPage = () => {
     available: p.available,
     whatsapp: (p as EscortRow).whatsapp ?? null,
     promotion: (p as EscortRow).promotion ?? null,
+    description: (p as EscortRow).description ?? null,
+    nationality: (p as EscortRow).nationality ?? null,
+    galleryCount: Array.isArray((p as EscortRow).gallery) ? (p as EscortRow).gallery!.length : 0,
   }));
 
   const byCategory =
@@ -161,7 +165,7 @@ const CityPage = () => {
 
   const profiles = activeAge ? byCategory.filter((p) => inAgeRange(p.age)) : byCategory;
 
-  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null };
+  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number };
 
   const toWhatsAppUrl = (raw: string | null | undefined): string | null => {
     if (!raw || !raw.trim()) return null;
@@ -248,10 +252,14 @@ const CityPage = () => {
 
   const hotStoriesForCity = useMemo(() => {
     if (!cityId) return [];
+    const profileIdsInCity = new Set(escortProfiles.map((p) => p.id));
     return hotStoriesRaw
-      .filter((h) => h.escort_profiles?.city_id === cityId)
+      .filter((h) => {
+        if (profileIdsInCity.has(h.escort_profile_id)) return true;
+        return h.escort_profiles?.city_id === cityId;
+      })
       .sort((a, b) => b.story_date.localeCompare(a.story_date));
-  }, [hotStoriesRaw, cityId]);
+  }, [hotStoriesRaw, cityId, escortProfiles]);
 
   const formatStoryDate = (dateStr: string) => {
     try {
@@ -459,27 +467,41 @@ const CityPage = () => {
         </div>
       )}
 
-      {/* Destacadas: grid de perfiles */}
+      {/* Destacadas: listado horizontal (imagen izquierda, texto derecho) */}
       <div className="px-4 max-w-7xl mx-auto mt-6">
         <h2 className="text-lg font-display font-bold mb-3">Destacadas</h2>
         {profilesLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="aspect-[3/4] rounded-2xl shimmer" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex rounded-2xl border border-border bg-card overflow-hidden h-40 shimmer" />
             ))}
           </div>
         ) : profiles.length === 0 ? (
           <p className="text-muted-foreground text-center py-12">Aún no hay perfiles publicados en esta ciudad.</p>
         ) : (
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
+            className="space-y-4"
             initial="hidden"
             animate="visible"
             variants={stagger}
           >
             {profilesSorted.map((profile) => (
               <motion.div key={profile.id} variants={fadeUp}>
-                <ProfileCard profile={profile} />
+                <FeaturedProfileCard
+                  profile={{
+                    id: profile.id,
+                    name: profile.name,
+                    age: profile.age,
+                    city: profile.city,
+                    badge: profile.badge,
+                    image: profile.image,
+                    available: profile.available,
+                    whatsapp: profile.whatsapp ?? null,
+                    description: (profile as ProfileItem).description ?? null,
+                    nationality: (profile as ProfileItem).nationality ?? null,
+                    galleryCount: (profile as ProfileItem).galleryCount ?? 0,
+                  }}
+                />
               </motion.div>
             ))}
           </motion.div>
@@ -493,8 +515,9 @@ const CityPage = () => {
             ESTADOS ACTUALIZADOS.
           </h2>
           <div className="rounded-xl border border-border bg-surface/50 overflow-hidden">
-            <ul className="divide-y divide-border">
-              {estadosFeedItems.map((item, i) => (
+            <div className="max-h-[420px] overflow-y-auto" role="region" aria-label="Listado de estados actualizados">
+              <ul className="divide-y divide-border">
+                {estadosFeedItems.map((item, i) => (
                 <li key={`${item.profileId}-${i}`} className="px-4 py-4">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <span className="font-semibold text-gold text-sm uppercase tracking-wide">{item.profileName}</span>
@@ -511,7 +534,8 @@ const CityPage = () => {
                   </Link>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </div>
           </div>
         </section>
       )}
@@ -524,11 +548,13 @@ const CityPage = () => {
           </h2>
           <div className="rounded-xl border border-border bg-surface/50 overflow-hidden">
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-4" role="region" aria-label="Historias por fecha">
-              {hotStoriesForCity.map((story) => (
+              {hotStoriesForCity.map((story) => {
+                const profileName = escortProfiles.find((p) => p.id === story.escort_profile_id)?.name ?? story.escort_profiles?.name ?? "Perfil";
+                return (
                 <article key={story.id} className="rounded-lg border border-border/60 bg-background/50 p-4">
                   <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                     <span className="font-semibold text-gold text-sm uppercase tracking-wide">
-                      {story.escort_profiles?.name ?? "Perfil"}
+                      {profileName}
                     </span>
                     <span className="text-xs text-muted-foreground">{formatStoryDate(story.story_date)}</span>
                   </div>
@@ -541,7 +567,8 @@ const CityPage = () => {
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </article>
-              ))}
+              );
+              })}
             </div>
           </div>
         </section>

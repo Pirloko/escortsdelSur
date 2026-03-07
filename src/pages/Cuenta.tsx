@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WhatsAppChileInput } from "@/components/WhatsAppChileInput";
 import {
   Select,
   SelectContent,
@@ -73,39 +74,55 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function generarDescripcionAleatoria(
-  nombre: string,
-  edad: string,
-  ciudad: string,
-  serviciosIncluidos: string[] = [],
-  serviciosAdicionales: string[] = []
-): string {
-  const n = (nombre || "—").trim();
-  const e = (edad || "").trim();
-  const c = (ciudad || "").trim();
-  const años = e ? `, ${e} años` : "";
-  const inicio = pick(DESC_PALABRAS.inicios);
-  const parte1 = `${inicio} ${n}${años}.`;
-  const adjs = [...DESC_PALABRAS.adjetivos].sort(() => Math.random() - 0.5).slice(0, 2);
-  const parte2 = adjs.length ? ` ${adjs.join(", ").replace(/, ([^,]+)$/, " y $1")}.` : "";
-  const frase = pick(DESC_PALABRAS.frases);
-  const parte3 = c ? ` ${frase} ${c}.` : ` ${frase}.`;
+/** Genera una descripción que incluye todos los datos del perfil (se usa como último paso). */
+function generarDescripcionAleatoria(opciones: {
+  nombre: string;
+  edad: string;
+  ciudad: string;
+  categoria: string;
+  serviciosIncluidos: string[];
+  serviciosAdicionales: string[];
+  nacionalidad: string;
+  whatsapp: string;
+}): string {
+  const n = (opciones.nombre || "").trim();
+  const e = (opciones.edad || "").trim();
+  const c = (opciones.ciudad || "").trim();
+  const cat = (opciones.categoria || "").trim();
+  const nac = (opciones.nacionalidad || "").trim();
+  const wa = (opciones.whatsapp || "").trim();
+  const incl = opciones.serviciosIncluidos ?? [];
+  const adic = opciones.serviciosAdicionales ?? [];
 
-  let parteServicios = "";
-  if (serviciosIncluidos.length > 0 || serviciosAdicionales.length > 0) {
-    const partes: string[] = [];
-    if (serviciosIncluidos.length > 0) {
-      partes.push(`Servicios incluidos: ${serviciosIncluidos.join(", ")}.`);
-    }
-    if (serviciosAdicionales.length > 0) {
-      partes.push(`Adicionales: ${serviciosAdicionales.join(", ")}.`);
-    }
-    parteServicios = " " + partes.join(" ");
+  const partes: string[] = [];
+
+  if (n) {
+    const inicio = pick(DESC_PALABRAS.inicios);
+    partes.push(e ? `${inicio} ${n}, ${e} años.` : `${inicio} ${n}.`);
+  } else if (e) {
+    partes.push(`Tengo ${e} años.`);
   }
 
-  const fraseSeo = pick(DESC_PALABRAS.frasesSeo);
-  const cierre = pick(DESC_PALABRAS.cierres);
-  return (parte1 + parte2 + parte3 + " " + fraseSeo + parteServicios + " " + cierre).replace(/\s+/g, " ").trim();
+  if (cat) partes.push(cat + ".");
+  if (c) partes.push(`Atendiendo en ${c}.`);
+  if (nac) partes.push(`Nacionalidad: ${nac}.`);
+
+  const adjs = [...DESC_PALABRAS.adjetivos].sort(() => Math.random() - 0.5).slice(0, 2);
+  if (adjs.length) partes.push(adjs.join(", ").replace(/, ([^,]+)$/, " y $1") + ".");
+
+  const frase = pick(DESC_PALABRAS.frases);
+  if (c) partes.push(`${frase} ${c}.`);
+  else partes.push(frase + ".");
+
+  if (incl.length > 0) partes.push(`Servicios incluidos: ${incl.join(", ")}.`);
+  if (adic.length > 0) partes.push(`Adicionales: ${adic.join(", ")}.`);
+
+  if (wa) partes.push(`Contáctame por WhatsApp: ${wa}.`);
+
+  partes.push(pick(DESC_PALABRAS.frasesSeo));
+  partes.push(pick(DESC_PALABRAS.cierres));
+
+  return partes.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
 }
 
 /** Opciones para el menú Categoría. Editar manualmente. Radix no permite value="", usamos __ninguno__. */
@@ -657,8 +674,9 @@ export default function Cuenta() {
                           ? (p as { time_slots: string[] }).time_slots
                           : [(p as { time_slot?: string | null }).time_slot ?? "09-12"]) as string[];
                       const totalSubidas = (p as { subidas_per_day?: number | null }).subidas_per_day ?? 0;
-                      const subidasPorFranja =
+                      const perFranjaRaw =
                         slots.length > 0 ? Math.max(1, Math.round(totalSubidas / slots.length)) : 10;
+                      const subidasPorFranja = perFranjaRaw === 5 ? 5 : 10;
 
                       // Rango de días de la promoción (7 días terminando en active_until, o a partir de hoy si no hay fecha)
                       const endDate = p.active_until ? new Date(p.active_until) : new Date();
@@ -1153,7 +1171,7 @@ export default function Cuenta() {
     const coste = calcularCreditosPromocion();
 
     if (tienePromo && coste != null && coste > 0) {
-      // Créditos en el perfil
+      // Descontar créditos (nunca sumar): restar coste de la promoción del perfil y/o publisher_credits
       const { data: rowCredits } = await supabase
         .from("escort_profiles")
         .select("credits")
@@ -1175,7 +1193,8 @@ export default function Cuenta() {
       }
       const restarDePerfil = Math.min(creditsPerfil, coste);
       const restarDePublisher = coste - restarDePerfil;
-      const nuevosCredits = creditsPerfil - restarDePerfil;
+      const nuevosCreditsPerfil = Math.max(0, creditsPerfil - restarDePerfil);
+      const nuevosCreditsPublisher = Math.max(0, creditsPublisher - restarDePublisher);
       const descripcion =
         tipoPromo === "galeria"
           ? `Promoción Galería, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`
@@ -1185,7 +1204,7 @@ export default function Cuenta() {
         const { error: updateCreditsErr } = await supabase
           .from("escort_profiles")
           // @ts-expect-error credits en schema
-          .update({ credits: nuevosCredits, updated_at: new Date().toISOString() })
+          .update({ credits: nuevosCreditsPerfil, updated_at: new Date().toISOString() })
           .eq("id", escortProfile.id);
         if (updateCreditsErr) {
           setPromoMessage(updateCreditsErr.message);
@@ -1198,7 +1217,7 @@ export default function Cuenta() {
         const { error: updatePublisherErr } = await supabase
           .from("profiles")
           // @ts-expect-error publisher_credits en schema
-          .update({ publisher_credits: creditsPublisher - restarDePublisher, updated_at: new Date().toISOString() })
+          .update({ publisher_credits: nuevosCreditsPublisher, updated_at: new Date().toISOString() })
           .eq("id", user.id);
         if (updatePublisherErr) {
           setPromoMessage(updatePublisherErr.message);
@@ -1212,7 +1231,7 @@ export default function Cuenta() {
         .insert({
           user_id: user.id,
           escort_profile_id: escortProfile.id,
-          amount: -coste,
+          amount: -Math.abs(coste),
           type: "promocion",
           description,
         });
@@ -1259,6 +1278,35 @@ export default function Cuenta() {
       setPromoMessage("Promoción guardada.");
       if (tienePromo && coste != null && coste > 0) {
         setCreditsTotalInEditView((prev) => (prev != null ? prev - coste : null));
+        // Refrescar total de créditos desde el servidor para que coincida con el descuento aplicado
+        supabase
+          .from("escort_profiles")
+          .select("credits")
+          .eq("user_id", user.id)
+          .then(({ data: list }) => {
+            const fromProfiles = (list ?? []).reduce((s, r) => s + ((r as { credits?: number }).credits ?? 0), 0);
+            supabase
+              ?.from("profiles")
+              .select("publisher_credits")
+              .eq("id", user.id)
+              .single()
+              .then(({ data: pr }) => {
+                const fromPublisher = (pr as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+                setCreditsTotalInEditView(fromProfiles + fromPublisher);
+              });
+          });
+        // Actualizar también la lista de perfiles para que el dashboard muestre créditos correctos al volver
+        supabase
+          .from("escort_profiles")
+          .select("*, cities(*)")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .then(({ data }) => {
+            if (data?.length) setProfilesList((data ?? []) as ProfileWithCity[]);
+          });
+        supabase?.from("profiles").select("publisher_credits").eq("id", user.id).single().then(({ data: pr }) => {
+          if (pr != null) setPublisherCredits((pr as { publisher_credits?: number }).publisher_credits ?? 0);
+        });
       }
       if (tienePromo) {
         const newActiveUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -1718,36 +1766,6 @@ export default function Cuenta() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <Label>Descripción</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 rounded-lg text-xs font-medium gap-1.5 border-gold text-gold hover:bg-gold/10"
-                onClick={() =>
-                  setDescription(
-                    generarDescripcionAleatoria(
-                      name,
-                      age,
-                      (profileData as ProfileWithCity | null)?.cities?.name ?? "",
-                      servicesIncluded,
-                      servicesExtra,
-                    ),
-                  )
-                }
-              >
-                <Shuffle className="h-3.5 w-3.5" />
-                Texto aleatorio
-              </Button>
-            </div>
-            <textarea
-              className="flex min-h-[80px] w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Zona</Label>
@@ -1776,7 +1794,41 @@ export default function Cuenta() {
           </div>
           <div className="space-y-2">
             <Label>WhatsApp</Label>
-            <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+569..." className="bg-surface" />
+            <WhatsAppChileInput value={whatsapp} onChange={setWhatsapp} />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <Label>Descripción</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 rounded-lg text-xs font-medium gap-1.5 border-gold text-gold hover:bg-gold/10"
+                onClick={() =>
+                  setDescription(
+                    generarDescripcionAleatoria({
+                      nombre: name,
+                      edad: age,
+                      ciudad: (profileData as ProfileWithCity | null)?.cities?.name ?? "",
+                      categoria: badge && badge !== CATEGORIA_NINGUNO ? badge : "",
+                      serviciosIncluidos: servicesIncluded,
+                      serviciosAdicionales: servicesExtra,
+                      nacionalidad: nationality,
+                      whatsapp: whatsapp,
+                    }),
+                  )
+                }
+              >
+                <Shuffle className="h-3.5 w-3.5" />
+                Texto aleatorio
+              </Button>
+            </div>
+            <textarea
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Completa los datos del perfil arriba (nombre, edad, ciudad, categoría, servicios, nacionalidad, WhatsApp) y usa «Texto aleatorio» para generar la descripción."
+            />
           </div>
           <div className="flex gap-3">
             <Button type="submit" className="flex-1 h-12 rounded-2xl bg-gold text-primary-foreground font-semibold" disabled={saving}>
@@ -1878,16 +1930,20 @@ export default function Cuenta() {
             <div className="space-y-2">
               <Label className="text-sm">Subidas por franja</Label>
               <Select
-                value={String(subidasPorFranja)}
-                onValueChange={(v) => setSubidasPorFranja(Number(v) === 5 ? 5 : 10)}
+                key={`subidas-${profileId ?? "default"}`}
+                value={subidasPorFranja === 5 ? "5" : "10"}
+                onValueChange={(v) => {
+                  const next = v === "5" ? 5 : 10;
+                  setSubidasPorFranja(next);
+                }}
                 disabled={!canEditSubidas}
               >
                 <SelectTrigger className="bg-surface rounded-xl h-11 min-h-[44px]" disabled={!canEditSubidas}>
                   <SelectValue placeholder="Elige subidas por franja" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="10">10 subidas por franja</SelectItem>
                   <SelectItem value="5">5 subidas por franja</SelectItem>
+                  <SelectItem value="10">10 subidas por franja</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WhatsAppChileInput } from "@/components/WhatsAppChileInput";
 import {
   Dialog,
   DialogContent,
@@ -292,10 +293,6 @@ export function AdminEscortForm({ initial, onClose, onSuccess }: AdminEscortForm
       setError("La descripción es obligatoria.");
       return;
     }
-    if (!nationality.trim()) {
-      setError("La nacionalidad es obligatoria.");
-      return;
-    }
     if (!whatsapp.trim()) {
       setError("El WhatsApp es obligatorio.");
       return;
@@ -529,13 +526,12 @@ export function AdminEscortForm({ initial, onClose, onSuccess }: AdminEscortForm
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="admin-nationality">Nacionalidad (obligatorio)</Label>
+            <Label htmlFor="admin-nationality">Nacionalidad</Label>
             <select
               id="admin-nationality"
               value={nationality}
               onChange={(e) => setNationality(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
-              required
             >
               <option value="">Selecciona nacionalidad</option>
               {PAISES_LATINOAMERICANOS.map((pais) => (
@@ -545,7 +541,7 @@ export function AdminEscortForm({ initial, onClose, onSuccess }: AdminEscortForm
           </div>
           <div className="space-y-2">
             <Label>WhatsApp (obligatorio)</Label>
-            <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+569..." className="bg-surface" required />
+            <WhatsAppChileInput value={whatsapp} onChange={setWhatsapp} required />
           </div>
           <label className="flex items-center gap-2">
             <input
