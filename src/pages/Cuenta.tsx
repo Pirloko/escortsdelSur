@@ -217,6 +217,7 @@ export default function Cuenta() {
   const handleSaveAccountData = async () => {
     if (!supabase || !user) return;
     setAccountSaving(true);
+    setMessage("");
     try {
       const currentMeta = (user.user_metadata ?? {}) as Record<string, unknown>;
       const nextMeta = {
@@ -226,7 +227,7 @@ export default function Cuenta() {
       };
       await supabase.auth.updateUser({ data: nextMeta });
       // Sincronizar también con profiles (display_name, email, contact_phone para admin)
-      await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         // @ts-expect-error tipos generados pueden estar desfasados
         .update({
@@ -236,6 +237,12 @@ export default function Cuenta() {
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
+      if (profileError) {
+        const isDuplicateName =
+          profileError.code === "23505" || /unique|duplicate|duplicado|ya existe/i.test(profileError.message || "");
+        setMessage(isDuplicateName ? "Ese nombre de usuario ya está en uso. Elige otro." : profileError.message);
+        return;
+      }
       await refreshProfile();
       recordPublisherAudit(user.id, "edit_account").catch(() => {});
       setEditingAccount(false);

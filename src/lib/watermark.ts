@@ -66,9 +66,11 @@ export function addWatermarkToImageFile(file: File): Promise<Blob> {
     const x = (w - logoW) / 2;
     const y = (h - logoH) / 2;
 
+    ctx.save();
     ctx.globalAlpha = WATERMARK_OPACITY;
+    ctx.filter = "blur(2px)";
     ctx.drawImage(logoImg, x, y, logoW, logoH);
-    ctx.globalAlpha = 1;
+    ctx.restore();
 
     return new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(

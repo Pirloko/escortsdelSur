@@ -38,7 +38,7 @@ export function WatermarkedImage({
         <img
           src={WATERMARK_SRC}
           alt=""
-          className="max-w-[50%] max-h-[50%] w-auto h-auto opacity-70 object-contain"
+          className="max-w-[50%] max-h-[50%] w-auto h-auto opacity-60 object-contain blur-[1.5px]"
         />
       </div>
     </div>

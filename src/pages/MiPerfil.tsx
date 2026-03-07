@@ -344,8 +344,11 @@ export default function MiPerfil() {
       })
       .eq("id", user.id);
     setSaving(false);
-    if (error) setMessage(error.message);
-    else {
+    if (error) {
+      const isDuplicateName =
+        error.code === "23505" || /unique|duplicate|duplicado|ya existe/i.test(error.message || "");
+      setMessage(isDuplicateName ? "Ese nombre de usuario ya está en uso. Elige otro." : error.message);
+    } else {
       setMessage("Guardado.");
       setEditingProfile(false);
       refreshProfile();

@@ -28,7 +28,11 @@ export function RegistroClienteForm({ onSuccess, compact = false }: RegistroClie
     });
     setLoading(false);
     if (err) {
-      setError(err.message || "Error al registrarse");
+      const msg = err.message || "";
+      const isDuplicateName =
+        (err as { code?: string }).code === "23505" ||
+        /unique|duplicate|duplicado|ya existe|violates unique/i.test(msg);
+      setError(isDuplicateName ? "Ese nombre de usuario ya está en uso. Elige otro." : msg || "Error al registrarse");
       return;
     }
     onSuccess?.();

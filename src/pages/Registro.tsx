@@ -31,13 +31,17 @@ export default function Registro() {
     };
     const { error: err } = await signUp(email.trim(), password, meta);
     if (err) {
-      setError(err.message || "Error al registrarse");
+      const isDuplicateName =
+        (err as { code?: string }).code === "23505" ||
+        /unique|duplicate|duplicado|ya existe|violates unique/i.test(err.message || "");
+      setError(isDuplicateName ? "Ese nombre de usuario ya está en uso. Elige otro." : err.message || "Error al registrarse");
       setLoading(false);
       return;
     }
     try {
       const { data: { session } } = await supabase?.auth.getSession() ?? { data: { session: null } };
       let userId = session?.user?.id;
+      let duplicateNameOnUpdate = false;
       if (userId && supabase) {
         const updateProfile = async () => {
           const { error: updateErr } = await supabase
@@ -51,12 +55,18 @@ export default function Registro() {
               updated_at: new Date().toISOString(),
             })
             .eq("id", userId);
+          if (updateErr?.code === "23505") duplicateNameOnUpdate = true;
           return !updateErr;
         };
         const maxAttempts = 3;
         for (let i = 0; i < maxAttempts; i++) {
           if (await updateProfile()) break;
           if (i < maxAttempts - 1) await new Promise((r) => setTimeout(r, 400));
+        }
+        if (duplicateNameOnUpdate) {
+          setError("Ese nombre de usuario ya está en uso. Elige otro.");
+          setLoading(false);
+          return;
         }
         await refreshProfile();
       }
