@@ -2,14 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, Phone } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
-
-function toWhatsAppUrl(raw: string | null | undefined): string | null {
-  if (!raw || !raw.trim()) return null;
-  const digits = raw.replace(/\D/g, "");
-  if (digits.length < 8) return null;
-  const num = digits.startsWith("56") ? digits : "56" + digits;
-  return `https://wa.me/${num}`;
-}
+import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -33,7 +26,7 @@ interface ProfileProps {
 
 export function ProfileCard({ profile }: ProfileProps) {
   const navigate = useNavigate();
-  const waUrl = toWhatsAppUrl(profile.whatsapp);
+  const waUrl = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city);
   const telUrl = toTelUrl(profile.whatsapp);
 
   return (

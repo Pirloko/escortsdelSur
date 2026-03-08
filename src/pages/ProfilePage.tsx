@@ -7,6 +7,7 @@ import { useCallback, useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { featuredProfiles, profileGallery } from "@/lib/data";
 import { getCitySlugFromName } from "@/lib/seo";
+import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { JsonLdProfile } from "@/components/JsonLd";
 import { ProfileCard } from "@/components/ProfileCard";
 import { supabase } from "@/lib/supabase";
@@ -707,7 +708,7 @@ const ProfilePage = () => {
                   Llamar
                 </a>
                 <a
-                  href={`https://wa.me/${profile.whatsapp.replace(/\D/g, "")}`}
+                  href={getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city) ?? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 h-12 rounded-2xl bg-[#25D366] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-[0.98]"

@@ -14,6 +14,7 @@ import { JsonLdCity } from "@/components/JsonLd";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { sortProfilesWithSubidas } from "@/lib/franjas";
+import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 
 const GALLERY_INTERVAL_MS = 5000;
 
@@ -167,13 +168,6 @@ const CityPage = () => {
 
   type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number };
 
-  const toWhatsAppUrl = (raw: string | null | undefined): string | null => {
-    if (!raw || !raw.trim()) return null;
-    const digits = raw.replace(/\D/g, "");
-    if (digits.length < 8) return null;
-    const num = digits.startsWith("56") ? digits : "56" + digits;
-    return `https://wa.me/${num}`;
-  };
   const toTelUrl = (raw: string | null | undefined): string | null => {
     if (!raw || !raw.trim()) return null;
     const digits = raw.replace(/\D/g, "");
@@ -415,9 +409,9 @@ const CityPage = () => {
                         <Phone className="w-5 h-5" />
                       </a>
                     )}
-                    {toWhatsAppUrl((profile as ProfileItem).whatsapp) && (
+                    {getWhatsAppProfileUrl((profile as ProfileItem).whatsapp, profile.id, city.name) && (
                       <a
-                        href={toWhatsAppUrl((profile as ProfileItem).whatsapp)!}
+                        href={getWhatsAppProfileUrl((profile as ProfileItem).whatsapp, profile.id, city.name)!}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-10 h-10 rounded-full flex items-center justify-center bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors shadow-md"

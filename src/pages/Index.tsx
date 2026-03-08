@@ -7,7 +7,7 @@ import { JsonLdHome } from "@/components/JsonLd";
 import { supabase } from "@/lib/supabase";
 import { cities } from "@/lib/data";
 import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
-import { ProfileCard } from "@/components/ProfileCard";
+import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { CityCard } from "@/components/CityCard";
 import { HeroSection } from "@/components/HeroSection";
 import { RaffleHighlightCard } from "@/components/RaffleHighlightCard";
@@ -86,11 +86,12 @@ export default function Index() {
       const now = new Date().toISOString();
       const { data: rows } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp")
+        .select("id, name, age, badge, image, available, whatsapp, description, nationality, gallery")
         .eq("city_id", (cityRow as { id: string; name: string }).id)
         .not("promotion", "is", null)
         .gt("active_until", now);
-      const list = (rows ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null }[];
+      type Row = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null };
+      const list = (rows ?? []) as Row[];
       const cityName = (cityRow as { id: string; name: string }).name;
       const mapped = list.map((p) => ({
         id: p.id,
@@ -101,6 +102,9 @@ export default function Index() {
         image: p.image ?? DEFAULT_IMAGE,
         available: p.available,
         whatsapp: p.whatsapp ?? null,
+        description: p.description ?? null,
+        nationality: p.nationality ?? null,
+        galleryCount: Array.isArray(p.gallery) ? p.gallery.length : 0,
       }));
       return shuffleAndTake(mapped, 4);
     },
@@ -147,11 +151,26 @@ export default function Index() {
           </motion.div>
           <motion.div
             variants={stagger}
-            className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
+            className="space-y-4"
           >
             {destacadasProfiles.map((profile) => (
               <motion.div key={profile.id} variants={fadeUp}>
-                <ProfileCard profile={profile} />
+                <FeaturedProfileCard
+                  cardHref={`/${ACTIVE_CITY_SLUG}`}
+                  profile={{
+                    id: profile.id,
+                    name: profile.name,
+                    age: profile.age,
+                    city: profile.city,
+                    badge: profile.badge,
+                    image: profile.image,
+                    available: profile.available,
+                    whatsapp: profile.whatsapp ?? null,
+                    description: profile.description ?? null,
+                    nationality: profile.nationality ?? null,
+                    galleryCount: profile.galleryCount ?? 0,
+                  }}
+                />
               </motion.div>
             ))}
           </motion.div>
