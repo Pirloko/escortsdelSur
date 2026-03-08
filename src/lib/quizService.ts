@@ -114,6 +114,39 @@ export async function resetQuizProgress(userId: string, quizId: string): Promise
   if (error) throw error;
 }
 
+/**
+ * Avanza a la siguiente pregunta (cuando el usuario pulsa "Siguiente" tras ver la imagen revelada).
+ * Incrementa current_question; si pasa de 10, marca el quiz como completado.
+ */
+export async function advanceQuizProgress(
+  userId: string,
+  quizId: string
+): Promise<UserQuizProgress> {
+  if (!supabase) throw new Error("Supabase no disponible");
+  const progress = await getOrCreateUserProgress(userId, quizId);
+  if (progress.completed) return progress;
+
+  const nextQuestion = Math.min(progress.current_question + 1, 11);
+  const completed = nextQuestion > 10;
+
+  const updatePayload = {
+    current_question: completed ? 10 : nextQuestion,
+    completed: completed || progress.completed,
+    completed_at: completed ? new Date().toISOString() : progress.completed_at,
+    updated_at: new Date().toISOString(),
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: updated, error } = await (supabase as any)
+    .from("user_quiz_progress")
+    .update(updatePayload)
+    .eq("user_id", userId)
+    .eq("quiz_id", quizId)
+    .select()
+    .single();
+  if (error) throw error;
+  return updated as UserQuizProgress;
+}
+
 export function isCorrectOption(question: DailyQuizQuestion, selected: CorrectOption): boolean {
   return question.correct_option === selected;
 }
@@ -140,12 +173,11 @@ export async function submitQuizAnswer(
     return { correct: false, newProgress: progress };
   }
 
-  const nextQuestion = Math.min(questionNumber + 1, 11);
   const newCorrectAnswers = progress.correct_answers + 1;
-  const completed = questionNumber >= 10;
+  const isLastQuestion = questionNumber >= 10;
   const pepitasToAdd = PEPITAS_PER_CORRECT;
   let ticketsToAdd = TICKETS_PER_CORRECT;
-  if (completed) {
+  if (isLastQuestion) {
     const { data: quizRow } = await supabase
       .from("daily_quiz")
       .select("tickets_on_complete")
@@ -155,13 +187,17 @@ export async function submitQuizAnswer(
     ticketsToAdd += typeof bonus === "number" && bonus >= 0 ? bonus : TICKETS_BONUS_COMPLETE_DEFAULT;
   }
 
-  const updatePayload = {
-    current_question: completed ? 10 : nextQuestion,
+  // Al acertar: solo actualizar aciertos (y completado si era la última). NO avanzar current_question;
+  // el usuario debe pulsar "Siguiente" para avanzar (advanceQuizProgress).
+  const updatePayload: Record<string, unknown> = {
     correct_answers: newCorrectAnswers,
-    completed,
-    completed_at: completed ? new Date().toISOString() : null,
     updated_at: new Date().toISOString(),
   };
+  if (isLastQuestion) {
+    updatePayload.completed = true;
+    updatePayload.completed_at = new Date().toISOString();
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: updatedProgress, error: progressError } = await (supabase as any)
     .from("user_quiz_progress")

@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe, BadgeCheck } from "lucide-react";
@@ -33,7 +33,7 @@ const fadeUp = {
 };
 
 const ProfilePage = () => {
-  const { profileId } = useParams();
+  const { profileId, citySlug: paramCitySlug, segment: paramSegment } = useParams<{ profileId?: string; citySlug?: string; segment?: string }>();
   const queryClient = useQueryClient();
   const { user, role, refreshProfile } = useAuth();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -61,41 +61,104 @@ const ProfilePage = () => {
     services_included?: string[] | null;
     services_extra?: string[] | null;
     active_until?: string | null;
+    slug?: string | null;
     cities?: { name?: string; slug?: string } | null;
   };
 
-  const { data: dbProfile, isLoading: profileLoading } = useQuery({
+  const byId = !!paramCitySlug === false && !!profileId;
+  const bySlug = !!paramCitySlug && !!paramSegment;
+
+  const { data: dbProfileById, isLoading: loadingById } = useQuery({
     queryKey: ["escort_profile", profileId],
     queryFn: async (): Promise<DbProfile | null> => {
       if (!supabase || !profileId) return null;
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, city_id, name, age, badge, image, available, description, nationality, zone, schedule, whatsapp, gallery, services_included, services_extra, active_until, cities(slug, name)")
+        .select("id, city_id, name, age, badge, image, available, description, nationality, zone, schedule, whatsapp, gallery, services_included, services_extra, active_until, slug, cities(slug, name)")
         .eq("id", profileId)
         .single();
       return data as DbProfile | null;
     },
-    enabled: !!profileId && !!supabase,
+    enabled: byId && !!supabase,
   });
 
-  const { data: otherProfilesInCity = [] } = useQuery({
-    queryKey: ["other_profiles_same_city", dbProfile?.city_id, profileId],
-    queryFn: async () => {
-      if (!supabase || !dbProfile?.city_id || !profileId) return [];
-      const now = new Date().toISOString();
+  const { data: dbProfileBySlug, isLoading: loadingBySlug } = useQuery({
+    queryKey: ["escort_profile_by_slug", paramCitySlug, paramSegment],
+    queryFn: async (): Promise<DbProfile | null> => {
+      if (!supabase || !paramCitySlug || !paramSegment) return null;
+      const { data: cityRow } = await supabase.from("cities").select("id").eq("slug", paramCitySlug).maybeSingle();
+      if (!cityRow?.id) return null;
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available")
-        .eq("city_id", dbProfile.city_id)
-        .neq("id", profileId)
-        .or(`active_until.is.null,active_until.gt.${now}`)
-        .limit(4);
-      return (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean }[];
+        .select("id, city_id, name, age, badge, image, available, description, nationality, zone, schedule, whatsapp, gallery, services_included, services_extra, active_until, slug, cities(slug, name)")
+        .eq("city_id", cityRow.id)
+        .eq("slug", paramSegment)
+        .maybeSingle();
+      return data as DbProfile | null;
     },
-    enabled: !!dbProfile?.city_id && !!profileId && !!supabase,
+    enabled: bySlug && !!supabase,
   });
 
-  const mockProfile = featuredProfiles.find((p) => p.id === profileId) || featuredProfiles[0];
+  const dbProfile = byId ? dbProfileById : dbProfileBySlug;
+  const profileLoading = byId ? loadingById : loadingBySlug;
+  const resolvedProfileId = dbProfile?.id ?? profileId;
+
+  const nowIso = new Date().toISOString();
+  const cityId = dbProfile?.city_id;
+  const currentBadge = dbProfile?.badge ?? null;
+
+  const { data: otherProfilesInCity = [] } = useQuery({
+    queryKey: ["other_profiles_same_city", cityId, resolvedProfileId],
+    queryFn: async () => {
+      if (!supabase || !cityId || !resolvedProfileId) return [];
+      const { data } = await supabase
+        .from("escort_profiles")
+        .select("id, name, age, badge, image, available, slug")
+        .eq("city_id", cityId)
+        .neq("id", resolvedProfileId)
+        .or(`active_until.is.null,active_until.gt.${nowIso}`)
+        .limit(6);
+      return (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; slug?: string | null }[];
+    },
+    enabled: !!cityId && !!resolvedProfileId && !!supabase,
+  });
+
+  const { data: similarProfiles = [] } = useQuery({
+    queryKey: ["similar_profiles_same_city_badge", cityId, resolvedProfileId, currentBadge],
+    queryFn: async () => {
+      if (!supabase || !cityId || !resolvedProfileId) return [];
+      if (!currentBadge || !currentBadge.trim()) return [];
+      const { data } = await supabase
+        .from("escort_profiles")
+        .select("id, name, age, badge, image, available, slug")
+        .eq("city_id", cityId)
+        .eq("badge", currentBadge)
+        .neq("id", resolvedProfileId)
+        .or(`active_until.is.null,active_until.gt.${nowIso}`)
+        .limit(4);
+      return (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; slug?: string | null }[];
+    },
+    enabled: !!cityId && !!resolvedProfileId && !!supabase && !!currentBadge?.trim(),
+  });
+
+  const { data: recommendedProfiles = [] } = useQuery({
+    queryKey: ["recommended_profiles_city", cityId, resolvedProfileId],
+    queryFn: async () => {
+      if (!supabase || !cityId || !resolvedProfileId) return [];
+      const { data } = await supabase
+        .from("escort_profiles")
+        .select("id, name, age, badge, image, available, slug")
+        .eq("city_id", cityId)
+        .neq("id", resolvedProfileId)
+        .not("promotion", "is", null)
+        .or(`active_until.is.null,active_until.gt.${nowIso}`)
+        .limit(4);
+      return (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; slug?: string | null }[];
+    },
+    enabled: !!cityId && !!resolvedProfileId && !!supabase,
+  });
+
+  const mockProfile = featuredProfiles.find((p) => p.id === resolvedProfileId) || featuredProfiles[0];
   const citiesRow = dbProfile?.cities;
   const cityName = citiesRow?.name ?? mockProfile.city;
   const citySlugFromDb = citiesRow?.slug ?? null;
@@ -119,18 +182,28 @@ const ProfilePage = () => {
       }
     : mockProfile;
   const citySlug = citySlugFromDb ?? getCitySlugFromName(profile.city);
+  const profileSlug = dbProfile?.slug ?? null;
   const isUuid = profileId && /^[0-9a-f-]{36}$/i.test(profileId);
-  const notFound = isUuid && !profileLoading && !dbProfile;
+  const notFoundById = byId && isUuid && !profileLoading && !dbProfile;
+  const notFoundBySlug = bySlug && !profileLoading && !dbProfile;
+  const notFound = notFoundById || notFoundBySlug;
   const activeUntil = dbProfile?.active_until ?? null;
+
+  if (byId && dbProfile?.slug && citySlugFromDb) {
+    return <Navigate to={`/${citySlugFromDb}/${dbProfile.slug}`} replace />;
+  }
+  if (notFoundBySlug && paramCitySlug) {
+    return <Navigate to={`/${paramCitySlug}`} replace />;
+  }
   const isProfileExpired = activeUntil ? new Date(activeUntil) < new Date() : false;
 
   // Registrar vista para visitantes/clientes (historial en Mi perfil)
   useEffect(() => {
-    if (!supabase || !user?.id || role !== "visitor" || !profileId || !dbProfile?.id) return;
+    if (!supabase || !user?.id || role !== "visitor" || !resolvedProfileId || !dbProfile?.id) return;
     const viewedAt = new Date().toISOString();
     // @ts-expect-error - generated Supabase types may not include profile_views
-    supabase.from("profile_views").upsert({ user_id: user.id, escort_profile_id: profileId, viewed_at: viewedAt }, { onConflict: "user_id,escort_profile_id" }).then(() => {});
-  }, [user?.id, role, profileId, dbProfile?.id]);
+    supabase.from("profile_views").upsert({ user_id: user.id, escort_profile_id: resolvedProfileId, viewed_at: viewedAt }, { onConflict: "user_id,escort_profile_id" }).then(() => {});
+  }, [user?.id, role, resolvedProfileId, dbProfile?.id]);
 
   const { data: favoriteRows } = useQuery({
     queryKey: ["favorites", user?.id],
@@ -144,20 +217,20 @@ const ProfilePage = () => {
     },
     enabled: !!user?.id && !!supabase,
   });
-  const isInFavorites = !!profileId && (favoriteRows ?? []).some((r) => r.escort_profile_id === profileId);
+  const isInFavorites = !!resolvedProfileId && (favoriteRows ?? []).some((r) => r.escort_profile_id === resolvedProfileId);
 
   const { data: comments = [] } = useQuery({
-    queryKey: ["profile_comments", profileId],
+    queryKey: ["profile_comments", resolvedProfileId],
     queryFn: async (): Promise<ProfileCommentsRow[]> => {
-      if (!supabase || !profileId) return [];
+      if (!supabase || !resolvedProfileId) return [];
       const { data } = await supabase
         .from("profile_comments")
         .select("id, escort_profile_id, user_id, body, created_at")
-        .eq("escort_profile_id", profileId)
+        .eq("escort_profile_id", resolvedProfileId)
         .order("created_at", { ascending: false });
       return (data ?? []) as ProfileCommentsRow[];
     },
-    enabled: !!profileId && !!supabase,
+    enabled: !!resolvedProfileId && !!supabase,
   });
 
   const userIds = [...new Set(comments.map((c) => c.user_id))];
@@ -174,17 +247,17 @@ const ProfilePage = () => {
 
   const sevenDaysAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: reviews = [] } = useQuery({
-    queryKey: ["review_experiences", profileId],
+    queryKey: ["review_experiences", resolvedProfileId],
     queryFn: async (): Promise<ReviewExperiencesRow[]> => {
-      if (!supabase || !profileId) return [];
+      if (!supabase || !resolvedProfileId) return [];
       const { data } = await supabase
         .from("review_experiences")
         .select("*")
-        .eq("escort_profile_id", profileId)
+        .eq("escort_profile_id", resolvedProfileId)
         .order("created_at", { ascending: false });
       return (data ?? []) as ReviewExperiencesRow[];
     },
-    enabled: !!profileId && !!supabase,
+    enabled: !!resolvedProfileId && !!supabase,
   });
   const reviewsAvg = reviews.length
     ? reviews.reduce((s, r) => s + (r.promedio_final ?? 0), 0) / reviews.length
@@ -201,18 +274,18 @@ const ProfilePage = () => {
   });
   const displayNameByReviewUserId = Object.fromEntries(reviewAuthorProfiles.map((p) => [p.id, p.display_name ?? "Anónimo"]));
   const { data: myReviewIn7Days = [] } = useQuery({
-    queryKey: ["review_experiences_mine_7d", profileId, user?.id],
+    queryKey: ["review_experiences_mine_7d", resolvedProfileId, user?.id],
     queryFn: async () => {
-      if (!supabase || !profileId || !user?.id) return [];
+      if (!supabase || !resolvedProfileId || !user?.id) return [];
       const { data } = await supabase
         .from("review_experiences")
         .select("id")
-        .eq("escort_profile_id", profileId)
+        .eq("escort_profile_id", resolvedProfileId)
         .eq("user_id", user.id)
         .gte("created_at", sevenDaysAgoIso);
       return (data ?? []) as { id: string }[];
     },
-    enabled: !!profileId && !!user?.id && !!supabase,
+    enabled: !!resolvedProfileId && !!user?.id && !!supabase,
   });
   const alreadyReviewedIn7Days = myReviewIn7Days.length > 0;
 
@@ -221,31 +294,31 @@ const ProfilePage = () => {
   const startOfTodayIso = startOfTodayUtc.toISOString();
   const todayKey = new Date().toISOString().slice(0, 10);
   const { data: myCommentsToday = [] } = useQuery({
-    queryKey: ["profile_comments_mine_today", profileId, user?.id, todayKey],
+    queryKey: ["profile_comments_mine_today", resolvedProfileId, user?.id, todayKey],
     queryFn: async () => {
-      if (!supabase || !profileId || !user?.id) return [];
+      if (!supabase || !resolvedProfileId || !user?.id) return [];
       const { data } = await supabase
         .from("profile_comments")
         .select("id")
-        .eq("escort_profile_id", profileId)
+        .eq("escort_profile_id", resolvedProfileId)
         .eq("user_id", user.id)
         .gte("created_at", startOfTodayIso);
       return (data ?? []) as { id: string }[];
     },
-    enabled: !!profileId && !!user?.id && !!supabase,
+    enabled: !!resolvedProfileId && !!user?.id && !!supabase,
   });
   const alreadyCommentedToday = myCommentsToday.length > 0;
 
   const submitComment = async () => {
     const body = commentBody.trim();
-    if (!body || !user?.id || !profileId || !supabase || commentSubmitting || role !== "visitor") return;
+    if (!body || !user?.id || !resolvedProfileId || !supabase || commentSubmitting || role !== "visitor") return;
     if (alreadyCommentedToday) {
       toast.error("Solo puedes dejar 1 comentario por día en cada perfil.");
       return;
     }
     setCommentSubmitting(true);
     // @ts-expect-error - generated Supabase types may not include profile_comments
-    const { error } = await supabase.from("profile_comments").insert({ escort_profile_id: profileId, user_id: user.id, body });
+    const { error } = await supabase.from("profile_comments").insert({ escort_profile_id: resolvedProfileId, user_id: user.id, body });
     setCommentSubmitting(false);
     if (error) {
       if (error.code === "23505") toast.error("Ya has dejado un comentario hoy en este perfil.");
@@ -253,8 +326,8 @@ const ProfilePage = () => {
       return;
     }
     setCommentBody("");
-    queryClient.invalidateQueries({ queryKey: ["profile_comments", profileId] });
-    queryClient.invalidateQueries({ queryKey: ["profile_comments_mine_today", profileId, user.id, todayKey] });
+    queryClient.invalidateQueries({ queryKey: ["profile_comments", resolvedProfileId] });
+    queryClient.invalidateQueries({ queryKey: ["profile_comments_mine_today", resolvedProfileId, user.id, todayKey] });
     toast.success("Comentario publicado. +1 ticket.");
   };
 
@@ -266,13 +339,13 @@ const ProfilePage = () => {
   };
 
   const toggleFavorite = async () => {
-    if (!user?.id || !profileId || !supabase || favoriteToggling) return;
+    if (!user?.id || !resolvedProfileId || !supabase || favoriteToggling) return;
     setFavoriteToggling(true);
     if (isInFavorites) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("escort_profile_id", profileId);
+      await supabase.from("favorites").delete().eq("user_id", user.id).eq("escort_profile_id", resolvedProfileId);
       toast.success("Quitado de favoritos");
     } else {
-      const { error } = await supabase.from("favorites").insert({ user_id: user.id, escort_profile_id: profileId });
+      const { error } = await supabase.from("favorites").insert({ user_id: user.id, escort_profile_id: resolvedProfileId });
       if (error) toast.error(error.message);
       else toast.success("Añadido a favoritos");
     }
@@ -336,7 +409,7 @@ const ProfilePage = () => {
       <SeoHead
         title={title}
         description={description}
-        canonicalPath={`/perfil/${profileId}`}
+        canonicalPath={profileSlug && citySlug ? `/${citySlug}/${profileSlug}` : `/perfil/${resolvedProfileId}`}
         ogImage={ogImage}
         robots={robots}
         noSocial={isProfileExpired}
@@ -346,8 +419,20 @@ const ProfilePage = () => {
         profileId={profile.id}
         cityName={profile.city}
         citySlug={citySlug}
+        profilePath={profileSlug && citySlug ? `/${citySlug}/${profileSlug}` : undefined}
         image={profile.image}
         description={description}
+        aggregateRating={
+          reviews.length > 0 && reviewsAvg != null
+            ? { ratingValue: reviewsAvg, reviewCount: reviews.length, bestRating: 5, worstRating: 1 }
+            : undefined
+        }
+        reviews={reviews.slice(0, 10).map((r) => ({
+          authorName: displayNameByReviewUserId[r.user_id] ?? "Usuario",
+          datePublished: r.created_at.slice(0, 10),
+          ratingValue: r.promedio_final,
+          reviewBody: r.comentario_experiencia,
+        }))}
       />
       {/* Gallery */}
       <div className="relative">
@@ -665,11 +750,11 @@ const ProfilePage = () => {
           </motion.div>
         </motion.div>
 
-        {/* Otros perfiles en la misma ciudad: enlazado interno */}
+        {/* Enlazado interno: Otras escorts en la ciudad */}
         {otherProfilesInCity.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-border/50" aria-labelledby="otros-perfiles-heading">
-            <h2 id="otros-perfiles-heading" className="text-lg font-display font-bold mb-4">Otros perfiles en {profile.city}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <section className="mt-12 pt-8 border-t border-border/50" aria-labelledby="otras-escorts-heading">
+            <h2 id="otras-escorts-heading" className="text-lg font-display font-bold mb-4">Otras escorts en {profile.city}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {otherProfilesInCity.map((p) => (
                 <ProfileCard
                   key={p.id}
@@ -681,13 +766,77 @@ const ProfilePage = () => {
                     badge: p.badge ?? "Perfil",
                     image: p.image ?? "",
                     available: p.available,
+                    slug: p.slug ?? undefined,
                   }}
+                  citySlug={citySlug}
                 />
               ))}
             </div>
             <p className="mt-4">
               <Link to={`/${citySlug}`} className="text-sm text-gold hover:underline">
                 Ver todos los perfiles en {profile.city} →
+              </Link>
+            </p>
+          </section>
+        )}
+
+        {/* Perfiles similares (misma categoría en la ciudad) */}
+        {similarProfiles.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-border/50" aria-labelledby="perfiles-similares-heading">
+            <h2 id="perfiles-similares-heading" className="text-lg font-display font-bold mb-4">Perfiles similares</h2>
+            <p className="text-sm text-muted-foreground mb-3">Otras {profile.badge !== "Perfil" ? profile.badge : "escorts"} en {profile.city}.</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {similarProfiles.map((p) => (
+                <ProfileCard
+                  key={p.id}
+                  profile={{
+                    id: p.id,
+                    name: p.name,
+                    age: p.age,
+                    city: profile.city,
+                    badge: p.badge ?? "Perfil",
+                    image: p.image ?? "",
+                    available: p.available,
+                    slug: p.slug ?? undefined,
+                  }}
+                  citySlug={citySlug}
+                />
+              ))}
+            </div>
+            <p className="mt-4">
+              <Link to={citySlug ? `/${citySlug}/mejores-escorts` : "#"} className="text-sm text-gold hover:underline">
+                Ver mejores escorts en {profile.city} →
+              </Link>
+            </p>
+          </section>
+        )}
+
+        {/* Escorts recomendadas (destacadas en la ciudad) */}
+        {recommendedProfiles.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-border/50" aria-labelledby="escorts-recomendadas-heading">
+            <h2 id="escorts-recomendadas-heading" className="text-lg font-display font-bold mb-4">Escorts recomendadas</h2>
+            <p className="text-sm text-muted-foreground mb-3">Perfiles destacados en {profile.city}.</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {recommendedProfiles.map((p) => (
+                <ProfileCard
+                  key={p.id}
+                  profile={{
+                    id: p.id,
+                    name: p.name,
+                    age: p.age,
+                    city: profile.city,
+                    badge: p.badge ?? "Perfil",
+                    image: p.image ?? "",
+                    available: p.available,
+                    slug: p.slug ?? undefined,
+                  }}
+                  citySlug={citySlug}
+                />
+              ))}
+            </div>
+            <p className="mt-4">
+              <Link to={citySlug ? `/${citySlug}/escorts-recomendadas` : "#"} className="text-sm text-gold hover:underline">
+                Ver escorts recomendadas en {profile.city} →
               </Link>
             </p>
           </section>
@@ -708,7 +857,7 @@ const ProfilePage = () => {
                   Llamar
                 </a>
                 <a
-                  href={getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city) ?? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}`}
+                  href={getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city, profileSlug && citySlug ? `/${citySlug}/${profileSlug}` : undefined) ?? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 h-12 rounded-2xl bg-[#25D366] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-[0.98]"
@@ -749,15 +898,15 @@ const ProfilePage = () => {
           <DialogHeader>
             <DialogTitle>Reseña verificada de experiencia</DialogTitle>
           </DialogHeader>
-          {profileId && user?.id && (
+          {resolvedProfileId && user?.id && (
             <ReviewExperienceForm
-              escortProfileId={profileId}
+              escortProfileId={resolvedProfileId}
               userId={user.id}
               submitReview={submitReviewExperience}
               onSuccess={() => {
                 setOpenReviewForm(false);
-                queryClient.invalidateQueries({ queryKey: ["review_experiences", profileId] });
-                queryClient.invalidateQueries({ queryKey: ["review_experiences_mine_7d", profileId, user.id] });
+                queryClient.invalidateQueries({ queryKey: ["review_experiences", resolvedProfileId] });
+                queryClient.invalidateQueries({ queryKey: ["review_experiences_mine_7d", resolvedProfileId, user.id] });
                 toast.success("Reseña publicada. +3 tickets.");
               }}
               onError={(msg) => toast.error(msg)}

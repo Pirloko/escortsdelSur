@@ -26,17 +26,19 @@ export function getWhatsAppNumber(raw: string | null | undefined): string | null
 /**
  * URL de WhatsApp para abrir chat con mensaje predefinido (perfil visto en holacachero, enlace al perfil, pregunta valores/servicios).
  * @param phoneRaw - Número de WhatsApp del perfil
- * @param profileId - ID del perfil (para armar el enlace)
+ * @param profileId - ID del perfil (fallback para enlace)
  * @param cityName - Nombre de la ciudad (ej. "Rancagua") para el mensaje
+ * @param profilePath - Ruta canónica del perfil (ej. /rancagua/camila-escort); si no se pasa se usa /perfil/:id
  */
 export function getWhatsAppProfileUrl(
   phoneRaw: string | null | undefined,
   profileId: string,
-  cityName: string = "Rancagua"
+  cityName: string = "Rancagua",
+  profilePath?: string | null
 ): string | null {
   const num = getWhatsAppNumber(phoneRaw);
   if (!num) return null;
-  const profileUrl = `${SITE_URL}/perfil/${profileId}`;
+  const profileUrl = profilePath ? `${SITE_URL}${profilePath.startsWith("/") ? profilePath : `/${profilePath}`}` : `${SITE_URL}/perfil/${profileId}`;
   const text = WHATSAPP_MESSAGE_TEMPLATE(profileUrl, cityName);
   return `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
 }

@@ -5,6 +5,7 @@ import {
   getQuizQuestions,
   getOrCreateUserProgress,
   submitQuizAnswer,
+  advanceQuizProgress,
 } from "@/lib/quizService";
 import type { CorrectOption } from "@/types/quiz";
 import type { DailyQuiz, DailyQuizQuestion, UserQuizProgress } from "@/types/quiz";
@@ -69,6 +70,13 @@ export function useQuizDay(userId: string | undefined, quizId: string | undefine
       ? progress.correct_answers * 1 + (progress.completed ? ticketsBonus : 0)
       : 0;
 
+  const advanceProgress = async () => {
+    if (!userId || !quizId) return;
+    await advanceQuizProgress(userId, quizId);
+    queryClient.invalidateQueries({ queryKey: ["quiz-progress", userId, quizId] });
+    queryClient.invalidateQueries({ queryKey: ["active-quizzes"] });
+  };
+
   return {
     quiz,
     questions,
@@ -85,6 +93,7 @@ export function useQuizDay(userId: string | undefined, quizId: string | undefine
     },
     submitAnswer: submitMutation.mutateAsync,
     isSubmitting: submitMutation.isPending,
+    advanceProgress,
   };
 }
 
@@ -103,6 +112,7 @@ export type QuizDayState = {
     question: DailyQuizQuestion;
   }) => Promise<{ correct: boolean; newProgress: UserQuizProgress }>;
   isSubmitting: boolean;
+  advanceProgress: () => Promise<void>;
 };
 
 export function useQuizDayForUser(

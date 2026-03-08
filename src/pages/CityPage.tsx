@@ -15,6 +15,7 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { sortProfilesWithSubidas } from "@/lib/franjas";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
+import { getProfileUrl } from "@/lib/seo-programmatic";
 
 const GALLERY_INTERVAL_MS = 5000;
 
@@ -53,7 +54,7 @@ const CityPage = () => {
   }, [citySlug]);
 
   type CityRow = { id: string; slug: string; name: string; profiles: number; image: string | null; is_active?: boolean; meta_robots?: string | null };
-  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null };
+  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null };
 
   const { data: dbCity } = useQuery({
     queryKey: ["city", citySlug],
@@ -86,7 +87,7 @@ const CityPage = () => {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion, description, nationality, gallery")
+        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion, description, nationality, gallery, slug")
         .eq("city_id", cityId)
         .not("promotion", "is", null)
         .gt("active_until", now);
@@ -141,6 +142,7 @@ const CityPage = () => {
     description: (p as EscortRow).description ?? null,
     nationality: (p as EscortRow).nationality ?? null,
     galleryCount: Array.isArray((p as EscortRow).gallery) ? (p as EscortRow).gallery!.length : 0,
+    slug: (p as EscortRow).slug ?? null,
   }));
 
   const byCategory =
@@ -166,7 +168,7 @@ const CityPage = () => {
 
   const profiles = activeAge ? byCategory.filter((p) => inAgeRange(p.age)) : byCategory;
 
-  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number };
+  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number; slug?: string | null };
 
   const toTelUrl = (raw: string | null | undefined): string | null => {
     if (!raw || !raw.trim()) return null;
@@ -228,13 +230,14 @@ const CityPage = () => {
     const shuffledProfiles = shuffleArray(profiles, seed);
     const shuffledPhrases = shuffleArray([...statusPhrases], seed + 0.1);
     const count = Math.min(10, profiles.length, statusPhrases.length, Math.max(5, Math.floor(profiles.length * 0.8)));
-    const items: { profileId: string; profileName: string; phrase: string; timeLabel: string; cityName: string }[] = [];
+    const items: { profileId: string; profileSlug: string | null; profileName: string; phrase: string; timeLabel: string; cityName: string }[] = [];
     for (let i = 0; i < count; i++) {
       const profile = shuffledProfiles[i % shuffledProfiles.length];
       const phrase = shuffledPhrases[i % shuffledPhrases.length];
       const timeLabel = ESTADOS_TIME_LABELS[Math.floor((seed * 100 + i) % ESTADOS_TIME_LABELS.length)];
       items.push({
         profileId: profile.id,
+        profileSlug: (profile as ProfileItem).slug ?? null,
         profileName: profile.name.toUpperCase(),
         phrase: phrase.text,
         timeLabel,
@@ -365,13 +368,13 @@ const CityPage = () => {
                 tabIndex={0}
                 onClick={(e) => {
                   if ((e.target as HTMLElement).closest("a")) return;
-                  navigate(`/perfil/${profile.id}`);
+                  navigate(getProfileUrl(profile as ProfileItem, citySlug ?? undefined));
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     if ((e.target as HTMLElement).closest("a")) return;
                     e.preventDefault();
-                    navigate(`/perfil/${profile.id}`);
+                    navigate(getProfileUrl(profile as ProfileItem, citySlug ?? undefined));
                   }
                 }}
                 className={`absolute inset-0 block transition-opacity duration-500 cursor-pointer ${i === galleryIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"}`}
@@ -494,7 +497,9 @@ const CityPage = () => {
                     description: (profile as ProfileItem).description ?? null,
                     nationality: (profile as ProfileItem).nationality ?? null,
                     galleryCount: (profile as ProfileItem).galleryCount ?? 0,
+                    slug: (profile as ProfileItem).slug ?? null,
                   }}
+                  citySlug={citySlug ?? undefined}
                 />
               </motion.div>
             ))}
@@ -520,7 +525,7 @@ const CityPage = () => {
                   <p className="text-sm text-foreground leading-snug">{item.phrase}</p>
                   <p className="text-xs text-muted-foreground mt-1.5">{item.cityName}</p>
                     <Link
-                    to={`/perfil/${item.profileId}`}
+                    to={getProfileUrl({ id: item.profileId, slug: item.profileSlug }, citySlug ?? undefined)}
                     className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-gold hover:text-gold/80 transition-colors"
                   >
                     Ver perfil
@@ -543,7 +548,9 @@ const CityPage = () => {
           <div className="rounded-xl border border-border bg-surface/50 overflow-hidden">
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-4" role="region" aria-label="Historias por fecha">
               {hotStoriesForCity.map((story) => {
-                const profileName = escortProfiles.find((p) => p.id === story.escort_profile_id)?.name ?? story.escort_profiles?.name ?? "Perfil";
+                const escort = escortProfiles.find((p) => p.id === story.escort_profile_id);
+                const profileName = escort?.name ?? story.escort_profiles?.name ?? "Perfil";
+                const profileSlug = (escort as EscortRow | undefined)?.slug ?? null;
                 return (
                 <article key={story.id} className="rounded-lg border border-border/60 bg-background/50 p-4">
                   <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
@@ -554,7 +561,7 @@ const CityPage = () => {
                   </div>
                   <p className="text-sm text-foreground leading-relaxed mb-3">{story.content}</p>
                   <Link
-                    to={`/perfil/${story.escort_profile_id}`}
+                    to={getProfileUrl({ id: story.escort_profile_id, slug: profileSlug }, citySlug ?? undefined)}
                     className="text-sm font-medium text-gold hover:text-gold/80 transition-colors inline-flex items-center gap-1.5"
                   >
                     Ver perfil

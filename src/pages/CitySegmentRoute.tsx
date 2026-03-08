@@ -1,13 +1,16 @@
 /**
  * Ruta /:citySlug/:segment.
- * Si segment es un filtro/categoría conocido → CityFilterPage.
- * Si no (futuro: slug de perfil) → redirect a ciudad o 404.
+ * Si segment es ranking (mejores-escorts, etc.) → CityRankingPage.
+ * Si segment es filtro/categoría → CityFilterPage.
+ * Si no → slug de perfil → ProfilePage.
  */
 
 import { useParams, Navigate } from "react-router-dom";
 import { isAllowedCitySlug } from "@/lib/site-config";
-import { isFilterOrCategorySegment } from "@/lib/seo-programmatic";
+import { isRankingSegment, isFilterOrCategorySegment } from "@/lib/seo-programmatic";
+import CityRankingPage from "./CityRankingPage";
 import CityFilterPage from "./CityFilterPage";
+import ProfilePage from "./ProfilePage";
 
 export function CitySegmentRoute() {
   const { citySlug, segment } = useParams<{ citySlug: string; segment: string }>();
@@ -19,9 +22,12 @@ export function CitySegmentRoute() {
     return <Navigate to="/rancagua" replace />;
   }
 
+  if (isRankingSegment(segment)) {
+    return <CityRankingPage />;
+  }
   if (isFilterOrCategorySegment(segment)) {
     return <CityFilterPage />;
   }
 
-  return <Navigate to={`/${citySlug}`} replace />;
+  return <ProfilePage />;
 }

@@ -135,13 +135,35 @@ export function JsonLdFilterPage({
   );
 }
 
+/** Datos para AggregateRating (estrellas en resultados de Google). */
+export interface JsonLdAggregateRating {
+  ratingValue: number;
+  reviewCount: number;
+  bestRating?: number;
+  worstRating?: number;
+}
+
+/** Una reseña individual para schema.org Review. */
+export interface JsonLdReviewItem {
+  authorName: string;
+  datePublished: string;
+  ratingValue: number;
+  reviewBody: string;
+}
+
 export interface JsonLdProfileProps {
   profileName: string;
   profileId: string;
   cityName: string;
   citySlug: string;
+  /** Ruta canónica SEO del perfil (ej. /rancagua/camila-escort). Si no se pasa se usa /perfil/:id */
+  profilePath?: string | null;
   image?: string;
   description?: string;
+  /** Para estrellas en Google: promedio y cantidad de reseñas verificadas. */
+  aggregateRating?: JsonLdAggregateRating | null;
+  /** Reseñas individuales (schema.org Review). Máx. recomendado 10 para SEO. */
+  reviews?: JsonLdReviewItem[];
 }
 
 export function JsonLdProfile({
@@ -149,10 +171,13 @@ export function JsonLdProfile({
   profileId,
   cityName,
   citySlug,
+  profilePath,
   image,
   description,
+  aggregateRating,
+  reviews = [],
 }: JsonLdProfileProps) {
-  const profileUrl = `${SITE_URL}/perfil/${sanitizeForJsonLd(profileId)}`;
+  const profileUrl = profilePath ? `${SITE_URL}${profilePath.startsWith("/") ? profilePath : `/${profilePath}`}` : `${SITE_URL}/perfil/${sanitizeForJsonLd(profileId)}`;
   const cityUrl = `${SITE_URL}/${sanitizeForJsonLd(citySlug)}`;
   const safeName = sanitizeForJsonLd(profileName);
   const safeCity = sanitizeForJsonLd(cityName);
@@ -177,10 +202,47 @@ export function JsonLdProfile({
   };
   if (image && image.startsWith("http")) person.image = image;
 
+  const bestRating = 5;
+  const worstRating = 1;
+  if (aggregateRating && aggregateRating.reviewCount > 0 && Number.isFinite(aggregateRating.ratingValue)) {
+    person.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: Math.min(bestRating, Math.max(worstRating, aggregateRating.ratingValue)),
+      reviewCount: Math.max(0, Math.floor(aggregateRating.reviewCount)),
+      bestRating: aggregateRating.bestRating ?? bestRating,
+      worstRating: aggregateRating.worstRating ?? worstRating,
+    };
+  }
+
+  const reviewScripts = reviews.slice(0, 10).map((r) => ({
+    "@context": "https://schema.org",
+    "@type": "Review",
+    itemReviewed: {
+      "@type": "Person",
+      name: safeName,
+      url: profileUrl,
+    },
+    author: {
+      "@type": "Person",
+      name: sanitizeForJsonLd(r.authorName) || "Usuario",
+    },
+    datePublished: r.datePublished,
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: Math.min(bestRating, Math.max(worstRating, r.ratingValue)),
+      bestRating,
+      worstRating,
+    },
+    reviewBody: sanitizeForJsonLd(r.reviewBody)?.slice(0, 5000) || "",
+  }));
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }} />
+      {reviewScripts.map((review, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(review) }} />
+      ))}
     </>
   );
 }

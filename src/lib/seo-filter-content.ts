@@ -1,7 +1,9 @@
 /**
- * Contenido SEO extenso (mín. 800 palabras) por página de filtro.
- * Estructura: H2, H3 y párrafos con variaciones semánticas de keywords.
+ * Contenido SEO extenso (300-600 palabras) por página de filtro.
+ * Estructura: H2 y párrafos con variaciones semánticas de keywords. Soporta pirámide SEO.
  */
+
+import { getAllPyramidalSlugs } from "./seo-pyramidal";
 
 export interface SeoSection {
   h2: string;
@@ -15,7 +17,7 @@ function section(h2: string, paragraphs: string[], h3?: string[]): SeoSection {
 
 /**
  * Genera las secciones de contenido SEO para una página de filtro.
- * [CIUDAD], [SERVICIO], [KEYWORD] se reemplazan por los valores reales.
+ * Para slugs piramidales usa plantilla genérica 300-600 palabras.
  */
 export function getFilterSeoContent(
   cityName: string,
@@ -24,6 +26,34 @@ export function getFilterSeoContent(
   labelShort: string
 ): SeoSection[] {
   const key = filterSlug.toLowerCase();
+  const isPyramidal = getAllPyramidalSlugs().map((s) => s.toLowerCase()).includes(key);
+
+  if (isPyramidal) {
+    return [
+      section(
+        `${labelPlural} en ${cityName}`,
+        [
+          `Si buscas ${labelPlural.toLowerCase()} en ${cityName}, en Hola Cachero encontrarás un listado actualizado de perfiles. La plataforma reúne acompañantes en ${cityName} con fotos recientes, descripción de servicios y datos de contacto para que puedas elegir con tranquilidad.`,
+          `En ${cityName} y la Región de O'Higgins podrás encontrar opciones que se ajusten a lo que buscas. Cada perfil en nuestro directorio incluye información clara sobre disponibilidad, servicios y formas de contacto. Utiliza los enlaces a los perfiles para ver fotos, leer la descripción completa y contactar directamente por WhatsApp o teléfono.`,
+        ]
+      ),
+      section(
+        `Por qué elegir ${labelShort.toLowerCase()} en ${cityName}`,
+        [
+          `Las escorts en ${cityName} publicadas en Hola Cachero pasan por una revisión básica para mantener la calidad del listado. ${labelPlural} en ${cityName} es una de las búsquedas más frecuentes; nuestra web te permite filtrar y comparar opciones en un solo lugar.`,
+          `La discreción y el respeto son prioritarios: solo mostramos la información que cada perfil autoriza. Te recomendamos confirmar tarifas, horarios y condiciones directamente con la persona del perfil antes de concretar una cita.`,
+        ]
+      ),
+      section(
+        `Servicios y contacto en ${cityName}`,
+        [
+          `En cada perfil de escort en ${cityName} en Hola Cachero encontrarás los servicios que ofrece, galería de fotos y datos de contacto verificables. Si buscas ${labelShort.toLowerCase()} en ${cityName}, revisa las descripciones y usa el botón de WhatsApp para coordinar.`,
+          `La comunicación clara desde el inicio ayuda a que la experiencia sea satisfactoria. Hola Cachero – ${labelPlural.toLowerCase()} en ${cityName} y acompañantes en el sur de Chile.`,
+        ]
+      ),
+    ];
+  }
+
   const isIntent = ["sexo", "sexosur", "skokka", "scort"].includes(key);
   const isCategory = ["escorts", "acompanantes", "damas-de-compania"].includes(key);
 

@@ -3,6 +3,7 @@ import { MapPin, Phone } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
+import { getProfileUrl } from "@/lib/seo-programmatic";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -21,11 +22,14 @@ interface ProfileProps {
     image: string;
     available: boolean;
     whatsapp?: string | null;
+    slug?: string | null;
   };
+  citySlug?: string | null;
 }
 
-export function ProfileCard({ profile }: ProfileProps) {
+export function ProfileCard({ profile, citySlug }: ProfileProps) {
   const navigate = useNavigate();
+  const profilePath = getProfileUrl(profile, citySlug);
   const waUrl = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city);
   const telUrl = toTelUrl(profile.whatsapp);
 
@@ -36,13 +40,13 @@ export function ProfileCard({ profile }: ProfileProps) {
         tabIndex={0}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("a")) return;
-          navigate(`/perfil/${profile.id}`);
+          navigate(profilePath);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             if ((e.target as HTMLElement).closest("a")) return;
             e.preventDefault();
-            navigate(`/perfil/${profile.id}`);
+            navigate(profilePath);
           }
         }}
         className="block cursor-pointer"

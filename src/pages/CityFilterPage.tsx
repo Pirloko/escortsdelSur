@@ -10,6 +10,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { JsonLdFilterPage } from "@/components/JsonLd";
 import { getFilterSeo } from "@/lib/seo-filter-data";
 import { getFilterSeoContent } from "@/lib/seo-filter-content";
+import { getPyramidalSeo, getAllPyramidalSlugs } from "@/lib/seo-pyramidal";
 import {
   isAllowedCitySlug,
   ACTIVE_CITY_SLUG,
@@ -17,10 +18,11 @@ import {
 import {
   cityUrl,
   getFilterUrlsForCity,
+  getProfileUrl,
   isFilterOrCategorySegment,
 } from "@/lib/seo-programmatic";
 import {
-  fetchProfilesByCityId,
+  fetchProfilesByCityIdForFilterPage,
   filterProfilesBySegment,
   type EscortProfileRow,
 } from "@/lib/seo-profiles";
@@ -48,13 +50,11 @@ export default function CityFilterPage() {
     citySlug === "rancagua"
       ? "Rancagua"
       : citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
-  const label = seo.h1.replace(new RegExp(` en ${cityName}$`), "") || segment;
-  const contentSections = getFilterSeoContent(
-    cityName,
-    segmentLower,
-    label,
-    label
-  );
+  const isPyramidal = getAllPyramidalSlugs().map((s) => s.toLowerCase()).includes(segmentLower);
+  const pyramidalSeo = isPyramidal ? getPyramidalSeo(citySlug, segmentLower, cityName) : null;
+  const labelPlural = pyramidalSeo?.labelPlural ?? (seo.h1.replace(new RegExp(` en ${cityName}$`), "") || segment);
+  const labelShort = pyramidalSeo?.labelShort ?? labelPlural;
+  const contentSections = getFilterSeoContent(cityName, segmentLower, labelPlural, labelShort);
 
   const { data: cityRow } = useQuery({
     queryKey: ["city-seo", citySlug],
@@ -73,8 +73,8 @@ export default function CityFilterPage() {
 
   const cityId = cityRow?.id;
   const { data: allProfiles = [] } = useQuery({
-    queryKey: ["escort_profiles_seo", cityId],
-    queryFn: () => (cityId ? fetchProfilesByCityId(cityId) : Promise.resolve([])),
+    queryKey: ["escort_profiles_filter_page", cityId],
+    queryFn: () => (cityId ? fetchProfilesByCityIdForFilterPage(cityId) : Promise.resolve([])),
     enabled: !!cityId,
   });
 
@@ -92,6 +92,7 @@ export default function CityFilterPage() {
     image: p.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
     available: p.available,
     whatsapp: p.whatsapp ?? null,
+    slug: p.slug ?? null,
   }));
 
   const internalLinks = getFilterUrlsForCity(citySlug)
@@ -101,7 +102,7 @@ export default function CityFilterPage() {
   const SITE_URL = "https://holacachero.cl";
   const profileUrls = profilesForCards
     .slice(0, 20)
-    .map((p) => `${SITE_URL}/perfil/${p.id}`);
+    .map((p) => `${SITE_URL}${getProfileUrl(p, citySlug)}`);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -164,7 +165,7 @@ export default function CityFilterPage() {
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
           {profilesForCards.map((profile) => (
-            <ProfileCard key={profile.id} profile={profile} />
+            <ProfileCard key={profile.id} profile={profile} citySlug={citySlug} />
           ))}
         </div>
 

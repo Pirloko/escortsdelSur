@@ -4,6 +4,7 @@ import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { cn } from "@/lib/utils";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
+import { getProfileUrl } from "@/lib/seo-programmatic";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -27,9 +28,12 @@ export interface FeaturedProfileCardProps {
     description?: string | null;
     nationality?: string | null;
     galleryCount?: number;
+    slug?: string | null;
   };
   /** Si se define, el clic en la imagen lleva a esta ruta (ej. página de ciudad) en lugar del perfil. */
   cardHref?: string;
+  /** Slug de la ciudad para URL SEO del perfil (ej. /rancagua/camila-escort). */
+  citySlug?: string;
   className?: string;
 }
 
@@ -40,13 +44,14 @@ function getDescriptionSnippet(description: string | null | undefined): string {
   return cleaned.slice(0, DESCRIPTION_PREVIEW_LENGTH).trim() + "…";
 }
 
-export function FeaturedProfileCard({ profile, cardHref, className }: FeaturedProfileCardProps) {
+export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: FeaturedProfileCardProps) {
   const navigate = useNavigate();
   const waUrl = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city);
   const telUrl = toTelUrl(profile.whatsapp);
   const snippet = getDescriptionSnippet(profile.description);
   const galleryCount = profile.galleryCount ?? 0;
-  const clickTarget = cardHref ?? `/perfil/${profile.id}`;
+  const profilePath = getProfileUrl(profile, citySlug);
+  const clickTarget = cardHref ?? profilePath;
   const isCardClickable = !!cardHref;
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -144,77 +149,87 @@ export function FeaturedProfileCard({ profile, cardHref, className }: FeaturedPr
             )}
           </ul>
 
-          {/* Acciones: Ver perfil + Llamar + WhatsApp (tamaño táctil para smartphone) */}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            {isCardClickable ? (
-              <span
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-gold hover:text-gold/80 transition-colors py-2 min-h-[44px] items-center cursor-pointer"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(clickTarget); }}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(clickTarget); } }}
-                role="button"
-                tabIndex={0}
-              >
-                Ver perfil
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            ) : (
-              <Link
-                to={`/perfil/${profile.id}`}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-gold hover:text-gold/80 transition-colors py-2 min-h-[44px] items-center"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Ver perfil
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            )}
-            {telUrl && (
-              isCardClickable ? (
+          {/* Acciones: Ver perfil arriba; Llamar + WhatsApp en fila ancha (móvil) */}
+          <div className="mt-4 space-y-3">
+            {/* Ver perfil: línea propia para no apretar con los botones */}
+            <div className="flex items-center">
+              {isCardClickable ? (
                 <span
-                  className="inline-flex items-center justify-center rounded-full w-11 h-11 min-w-[44px] min-h-[44px] border-2 border-gold/50 bg-muted/50 text-gold hover:bg-gold/10 hover:border-gold transition-colors shrink-0 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-gold hover:text-gold/80 transition-colors py-2 min-h-[44px] items-center cursor-pointer"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(clickTarget); }}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(clickTarget); } }}
                   role="button"
                   tabIndex={0}
-                  aria-label="Llamar"
                 >
-                  <Phone className="w-5 h-5" />
+                  Ver perfil
+                  <ArrowRight className="w-4 h-4" />
                 </span>
               ) : (
-                <a
-                  href={telUrl}
-                  className="inline-flex items-center justify-center rounded-full w-11 h-11 min-w-[44px] min-h-[44px] border-2 border-gold/50 bg-muted/50 text-gold hover:bg-gold/10 hover:border-gold transition-colors shrink-0"
+                <Link
+                  to={profilePath}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-gold hover:text-gold/80 transition-colors py-2 min-h-[44px] items-center"
                   onClick={(e) => e.stopPropagation()}
-                  aria-label="Llamar"
                 >
-                  <Phone className="w-5 h-5" />
-                </a>
-              )
-            )}
-            {waUrl && (
-              isCardClickable ? (
-                <span
-                  className="inline-flex items-center justify-center rounded-full w-11 h-11 min-w-[44px] min-h-[44px] bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors shrink-0 cursor-pointer"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(clickTarget); }}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(clickTarget); } }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="WhatsApp"
-                >
-                  <IconWhatsApp size={22} className="text-white" />
-                </span>
-              ) : (
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-full w-11 h-11 min-w-[44px] min-h-[44px] bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label="WhatsApp"
-                >
-                  <IconWhatsApp size={22} className="text-white" />
-                </a>
-              )
-            )}
+                  Ver perfil
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
+            {/* Llamar + WhatsApp: fila dedicada, botones del mismo tamaño y fáciles de tocar en móvil */}
+            <div className="flex items-stretch gap-3">
+              {telUrl && (
+                isCardClickable ? (
+                  <span
+                    className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-4 border-2 border-gold/50 bg-muted/50 text-gold hover:bg-gold/10 hover:border-gold transition-colors cursor-pointer touch-manipulation"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(clickTarget); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(clickTarget); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Llamar"
+                  >
+                    <Phone className="w-5 h-5 shrink-0" />
+                    <span className="text-sm font-medium hidden sm:inline">Llamar</span>
+                  </span>
+                ) : (
+                  <a
+                    href={telUrl}
+                    className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-4 border-2 border-gold/50 bg-muted/50 text-gold hover:bg-gold/10 hover:border-gold transition-colors touch-manipulation"
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label="Llamar"
+                  >
+                    <Phone className="w-5 h-5 shrink-0" />
+                    <span className="text-sm font-medium hidden sm:inline">Llamar</span>
+                  </a>
+                )
+              )}
+              {waUrl && (
+                isCardClickable ? (
+                  <span
+                    className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-4 bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors cursor-pointer touch-manipulation"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(clickTarget); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(clickTarget); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="WhatsApp"
+                  >
+                    <IconWhatsApp size={22} className="shrink-0" />
+                    <span className="text-sm font-medium hidden sm:inline">WhatsApp</span>
+                  </span>
+                ) : (
+                  <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-4 bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors touch-manipulation"
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label="WhatsApp"
+                  >
+                    <IconWhatsApp size={22} className="shrink-0" />
+                    <span className="text-sm font-medium hidden sm:inline">WhatsApp</span>
+                  </a>
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>

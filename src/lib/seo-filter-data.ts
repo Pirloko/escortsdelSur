@@ -1,8 +1,10 @@
 /**
  * Datos SEO por filtro/categoría (título, meta description, H1).
- * Por ciudad se usa el nombre; aquí solo el slug del filtro.
- * Uso: getFilterSeo("rancagua", "pelinegras") → title, description, h1.
+ * Incluye slugs piramidales vía getPyramidalSeo.
  */
+
+import { getPyramidalSeo } from "./seo-pyramidal";
+import { getAllPyramidalSlugs } from "./seo-pyramidal";
 
 const CITY_NAMES: Record<string, string> = {
   rancagua: "Rancagua",
@@ -72,11 +74,23 @@ function getCityName(citySlug: string): string {
 
 /**
  * Devuelve título, meta description (140–160 caracteres) y H1 para una página de filtro.
- * Ej: getFilterSeo("rancagua", "pelinegras")
+ * Usa pirámide SEO para categorías/servicios/atributos/zonas.
  */
 export function getFilterSeo(citySlug: string, filterSlug: string): FilterSeo {
   const cityName = getCityName(citySlug);
   const key = filterSlug.toLowerCase();
+
+  if (getAllPyramidalSlugs().map((s) => s.toLowerCase()).includes(key)) {
+    const pyramidal = getPyramidalSeo(citySlug, key, cityName);
+    const descTrim = pyramidal.description.length > 160 ? pyramidal.description.slice(0, 157) + "…" : pyramidal.description;
+    return {
+      title: pyramidal.title,
+      description: descTrim,
+      h1: pyramidal.h1,
+      h2Intro: `Perfiles en ${cityName}`,
+    };
+  }
+
   const label = FILTER_LABELS[key] ?? { short: filterSlug, plural: filterSlug };
   const plural = label.plural;
   const isIntent = ["sexo", "sexosur", "skokka", "scort"].includes(key);

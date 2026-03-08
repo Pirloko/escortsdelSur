@@ -49,6 +49,10 @@ export const citiesSeoData: Record<string, CitySeo & { nearbyLinks: { path: stri
         h2: "Por qué elegir acompañantes en Rancagua",
         content: `Elegir acompañantes en Rancagua a través de Hola Cachero te permite acceder a un listado centralizado, con perfiles que han pasado por una revisión básica y que publican su información de forma explícita. Evitas búsquedas dispersas en sitios poco confiables y tienes en un solo lugar las fotos, descripciones y contactos de escorts en Rancagua activas. La marca Hola Cachero y holacachero Rancagua están asociadas a estándares de calidad y discreción: nuestro objetivo es que encuentres con rapidez y seguridad el perfil que buscas. Rancagua es además un punto estratégico para quienes viajan por la zona central o hacia el sur; tener a mano un directorio de damas de compañía en Rancagua actualizado te ayuda a planificar con tiempo. Revisa los perfiles, compara opciones y contacta directamente a quien mejor se ajuste a lo que necesitas. Hola Cachero – escorts en Rancagua y acompañantes en el sur de Chile.`,
       },
+      {
+        h2: "Categorías, servicios y zonas en Rancagua",
+        content: `En Hola Cachero puedes explorar escorts en Rancagua por categorías como mejores escorts, escorts nuevas, escorts VIP, escorts independientes y escorts recomendadas. También encontrarás páginas por servicio: masajes eróticos en Rancagua, escort a domicilio, tríos, fetichismo y más. Si buscas por zona, tenemos perfiles en el centro de Rancagua, Machalí, Cachapoal y otros barrios. Cada página de categoría, servicio o zona incluye un listado de perfiles con fotos y contacto para que encuentres rápidamente lo que buscas. Escort pelinegra Rancagua, escort tetona Rancagua, escort culona Rancagua y otras búsquedas por atributo tienen su propia sección. Navega por los enlaces internos de esta página para acceder a todas las opciones disponibles en la ciudad.`,
+      },
     ],
   },
 

@@ -1,8 +1,9 @@
 /**
  * SEO programático: slugs de filtros, categorías y generación de URLs.
- * Arquitectura: ciudad → categoría/filtro → perfil.
- * Fase 1: solo Rancagua indexada.
+ * Arquitectura: ciudad → categoría/filtro → perfil. Incluye pirámide SEO (categorías, servicios, atributos, zonas).
  */
+
+import { getAllPyramidalSlugs } from "./seo-pyramidal";
 
 export const SITE_URL = "https://holacachero.cl";
 
@@ -81,14 +82,34 @@ export const CATEGORY_FILTER_COMBO_SLUGS = [
   "acompanantes-masajes",
 ] as const;
 
-/** Set de todos los segmentos que son filtro/categoría (no slug de perfil). */
+/** Slugs de páginas de ranking: mejores, nuevas, recomendadas. */
+export const RANKING_SLUGS = [
+  "mejores-escorts",
+  "escorts-nuevas",
+  "escorts-recomendadas",
+] as const;
+
+export type RankingSlug = (typeof RANKING_SLUGS)[number];
+
+const RANKING_SET = new Set<string>(RANKING_SLUGS.map((s) => s.toLowerCase()));
+
+/** Set de todos los segmentos que son filtro/categoría o ranking (no slug de perfil). */
 const FILTER_AND_CATEGORY_SET = new Set<string>([
   ...ALL_FILTER_SLUGS,
   ...CATEGORY_FILTER_COMBO_SLUGS,
+  ...RANKING_SLUGS,
+  ...getAllPyramidalSlugs().map((s) => s.toLowerCase()),
 ]);
 
 /**
- * Indica si el segmento de URL es una página de filtro/categoría conocida.
+ * Indica si el segmento es una página de ranking (mejores-escorts, escorts-nuevas, escorts-recomendadas).
+ */
+export function isRankingSegment(segment: string): boolean {
+  return RANKING_SET.has(segment.toLowerCase());
+}
+
+/**
+ * Indica si el segmento de URL es una página de filtro/categoría o ranking conocido.
  * Si no, se trata como slug de perfil.
  */
 export function isFilterOrCategorySegment(segment: string): boolean {
@@ -110,13 +131,29 @@ export function profileSeoUrl(citySlug: string, profileSlug: string): string {
   return `/${citySlug}/${profileSlug}`;
 }
 
-/** Lista de todas las URLs de filtro programáticas para una ciudad (para sitemap). */
+/** URL del perfil: SEO si hay slug y citySlug, si no /perfil/:id */
+export function getProfileUrl(
+  profile: { id: string; slug?: string | null },
+  citySlug: string | null | undefined
+): string {
+  if (profile.slug && citySlug) return profileSeoUrl(citySlug, profile.slug);
+  return `/perfil/${profile.id}`;
+}
+
+/** Lista de todas las URLs de filtro programáticas para una ciudad (para sitemap). Incluye pirámide SEO. */
 export function getFilterUrlsForCity(citySlug: string): string[] {
+  const pyramidal = getAllPyramidalSlugs();
   const all = [
     ...ALL_FILTER_SLUGS,
     ...CATEGORY_FILTER_COMBO_SLUGS,
+    ...pyramidal,
   ];
-  return all.map((slug) => filterUrl(citySlug, slug));
+  return [...new Set(all)].map((slug) => filterUrl(citySlug, slug));
+}
+
+/** URLs de páginas de ranking para una ciudad (para sitemap). */
+export function getRankingUrlsForCity(citySlug: string): string[] {
+  return RANKING_SLUGS.map((slug) => filterUrl(citySlug, slug));
 }
 
 /** Mapeo slug de servicio → términos a buscar en services_included / services_extra */

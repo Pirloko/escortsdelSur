@@ -175,6 +175,7 @@ function DesafioGame({ quizId }: { quizId: string }) {
     refetch,
     submitAnswer,
     isSubmitting,
+    advanceProgress,
   } = useQuizDayForUser(user?.id ?? undefined, quizId);
 
   const isGuest = !user;
@@ -391,9 +392,12 @@ function DesafioGame({ quizId }: { quizId: string }) {
     return { correct: result.correct };
   };
 
-  const handleAdvance = () => {
+  const handleAdvance = async () => {
     if (isGuest && currentQuestionIndex === GUEST_MAX_LEVEL) {
       setGuestFinishedFirstLevel(true);
+    } else if (!isGuest && advanceProgress) {
+      await advanceProgress();
+      refetch();
     } else {
       refetch();
     }

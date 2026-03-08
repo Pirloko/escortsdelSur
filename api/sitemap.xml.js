@@ -6,7 +6,10 @@ const { createClient } = require("@supabase/supabase-js");
 
 const SITE_URL = process.env.VITE_SITE_URL || process.env.SITE_URL || "https://holacachero.cl";
 
-/** Slugs de páginas SEO (alineado con src/lib/seo-programmatic.ts). Categorías, intención, servicios, atributos, long-tail y combos. */
+/** Páginas de ranking por ciudad (FASE 3). */
+const RANKING_SLUGS = ["mejores-escorts", "escorts-nuevas", "escorts-recomendadas"];
+
+/** Páginas SEO programáticas: filtros y categorías (alineado con src/lib/seo-programmatic.ts). */
 const FILTER_SLUGS = [
   "escorts", "acompanantes", "damas-de-compania",
   "sexo", "sexosur", "skokka", "scort",
@@ -48,6 +51,9 @@ export default async function handler(req, res) {
     urlEl(`${base}/rancagua`, today, "weekly", "0.95"),
   ];
 
+  for (const slug of RANKING_SLUGS) {
+    urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.9"));
+  }
   for (const slug of FILTER_SLUGS) {
     urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.85"));
   }
@@ -68,15 +74,17 @@ export default async function handler(req, res) {
 
       if (rancaguaCity && rancaguaCity.is_active !== false && (!rancaguaCity.meta_robots || !/noindex/i.test(rancaguaCity.meta_robots))) {
         const now = new Date().toISOString();
+        const citySlug = rancaguaCity.slug || "rancagua";
         const { data: profiles } = await supabase
           .from("escort_profiles")
-          .select("id, updated_at")
+          .select("id, slug, updated_at")
           .eq("city_id", rancaguaCity.id)
           .or(`active_until.is.null,active_until.gt.${now}`);
 
         for (const p of profiles || []) {
           const lastmod = p.updated_at ? p.updated_at.slice(0, 10) : today;
-          urls.push(urlEl(`${base}/perfil/${p.id}`, lastmod, "weekly", "0.8"));
+          const profileLoc = p.slug ? `${base}/${citySlug}/${p.slug}` : `${base}/perfil/${p.id}`;
+          urls.push(urlEl(profileLoc, lastmod, "weekly", "0.8"));
         }
       }
     } catch (e) {

@@ -34,96 +34,7 @@ import { PAISES_LATINOAMERICANOS } from "@/lib/paises-latinoamericanos";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
 import { jsPDF } from "jspdf";
 import { recordPublisherAudit } from "@/lib/publisher-audit";
-
-/** Palabras clave para el botón "Texto aleatorio" en Descripción. Incluye keywords SEO. */
-const DESC_PALABRAS = {
-  inicios: ["Soy", "Hola, soy", "Mi nombre es", "Encantada,"],
-  adjetivos: ["discreta", "una escort", "caliente", "profesional", "amigable", "elegante", "cálida", "reservada", "verificada", "seria"],
-  frases: [
-    "disfruto de buenos momentos",
-    "me adapto a lo que buscas",
-    "me encanta el sexo",
-    "me gusta el sexo en diferentes posiciones",
-    "no pierdas tu tiempo y contactame",
-    "atendiendo en",
-    "disponible para encuentros",
-    "verificada y seria",
-    "atención personalizada",
-    "ambientes cómodos y discretos",
-  ],
-  /** Frases con keywords SEO (escorts en Rancagua, Hola Cachero, acompañantes, damas de compañía). */
-  frasesSeo: [
-    "Perfil verificado en Hola Cachero, escorts en Rancagua.",
-    "Acompañante en Rancagua, dama de compañía disponible.",
-    "En Hola Cachero encontrarás mi perfil con otras escorts en Rancagua.",
-    "Soy una de las acompañantes en Rancagua en Hola Cachero.",
-    "Dama de compañía en Rancagua, escort en Rancagua.",
-    "Escort en Rancagua verificada en Hola Cachero.",
-    "Acompañantes en Rancagua: mi perfil en Hola Cachero.",
-  ],
-  cierres: [
-    "Escríbeme y coordinamos.",
-    "Contáctame para más información.",
-    "Te espero.",
-    "Reserva con confianza.",
-    "Hola Cachero – escorts en Rancagua y acompañantes.",
-  ],
-};
-
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-/** Genera una descripción que incluye todos los datos del perfil (se usa como último paso). */
-function generarDescripcionAleatoria(opciones: {
-  nombre: string;
-  edad: string;
-  ciudad: string;
-  categoria: string;
-  serviciosIncluidos: string[];
-  serviciosAdicionales: string[];
-  nacionalidad: string;
-  whatsapp: string;
-}): string {
-  const n = (opciones.nombre || "").trim();
-  const e = (opciones.edad || "").trim();
-  const c = (opciones.ciudad || "").trim();
-  const cat = (opciones.categoria || "").trim();
-  const nac = (opciones.nacionalidad || "").trim();
-  const wa = (opciones.whatsapp || "").trim();
-  const incl = opciones.serviciosIncluidos ?? [];
-  const adic = opciones.serviciosAdicionales ?? [];
-
-  const partes: string[] = [];
-
-  if (n) {
-    const inicio = pick(DESC_PALABRAS.inicios);
-    partes.push(e ? `${inicio} ${n}, ${e} años.` : `${inicio} ${n}.`);
-  } else if (e) {
-    partes.push(`Tengo ${e} años.`);
-  }
-
-  if (cat) partes.push(cat + ".");
-  if (c) partes.push(`Atendiendo en ${c}.`);
-  if (nac) partes.push(`Nacionalidad: ${nac}.`);
-
-  const adjs = [...DESC_PALABRAS.adjetivos].sort(() => Math.random() - 0.5).slice(0, 2);
-  if (adjs.length) partes.push(adjs.join(", ").replace(/, ([^,]+)$/, " y $1") + ".");
-
-  const frase = pick(DESC_PALABRAS.frases);
-  if (c) partes.push(`${frase} ${c}.`);
-  else partes.push(frase + ".");
-
-  if (incl.length > 0) partes.push(`Servicios incluidos: ${incl.join(", ")}.`);
-  if (adic.length > 0) partes.push(`Adicionales: ${adic.join(", ")}.`);
-
-  if (wa) partes.push(`Contáctame por WhatsApp: ${wa}.`);
-
-  partes.push(pick(DESC_PALABRAS.frasesSeo));
-  partes.push(pick(DESC_PALABRAS.cierres));
-
-  return partes.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
-}
+import { generateSeoDescription } from "@/lib/seo-description-generator";
 
 /** Opciones para el menú Categoría. Editar manualmente. Radix no permite value="", usamos __ninguno__. */
 const CATEGORIA_NINGUNO = "__ninguno__";
@@ -1806,15 +1717,15 @@ export default function Cuenta() {
                 className="h-8 rounded-lg text-xs font-medium gap-1.5 border-gold text-gold hover:bg-gold/10"
                 onClick={() =>
                   setDescription(
-                    generarDescripcionAleatoria({
-                      nombre: name,
-                      edad: age,
-                      ciudad: (profileData as ProfileWithCity | null)?.cities?.name ?? "",
-                      categoria: badge && badge !== CATEGORIA_NINGUNO ? badge : "",
-                      serviciosIncluidos: servicesIncluded,
-                      serviciosAdicionales: servicesExtra,
-                      nacionalidad: nationality,
-                      whatsapp: whatsapp,
+                    generateSeoDescription({
+                      name,
+                      age,
+                      city: (profileData as ProfileWithCity | null)?.cities?.name ?? undefined,
+                      category: badge && badge !== CATEGORIA_NINGUNO ? badge : undefined,
+                      servicesIncluded,
+                      servicesExtra,
+                      nationality: nationality || undefined,
+                      whatsapp: whatsapp || undefined,
                     }),
                   )
                 }
@@ -1827,7 +1738,7 @@ export default function Cuenta() {
               className="flex min-h-[80px] w-full rounded-md border border-input bg-surface px-3 py-2 text-sm"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Completa los datos del perfil arriba (nombre, edad, ciudad, categoría, servicios, nacionalidad, WhatsApp) y usa «Texto aleatorio» para generar la descripción."
+              placeholder="Completa los datos del perfil arriba y usa «Texto aleatorio» para generar una descripción SEO (250-400 palabras). No se sobrescribe texto escrito a mano."
             />
           </div>
           <div className="flex gap-3">

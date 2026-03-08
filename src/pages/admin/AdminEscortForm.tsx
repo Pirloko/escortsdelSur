@@ -23,73 +23,8 @@ import type { EscortProfilesRow } from "@/types/database";
 import type { CitiesRow } from "@/types/database";
 import { PAISES_LATINOAMERICANOS } from "@/lib/paises-latinoamericanos";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
+import { generateSeoDescription } from "@/lib/seo-description-generator";
 import { Shuffle } from "lucide-react";
-
-const DESC_PALABRAS = {
-  inicios: ["Soy", "Hola, soy", "Mi nombre es", "Encantada,"],
-  adjetivos: ["discreta", "una escort", "caliente", "profesional", "amigable", "elegante", "cálida", "reservada", "verificada", "seria"],
-  frases: [
-    "disfruto de buenos momentos",
-    "me adapto a lo que buscas",
-    "me encanta el sexo",
-    "me gusta el sexo en diferentes posiciones",
-    "no pierdas tu tiempo y contactame",
-    "atendiendo en",
-    "disponible para encuentros",
-    "verificada y seria",
-    "atención personalizada",
-    "ambientes cómodos y discretos",
-  ],
-  frasesSeo: [
-    "Perfil verificado en Hola Cachero, escorts en Rancagua.",
-    "Acompañante en Rancagua, dama de compañía disponible.",
-    "En Hola Cachero encontrarás mi perfil con otras escorts en Rancagua.",
-    "Soy una de las acompañantes en Rancagua en Hola Cachero.",
-    "Dama de compañía en Rancagua, escort en Rancagua.",
-    "Escort en Rancagua verificada en Hola Cachero.",
-    "Acompañantes en Rancagua: mi perfil en Hola Cachero.",
-  ],
-  cierres: [
-    "Escríbeme y coordinamos.",
-    "Contáctame para más información.",
-    "Te espero.",
-    "Reserva con confianza.",
-    "Hola Cachero – escorts en Rancagua y acompañantes.",
-  ],
-};
-
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function generarDescripcionAleatoria(
-  nombre: string,
-  edad: string,
-  ciudad: string,
-  serviciosIncluidos: string[] = [],
-  serviciosAdicionales: string[] = []
-): string {
-  const n = (nombre || "—").trim();
-  const e = (edad || "").trim();
-  const c = (ciudad || "").trim();
-  const años = e ? `, ${e} años` : "";
-  const inicio = pick(DESC_PALABRAS.inicios);
-  const parte1 = `${inicio} ${n}${años}.`;
-  const adjs = [...DESC_PALABRAS.adjetivos].sort(() => Math.random() - 0.5).slice(0, 2);
-  const parte2 = adjs.length ? ` ${adjs.join(", ").replace(/, ([^,]+)$/, " y $1")}.` : "";
-  const frase = pick(DESC_PALABRAS.frases);
-  const parte3 = c ? ` ${frase} ${c}.` : ` ${frase}.`;
-  let parteServicios = "";
-  if (serviciosIncluidos.length > 0 || serviciosAdicionales.length > 0) {
-    const partes: string[] = [];
-    if (serviciosIncluidos.length > 0) partes.push(`Servicios incluidos: ${serviciosIncluidos.join(", ")}.`);
-    if (serviciosAdicionales.length > 0) partes.push(`Adicionales: ${serviciosAdicionales.join(", ")}.`);
-    parteServicios = " " + partes.join(" ");
-  }
-  const fraseSeo = pick(DESC_PALABRAS.frasesSeo);
-  const cierre = pick(DESC_PALABRAS.cierres);
-  return (parte1 + parte2 + parte3 + " " + fraseSeo + parteServicios + " " + cierre).replace(/\s+/g, " ").trim();
-}
 
 const CATEGORIA_NINGUNO = "__ninguno__";
 const CATEGORIA_OPCIONES = ["Escort Mujer", "Escort Trans", "Escort Hombre"];
@@ -510,7 +445,18 @@ export function AdminEscortForm({ initial, onClose, onSuccess }: AdminEscortForm
                 size="sm"
                 className="h-8 rounded-lg text-xs font-medium gap-1.5 border-gold text-gold hover:bg-gold/10"
                 onClick={() =>
-                  setDescription(generarDescripcionAleatoria(name, age, cityName, servicesIncluded, servicesExtra))
+                  setDescription(
+                    generateSeoDescription({
+                      name,
+                      age,
+                      city: cityName || undefined,
+                      category: badge && badge !== CATEGORIA_NINGUNO ? badge : undefined,
+                      servicesIncluded,
+                      servicesExtra,
+                      nationality: nationality || undefined,
+                      whatsapp: whatsapp || undefined,
+                    }),
+                  )
                 }
               >
                 <Shuffle className="h-3.5 w-3.5" />
