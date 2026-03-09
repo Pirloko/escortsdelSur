@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
+import { trackWhatsAppClick, trackPhoneClick } from "@/lib/analytics";
 
 export interface GalleryViewerModalProps {
   open: boolean;
@@ -24,6 +25,9 @@ export interface GalleryViewerModalProps {
   telUrl?: string | null;
   /** URL de WhatsApp. Si no se pasa, no se muestra. */
   whatsappUrl?: string | null;
+  /** Para eventos GA4 (opcional). */
+  profileId?: string | null;
+  city?: string | null;
 }
 
 const SWIPE_THRESHOLD = 50;
@@ -36,6 +40,8 @@ export function GalleryViewerModal({
   profileHref,
   telUrl,
   whatsappUrl,
+  profileId,
+  city,
 }: GalleryViewerModalProps) {
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -146,7 +152,9 @@ export function GalleryViewerModal({
               <a
                 href={telUrl}
                 className="inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-5 border-2 border-gold/50 bg-white/5 text-gold hover:bg-gold/15 hover:border-gold transition-colors touch-manipulation font-medium text-sm"
-                onClick={(e) => e.stopPropagation()}
+                onClick={() => {
+                  if (profileId && city) trackPhoneClick({ profile_id: profileId, profile_name: profileName, city });
+                }}
                 aria-label="Llamar"
               >
                 <Phone className="w-5 h-5 shrink-0" />
@@ -159,7 +167,9 @@ export function GalleryViewerModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-5 bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors touch-manipulation font-medium text-sm"
-                onClick={(e) => e.stopPropagation()}
+                onClick={() => {
+                  if (profileId && city) trackWhatsAppClick({ profile_id: profileId, profile_name: profileName, city });
+                }}
                 aria-label="WhatsApp"
               >
                 <IconWhatsApp size={22} className="shrink-0" />

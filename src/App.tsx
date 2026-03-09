@@ -41,6 +41,7 @@ const AdminCiudades = lazy(() => import("./pages/admin/AdminCiudades"));
 const AdminEstados = lazy(() => import("./pages/admin/AdminEstados"));
 const AdminDesafioDelDia = lazy(() => import("./pages/admin/AdminDesafioDelDia"));
 const AdminRaffle = lazy(() => import("./pages/admin/AdminRaffle"));
+const AdminAnalyticsDashboard = lazy(() => import("./pages/admin/AdminAnalyticsDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -119,6 +120,7 @@ const App = () => (
                 <Route path="estados" element={<AdminEstados />} />
                 <Route path="desafio-del-dia" element={<AdminDesafioDelDia />} />
                 <Route path="rifa" element={<AdminRaffle />} />
+                <Route path="analytics" element={<AdminAnalyticsDashboard />} />
               </Route>
               <Route path="/rifa" element={<RafflePage />} />
               <Route path="/rifa/terminos" element={<RaffleTermsPage />} />

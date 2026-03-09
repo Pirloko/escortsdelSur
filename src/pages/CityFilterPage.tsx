@@ -4,7 +4,9 @@
  */
 
 import { Link, useParams } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { trackPageCategoryView } from "@/lib/analytics";
 import { SeoHead } from "@/components/SeoHead";
 import { ProfileCard } from "@/components/ProfileCard";
 import { JsonLdFilterPage } from "@/components/JsonLd";
@@ -17,9 +19,11 @@ import {
 } from "@/lib/site-config";
 import {
   cityUrl,
+  filterUrl,
   getFilterUrlsForCity,
   getProfileUrl,
   isFilterOrCategorySegment,
+  CANNIBALIZATION_CANONICAL,
 } from "@/lib/seo-programmatic";
 import {
   fetchProfilesByCityIdForFilterPage,
@@ -51,6 +55,17 @@ export default function CityFilterPage() {
       ? "Rancagua"
       : citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
   const isPyramidal = getAllPyramidalSlugs().map((s) => s.toLowerCase()).includes(segmentLower);
+
+  const pageViewTracked = useRef(false);
+  useEffect(() => {
+    if (pageViewTracked.current) return;
+    pageViewTracked.current = true;
+    trackPageCategoryView({
+      page_path: `/${citySlug}/${segmentLower}`,
+      city: cityName,
+      category_or_filter: segmentLower,
+    });
+  }, [citySlug, segmentLower, cityName]);
   const pyramidalSeo = isPyramidal ? getPyramidalSeo(citySlug, segmentLower, cityName) : null;
   const labelPlural = pyramidalSeo?.labelPlural ?? (seo.h1.replace(new RegExp(` en ${cityName}$`), "") || segment);
   const labelShort = pyramidalSeo?.labelShort ?? labelPlural;
@@ -95,9 +110,30 @@ export default function CityFilterPage() {
     slug: p.slug ?? null,
   }));
 
+  const canonicalSegment = CANNIBALIZATION_CANONICAL[segmentLower] ?? segmentLower;
+  const canonicalPath = `/${citySlug}/${canonicalSegment}`;
+
   const internalLinks = getFilterUrlsForCity(citySlug)
     .filter((url) => !url.endsWith(segmentLower))
     .slice(0, 12);
+
+  const hasNoProfiles = profilesForCards.length === 0;
+  const fallbackProfiles = hasNoProfiles
+    ? sortProfilesWithSubidas(allProfiles as EscortProfileRow[])
+        .filter((p) => p.image)
+        .slice(0, 8)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          age: p.age,
+          city: cityRow?.name ?? cityName,
+          badge: p.badge ?? "Perfil",
+          image: p.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+          available: p.available,
+          whatsapp: p.whatsapp ?? null,
+          slug: p.slug ?? null,
+        }))
+    : [];
 
   const SITE_URL = "https://holacachero.cl";
   const profileUrls = profilesForCards
@@ -109,7 +145,7 @@ export default function CityFilterPage() {
       <SeoHead
         title={seo.title}
         description={seo.description}
-        canonicalPath={`/${citySlug}/${segmentLower}`}
+        canonicalPath={canonicalPath}
         robots="index, follow"
       />
       <JsonLdFilterPage
@@ -131,7 +167,7 @@ export default function CityFilterPage() {
             {cityName}
           </Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground font-medium">{label}</span>
+          <span className="text-foreground font-medium">{labelPlural}</span>
         </nav>
 
         <h1 className="text-3xl font-display font-bold text-foreground mb-6">
@@ -161,24 +197,54 @@ export default function CityFilterPage() {
         <h2 className="text-xl font-display font-bold text-foreground mb-4">
           {profilesForCards.length > 0
             ? `Perfiles en ${cityName} (${profilesForCards.length})`
-            : `No hay perfiles que coincidan con este criterio`}
+            : hasNoProfiles
+              ? `No encontramos ${labelShort.toLowerCase()} en ${cityName} actualmente`
+              : `No hay perfiles que coincidan con este criterio`}
         </h2>
+        {hasNoProfiles && (
+          <p className="text-muted-foreground text-sm mb-4">
+            Pero puedes explorar escorts VIP, escorts dominantes o otras categorías disponibles hoy en {cityName}.
+          </p>
+        )}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
-          {profilesForCards.map((profile) => (
+          {(profilesForCards.length > 0 ? profilesForCards : fallbackProfiles).map((profile) => (
             <ProfileCard key={profile.id} profile={profile} citySlug={citySlug} />
           ))}
         </div>
+        {hasNoProfiles && fallbackProfiles.length > 0 && (
+          <p className="text-muted-foreground text-sm mb-6">
+            Las anteriores son otras opciones en {cityName} que podrían interesarte.
+          </p>
+        )}
 
         <section className="border-t border-border pt-8">
           <h2 className="text-lg font-display font-bold text-foreground mb-4">
             Explora más en {cityName}
           </h2>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             <Link
               to={cityUrl(citySlug)}
               className="inline-flex items-center px-3 py-1.5 rounded-lg bg-copper/20 text-copper text-sm font-medium hover:bg-copper/30 transition-colors"
             >
               Ver todos los perfiles
+            </Link>
+            <Link
+              to={filterUrl(citySlug, "servicios")}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg border border-border text-muted-foreground text-sm hover:bg-muted hover:text-foreground transition-colors"
+            >
+              Servicios
+            </Link>
+            <Link
+              to={filterUrl(citySlug, "atributos")}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg border border-border text-muted-foreground text-sm hover:bg-muted hover:text-foreground transition-colors"
+            >
+              Atributos
+            </Link>
+            <Link
+              to={filterUrl(citySlug, "zonas")}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg border border-border text-muted-foreground text-sm hover:bg-muted hover:text-foreground transition-colors"
+            >
+              Zonas
             </Link>
             {internalLinks.slice(0, 10).map((url) => {
               const slug = url.split("/").pop() ?? "";

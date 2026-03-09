@@ -10,6 +10,7 @@ import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
 import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { GalleryViewerModal } from "@/components/GalleryViewerModal";
+import { trackProfileClickFromList } from "@/lib/analytics";
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
 import { useState, useEffect, useMemo } from "react";
@@ -194,6 +195,8 @@ const CityPage = () => {
     profileHref?: string;
     telUrl?: string | null;
     whatsappUrl?: string | null;
+    profileId?: string;
+    city?: string;
   } | null>(null);
   const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
   useEffect(() => {
@@ -208,12 +211,15 @@ const CityPage = () => {
     const profileHref = getProfileUrl(profile, citySlug ?? undefined);
     const tel = toTelUrl(profile.whatsapp);
     const wa = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city, profileHref);
+    trackProfileClickFromList({ profile_id: profile.id, profile_name: profile.name, city: profile.city, list_context: "galeria" });
     setGalleryViewerProfile({
       name: profile.name,
       photos,
       profileHref,
       telUrl: tel,
       whatsappUrl: wa,
+      profileId: profile.id,
+      city: profile.city,
     });
     setGalleryViewerOpen(true);
   };
@@ -414,6 +420,8 @@ const CityPage = () => {
               profileHref={galleryViewerProfile.profileHref}
               telUrl={galleryViewerProfile.telUrl}
               whatsappUrl={galleryViewerProfile.whatsappUrl}
+              profileId={galleryViewerProfile.profileId}
+              city={galleryViewerProfile.city}
             />
           )}
         </div>

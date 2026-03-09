@@ -5,6 +5,7 @@ import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { cn } from "@/lib/utils";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
+import { trackWhatsAppClick, trackPhoneClick, trackProfileClickFromList } from "@/lib/analytics";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -56,11 +57,13 @@ export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: 
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!isCardClickable) trackProfileClickFromList({ profile_id: profile.id, profile_name: profile.name, city: profile.city, list_context: "destacadas" });
     navigate(clickTarget);
   };
   const handleCardKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== "Enter" && e.key !== " ") return;
     e.preventDefault();
+    if (!isCardClickable) trackProfileClickFromList({ profile_id: profile.id, profile_name: profile.name, city: profile.city, list_context: "destacadas" });
     navigate(clickTarget);
   };
 
@@ -84,6 +87,7 @@ export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: 
         tabIndex={isCardClickable ? undefined : 0}
         onClick={isCardClickable ? undefined : (e) => {
           if ((e.target as HTMLElement).closest("a")) return;
+          trackProfileClickFromList({ profile_id: profile.id, profile_name: profile.name, city: profile.city, list_context: "destacadas" });
           navigate(clickTarget);
         }}
         onKeyDown={isCardClickable ? undefined : (e) => {
@@ -168,7 +172,7 @@ export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: 
                 <Link
                   to={profilePath}
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-gold hover:text-gold/80 transition-colors py-2 min-h-[44px] items-center"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={() => trackProfileClickFromList({ profile_id: profile.id, profile_name: profile.name, city: profile.city, list_context: "destacadas" })}
                 >
                   Ver perfil
                   <ArrowRight className="w-4 h-4" />
@@ -194,7 +198,7 @@ export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: 
                   <a
                     href={telUrl}
                     className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-4 border-2 border-gold/50 bg-muted/50 text-gold hover:bg-gold/10 hover:border-gold transition-colors touch-manipulation"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={() => trackPhoneClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
                     aria-label="Llamar"
                   >
                     <Phone className="w-5 h-5 shrink-0" />
@@ -221,7 +225,7 @@ export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-4 bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors touch-manipulation"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={() => trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
                     aria-label="WhatsApp"
                   >
                     <IconWhatsApp size={22} className="shrink-0" />

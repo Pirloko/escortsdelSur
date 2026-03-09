@@ -3,7 +3,7 @@ import { SeoHead } from "@/components/SeoHead";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe, BadgeCheck } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { featuredProfiles, profileGallery } from "@/lib/data";
 import { getCitySlugFromName } from "@/lib/seo";
@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { ProfileCommentsRow, ReviewExperiencesRow } from "@/types/database";
+import { trackViewProfile, trackWhatsAppClick, trackPhoneClick, trackProfileEngagement } from "@/lib/analytics";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 15 },
@@ -204,6 +205,31 @@ const ProfilePage = () => {
     // @ts-expect-error - generated Supabase types may not include profile_views
     supabase.from("profile_views").upsert({ user_id: user.id, escort_profile_id: resolvedProfileId, viewed_at: viewedAt }, { onConflict: "user_id,escort_profile_id" }).then(() => {});
   }, [user?.id, role, resolvedProfileId, dbProfile?.id]);
+
+  // GA4: evento view_profile al cargar la ficha
+  const viewProfileTracked = useRef(false);
+  useEffect(() => {
+    if (!dbProfile || viewProfileTracked.current) return;
+    viewProfileTracked.current = true;
+    trackViewProfile({
+      profile_id: dbProfile.id,
+      profile_name: dbProfile.name,
+      city: cityName,
+    });
+  }, [dbProfile?.id, dbProfile?.name, cityName]);
+
+  // GA4: engagement (segundos en la página) al salir
+  const profileMountTime = useRef<number>(Date.now());
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      if (dbProfile) {
+        const seconds = Math.round((Date.now() - profileMountTime.current) / 1000);
+        if (seconds > 0) trackProfileEngagement({ profile_id: dbProfile.id, profile_name: dbProfile.name, city: cityName, engagement_seconds: seconds });
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dbProfile?.id, dbProfile?.name, cityName]);
 
   const { data: favoriteRows } = useQuery({
     queryKey: ["favorites", user?.id],
@@ -852,6 +878,7 @@ const ProfilePage = () => {
                 <a
                   href={`tel:${profile.whatsapp.replace(/\s/g, "")}`}
                   className="flex-1 h-12 rounded-2xl bg-gold text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-[0.98]"
+                  onClick={() => trackPhoneClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
                 >
                   <Phone className="w-4 h-4" />
                   Llamar
@@ -861,6 +888,7 @@ const ProfilePage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 h-12 rounded-2xl bg-[#25D366] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-[0.98]"
+                  onClick={() => trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
                 >
                   <MessageCircle className="w-4 h-4" />
                   WhatsApp

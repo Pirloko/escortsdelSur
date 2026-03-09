@@ -4,7 +4,9 @@
  */
 
 import { Link, useParams, Navigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { trackPageCategoryView } from "@/lib/analytics";
 import { ChevronRight } from "lucide-react";
 import { SeoHead } from "@/components/SeoHead";
 import { ProfileCard } from "@/components/ProfileCard";
@@ -53,6 +55,17 @@ export default function CityRankingPage() {
       ? "Rancagua"
       : citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
   const seo = getRankingSeo(citySlug, segmentLower as RankingSlug);
+
+  const pageViewTracked = useRef(false);
+  useEffect(() => {
+    if (pageViewTracked.current) return;
+    pageViewTracked.current = true;
+    trackPageCategoryView({
+      page_path: `/${citySlug}/${segmentLower}`,
+      city: cityName,
+      category_or_filter: `ranking_${segmentLower}`,
+    });
+  }, [citySlug, segmentLower, cityName]);
 
   const { data: cityRow } = useQuery({
     queryKey: ["city-seo", citySlug],

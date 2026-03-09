@@ -9,6 +9,9 @@ const SITE_URL = process.env.VITE_SITE_URL || process.env.SITE_URL || "https://h
 /** Páginas de ranking por ciudad (FASE 3). */
 const RANKING_SLUGS = ["mejores-escorts", "escorts-nuevas", "escorts-recomendadas"];
 
+/** Páginas índice: servicios, atributos, zonas. */
+const INDEX_SLUGS = ["servicios", "atributos", "zonas"];
+
 /** Páginas SEO programáticas: filtros y categorías por ciudad. */
 const FILTER_SLUGS = [
   "escorts", "acompanantes", "damas-de-compania",
@@ -98,6 +101,10 @@ exports.handler = async () => {
         for (const slug of RANKING_SLUGS) {
           urls.push(urlEl(`${base}/${citySlug}/${slug}`, cityLastmod, "weekly", "0.9"));
         }
+        urls.push(urlEl(`${base}/${citySlug}/top-escorts`, cityLastmod, "weekly", "0.9"));
+        for (const slug of INDEX_SLUGS) {
+          urls.push(urlEl(`${base}/${citySlug}/${slug}`, cityLastmod, "weekly", "0.9"));
+        }
         for (const slug of FILTER_SLUGS) {
           urls.push(urlEl(`${base}/${citySlug}/${slug}`, today, "weekly", "0.85"));
         }
@@ -121,6 +128,8 @@ exports.handler = async () => {
       console.error("Sitemap Supabase error:", e);
       urls.push(urlEl(`${base}/rancagua`, today, "weekly", "0.95"));
       for (const slug of RANKING_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.9"));
+      urls.push(urlEl(`${base}/rancagua/top-escorts`, today, "weekly", "0.9"));
+      for (const slug of INDEX_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.9"));
       for (const slug of FILTER_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.85"));
       for (const slug of ALL_PIRAMIDAL_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.85"));
     }
@@ -128,6 +137,8 @@ exports.handler = async () => {
   if (activeCities.length === 0) {
     urls.push(urlEl(`${base}/rancagua`, today, "weekly", "0.95"));
     for (const slug of RANKING_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.9"));
+    urls.push(urlEl(`${base}/rancagua/top-escorts`, today, "weekly", "0.9"));
+    for (const slug of INDEX_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.9"));
     for (const slug of FILTER_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.85"));
     for (const slug of ALL_PIRAMIDAL_SLUGS) urls.push(urlEl(`${base}/rancagua/${slug}`, today, "weekly", "0.85"));
   }

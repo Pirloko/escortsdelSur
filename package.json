@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:prerender": "node scripts/generate-prerender-routes.mjs && PRERENDER=true vite build",
+    "build:prod": "npm run build:prerender",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -15,6 +16,7 @@
     "delete-non-admin-users": "node scripts/delete-non-admin-users.mjs"
   },
   "dependencies": {
+    "@google-analytics/data": "^5.2.1",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",

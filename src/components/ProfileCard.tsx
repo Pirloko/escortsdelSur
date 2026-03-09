@@ -4,6 +4,7 @@ import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
+import { trackWhatsAppClick, trackPhoneClick, trackProfileClickFromList } from "@/lib/analytics";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -40,6 +41,7 @@ export function ProfileCard({ profile, citySlug }: ProfileProps) {
         tabIndex={0}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("a")) return;
+          trackProfileClickFromList({ profile_id: profile.id, profile_name: profile.name, city: profile.city, list_context: "grid" });
           navigate(profilePath);
         }}
         onKeyDown={(e) => {
@@ -99,7 +101,7 @@ export function ProfileCard({ profile, citySlug }: ProfileProps) {
                   <a
                     href={telUrl}
                     className="w-9 h-9 rounded-full flex items-center justify-center bg-white/25 backdrop-blur-sm text-foreground hover:bg-white/35 transition-colors border border-white/20"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={() => trackPhoneClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
                     aria-label="Llamar"
                   >
                     <Phone className="w-4 h-4" />
@@ -111,7 +113,7 @@ export function ProfileCard({ profile, citySlug }: ProfileProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 rounded-full flex items-center justify-center bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors shadow-sm"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={() => trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
                     aria-label="WhatsApp"
                   >
                     <IconWhatsApp size={18} className="text-white" />
