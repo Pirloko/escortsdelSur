@@ -1081,15 +1081,17 @@ export default function Cuenta() {
 
     const coste = calcularCreditosPromocion();
 
+    // Créditos a escribir en escort_profiles: solo cuando descontamos (nunca sumar; solo admin puede añadir).
+    let creditsToSet: number | null = null;
+
     if (tienePromo && coste != null && coste > 0) {
-      // Descontar créditos (nunca sumar): restar coste de la promoción del perfil y/o publisher_credits
+      // Descontar créditos (nunca sumar): restar coste del perfil y/o publisher_credits
       const { data: rowCredits } = await supabase
         .from("escort_profiles")
         .select("credits")
         .eq("id", escortProfile.id)
         .maybeSingle();
       const creditsPerfil = (rowCredits as { credits?: number } | null)?.credits ?? 0;
-      // Créditos a nivel de usuario (publisher_credits)
       const { data: rowProfile } = await supabase
         .from("profiles")
         .select("publisher_credits")
@@ -1104,27 +1106,10 @@ export default function Cuenta() {
       }
       const restarDePerfil = Math.min(creditsPerfil, coste);
       const restarDePublisher = coste - restarDePerfil;
-      const nuevosCreditsPerfil = Math.max(0, creditsPerfil - restarDePerfil);
-      const nuevosCreditsPublisher = Math.max(0, creditsPublisher - restarDePublisher);
-      const descripcion =
-        tipoPromo === "galeria"
-          ? `Promoción Galería, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`
-          : `Promoción Destacada, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`;
-      // Actualizar créditos del perfil si corresponde
-      if (restarDePerfil > 0) {
-        const { error: updateCreditsErr } = await supabase
-          .from("escort_profiles")
-          // @ts-expect-error credits en schema
-          .update({ credits: nuevosCreditsPerfil, updated_at: new Date().toISOString() })
-          .eq("id", escortProfile.id);
-        if (updateCreditsErr) {
-          setPromoMessage(updateCreditsErr.message);
-          setPromoSaving(false);
-          return;
-        }
-      }
-      // Actualizar publisher_credits si corresponde
+      creditsToSet = Math.max(0, creditsPerfil - restarDePerfil);
+
       if (restarDePublisher > 0) {
+        const nuevosCreditsPublisher = Math.max(0, creditsPublisher - restarDePublisher);
         const { error: updatePublisherErr } = await supabase
           .from("profiles")
           // @ts-expect-error publisher_credits en schema
@@ -1136,6 +1121,11 @@ export default function Cuenta() {
           return;
         }
       }
+
+      const descripcion =
+        tipoPromo === "galeria"
+          ? `Promoción Galería, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`
+          : `Promoción Destacada, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`;
       const { error: txErr } = await supabase
         .from("credit_transactions")
         // @ts-expect-error tipo promocion añadido en migración
@@ -1153,9 +1143,10 @@ export default function Cuenta() {
       }
     }
 
+    // Un solo update al perfil: datos de promoción + créditos (solo si descontamos). Así no se sobrescribe credits por defecto.
     const { error } = await supabase
       .from("escort_profiles")
-      // @ts-expect-error Supabase generated types pueden no incluir time_slot/time_slots/subidas_per_day/promotion/active_until
+      // @ts-expect-error Supabase generated types pueden no incluir time_slot/time_slots/subidas_per_day/promotion/active_until/credits
       .update({
         time_slot: canEditSubidas ? (timeSlots[0]?.trim() || null) : ((escortProfile as { time_slot?: string }).time_slot ?? null),
         time_slots: canEditSubidas
@@ -1176,6 +1167,7 @@ export default function Cuenta() {
               available: true,
             }
           : {}),
+        ...(creditsToSet !== null ? { credits: creditsToSet } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq("id", escortProfile.id);

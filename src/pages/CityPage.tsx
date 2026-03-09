@@ -1,6 +1,6 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, MapPin, SlidersHorizontal, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, SlidersHorizontal, Phone } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { SeoHead } from "@/components/SeoHead";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
 import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
 import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
+import { GalleryViewerModal } from "@/components/GalleryViewerModal";
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
 import { useState, useEffect, useMemo } from "react";
@@ -16,8 +17,6 @@ import { supabase } from "@/lib/supabase";
 import { sortProfilesWithSubidas } from "@/lib/franjas";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
-
-const GALLERY_INTERVAL_MS = 5000;
 
 const ESTADOS_TIME_LABELS = ["HACE 2 MIN.", "HACE 5 MIN.", "HACE 7 MIN.", "HACE 15 MIN.", "HACE 30 MIN.", "HACE 1 HORA", "HACE UNAS HORAS"];
 
@@ -42,7 +41,6 @@ const fadeUp = {
 
 const CityPage = () => {
   const { citySlug } = useParams<{ citySlug: string }>();
-  const navigate = useNavigate();
   const staticCity = citySlug ? getCityBySlug(citySlug) : null;
   const seo = citySlug ? getCitySeo(citySlug) : null;
   const [activeCategory, setActiveCategory] = useState("Todas");
@@ -142,6 +140,7 @@ const CityPage = () => {
     description: (p as EscortRow).description ?? null,
     nationality: (p as EscortRow).nationality ?? null,
     galleryCount: Array.isArray((p as EscortRow).gallery) ? (p as EscortRow).gallery!.length : 0,
+    gallery: Array.isArray((p as EscortRow).gallery) ? (p as EscortRow).gallery! : [],
     slug: (p as EscortRow).slug ?? null,
   }));
 
@@ -168,7 +167,7 @@ const CityPage = () => {
 
   const profiles = activeAge ? byCategory.filter((p) => inAgeRange(p.age)) : byCategory;
 
-  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number; slug?: string | null };
+  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number; gallery?: string[]; slug?: string | null };
 
   const toTelUrl = (raw: string | null | undefined): string | null => {
     if (!raw || !raw.trim()) return null;
@@ -188,22 +187,36 @@ const CityPage = () => {
       if (pa !== "destacada" && pb === "destacada") return 1;
       return 0;
     });
-  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryViewerOpen, setGalleryViewerOpen] = useState(false);
+  const [galleryViewerProfile, setGalleryViewerProfile] = useState<{
+    name: string;
+    photos: string[];
+    profileHref?: string;
+    telUrl?: string | null;
+    whatsappUrl?: string | null;
+  } | null>(null);
   const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
   useEffect(() => {
     const t = setInterval(() => setEstadosTimeBucket(Math.floor(Date.now() / (5 * 60 * 1000))), 60 * 1000);
     return () => clearInterval(t);
   }, []);
-  useEffect(() => {
-    if (galleryProfiles.length <= 1) return;
-    const t = setInterval(() => {
-      setGalleryIndex((i) => (i + 1) % galleryProfiles.length);
-    }, GALLERY_INTERVAL_MS);
-    return () => clearInterval(t);
-  }, [galleryProfiles.length]);
-  useEffect(() => {
-    setGalleryIndex(0);
-  }, [activeCategory, activeAge]);
+
+  const openGalleryViewer = (profile: ProfileItem) => {
+    const gallery = profile.gallery ?? [];
+    const photos = profile.image ? [profile.image, ...gallery] : gallery;
+    if (photos.length === 0) return;
+    const profileHref = getProfileUrl(profile, citySlug ?? undefined);
+    const tel = toTelUrl(profile.whatsapp);
+    const wa = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city, profileHref);
+    setGalleryViewerProfile({
+      name: profile.name,
+      photos,
+      profileHref,
+      telUrl: tel,
+      whatsappUrl: wa,
+    });
+    setGalleryViewerOpen(true);
+  };
 
   const isRancagua = citySlug?.toLowerCase() === "rancagua";
   const title =
@@ -356,110 +369,52 @@ const CityPage = () => {
         </div>
       </div>
 
-      {/* Galería: carrusel 1 perfil a la vez (promoción), ancho completo */}
+      {/* Galería: estilo historias (círculos + nombre). Al pulsar se abre el visor de fotos del perfil. */}
       {!profilesLoading && galleryProfiles.length > 0 && (
         <div className="w-full mt-2">
           <h2 className="text-lg font-display font-bold mb-3 px-4">Galería</h2>
-          <div className="relative w-full overflow-hidden bg-surface aspect-[3/4] max-h-[70vh]">
-            {galleryProfiles.map((profile, i) => (
-              <div
-                key={profile.id}
-                role="button"
-                tabIndex={0}
-                onClick={(e) => {
-                  if ((e.target as HTMLElement).closest("a")) return;
-                  navigate(getProfileUrl(profile as ProfileItem, citySlug ?? undefined));
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    if ((e.target as HTMLElement).closest("a")) return;
-                    e.preventDefault();
-                    navigate(getProfileUrl(profile as ProfileItem, citySlug ?? undefined));
-                  }
-                }}
-                className={`absolute inset-0 block transition-opacity duration-500 cursor-pointer ${i === galleryIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"}`}
-              >
-                <WatermarkedImage
-                  src={profile.image}
-                  alt={profile.name}
-                  className="absolute inset-0 w-full h-full"
-                  imgClassName="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 gradient-card" />
-                {profile.badge && profile.badge !== "Perfil" && (
-                  <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-lg bg-white/15 backdrop-blur-sm text-xs font-medium text-foreground/90 border border-white/10">
-                      {profile.badge}
-                    </span>
-                  </div>
-                )}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-10 pb-5 px-4">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {profile.name}, {profile.age}
-                  </h3>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                    {profile.city}
-                  </p>
-                  <div className="flex gap-3 mt-4">
-                    {toTelUrl((profile as ProfileItem).whatsapp) && (
-                      <a
-                        href={toTelUrl((profile as ProfileItem).whatsapp)!}
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-white/25 backdrop-blur-sm text-foreground hover:bg-white/35 transition-colors border border-white/20"
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label="Llamar"
-                      >
-                        <Phone className="w-5 h-5" />
-                      </a>
-                    )}
-                    {getWhatsAppProfileUrl((profile as ProfileItem).whatsapp, profile.id, city.name) && (
-                      <a
-                        href={getWhatsAppProfileUrl((profile as ProfileItem).whatsapp, profile.id, city.name)!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors shadow-md"
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label="WhatsApp"
-                      >
-                        <IconWhatsApp size={22} className="text-white" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Indicadores y navegación: debajo de la imagen, separados */}
-          {galleryProfiles.length > 1 && (
-            <div className="flex items-center justify-center gap-4 py-4 px-4 bg-background">
-              <button
-                type="button"
-                onClick={() => setGalleryIndex((i) => (i === 0 ? galleryProfiles.length - 1 : i - 1))}
-                className="w-10 h-10 rounded-full border border-border bg-surface flex items-center justify-center text-foreground hover:bg-muted transition-colors"
-                aria-label="Anterior"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <div className="flex gap-2 items-center">
-                {galleryProfiles.map((_, i) => (
+          <div className="overflow-x-auto overflow-y-hidden pb-2">
+            <div className="flex gap-8 px-4 min-w-0" style={{ width: "max-content" }}>
+              {galleryProfiles.map((profile) => {
+                const photos = profile.image
+                  ? [profile.image, ...(profile.gallery ?? [])]
+                  : profile.gallery ?? [];
+                const hasPhotos = photos.length > 0;
+                return (
                   <button
-                    key={i}
+                    key={profile.id}
                     type="button"
-                    onClick={() => setGalleryIndex(i)}
-                    className={`min-w-[10px] min-h-[10px] w-2.5 h-2.5 rounded-full transition-colors ${i === galleryIndex ? "bg-gold scale-110" : "bg-muted-foreground/40 hover:bg-muted-foreground/60"}`}
-                    aria-label={`Ver perfil ${i + 1} de ${galleryProfiles.length}`}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => setGalleryIndex((i) => (i === galleryProfiles.length - 1 ? 0 : i + 1))}
-                className="w-10 h-10 rounded-full border border-border bg-surface flex items-center justify-center text-foreground hover:bg-muted transition-colors"
-                aria-label="Siguiente"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+                    onClick={() => hasPhotos && openGalleryViewer(profile as ProfileItem)}
+                    disabled={!hasPhotos}
+                    className="flex flex-col items-center gap-2 shrink-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full"
+                    aria-label={hasPhotos ? `Ver galería de ${profile.name}` : `${profile.name} (sin fotos)`}
+                  >
+                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-white overflow-hidden bg-muted shrink-0 group-hover:border-gold/80 transition-colors">
+                      <WatermarkedImage
+                        src={profile.image}
+                        alt={profile.name}
+                        className="absolute inset-0 w-full h-full"
+                        imgClassName="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-foreground truncate max-w-[140px] sm:max-w-[168px] text-center">
+                      {profile.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
+          </div>
+          {galleryViewerProfile && (
+            <GalleryViewerModal
+              open={galleryViewerOpen}
+              onOpenChange={setGalleryViewerOpen}
+              profileName={galleryViewerProfile.name}
+              photos={galleryViewerProfile.photos}
+              profileHref={galleryViewerProfile.profileHref}
+              telUrl={galleryViewerProfile.telUrl}
+              whatsappUrl={galleryViewerProfile.whatsappUrl}
+            />
           )}
         </div>
       )}
