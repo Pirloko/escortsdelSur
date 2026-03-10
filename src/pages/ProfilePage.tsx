@@ -189,13 +189,6 @@ const ProfilePage = () => {
   const notFoundBySlug = bySlug && !profileLoading && !dbProfile;
   const notFound = notFoundById || notFoundBySlug;
   const activeUntil = dbProfile?.active_until ?? null;
-
-  if (byId && dbProfile?.slug && citySlugFromDb) {
-    return <Navigate to={`/${citySlugFromDb}/${dbProfile.slug}`} replace />;
-  }
-  if (notFoundBySlug && paramCitySlug) {
-    return <Navigate to={`/${paramCitySlug}`} replace />;
-  }
   const isProfileExpired = activeUntil ? new Date(activeUntil) < new Date() : false;
 
   // Registrar vista para visitantes/clientes (historial en Mi perfil)
@@ -414,6 +407,12 @@ const ProfilePage = () => {
   const ogImage = profile.image || (Array.isArray(profile.gallery) && profile.gallery.length > 0 ? profile.gallery[0] : undefined);
   const robots = isProfileExpired ? "noindex, nofollow" : "index, follow";
 
+  if (byId && dbProfile?.slug && citySlugFromDb) {
+    return <Navigate to={`/${citySlugFromDb}/${dbProfile.slug}`} replace />;
+  }
+  if (notFoundBySlug && paramCitySlug) {
+    return <Navigate to={`/${paramCitySlug}`} replace />;
+  }
   if (profileLoading && isUuid) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
