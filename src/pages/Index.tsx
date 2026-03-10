@@ -74,8 +74,8 @@ export default function Index() {
   const firstCitySlug = ACTIVE_CITY_SLUG;
   const citiesForDisplay = cities.filter((c) => c.id === ACTIVE_CITY_SLUG);
 
-  const { data: destacadasProfiles = [] } = useQuery({
-    queryKey: ["home-destacadas-rancagua", ACTIVE_CITY_SLUG],
+  const { data: vipProfiles = [] } = useQuery({
+    queryKey: ["home-vip-rancagua", ACTIVE_CITY_SLUG],
     queryFn: async () => {
       if (!supabase) return [];
       const { data: cityRow } = await supabase
@@ -87,11 +87,11 @@ export default function Index() {
       const now = new Date().toISOString();
       const { data: rows } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, description, nationality, gallery")
+        .select("id, name, age, badge, image, available, whatsapp, description, nationality, gallery, slug, vip_extras")
         .eq("city_id", (cityRow as { id: string; name: string }).id)
         .not("promotion", "is", null)
         .gt("active_until", now);
-      type Row = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null };
+      type Row = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null; vip_extras?: string[] | null };
       const list = (rows ?? []) as Row[];
       const cityName = (cityRow as { id: string; name: string }).name;
       const mapped = list.map((p) => ({
@@ -106,6 +106,9 @@ export default function Index() {
         description: p.description ?? null,
         nationality: p.nationality ?? null,
         galleryCount: Array.isArray(p.gallery) ? p.gallery.length : 0,
+        gallery: Array.isArray(p.gallery) ? p.gallery : [],
+        slug: p.slug ?? null,
+        vip_extras: Array.isArray(p.vip_extras) ? p.vip_extras : [],
       }));
       return shuffleAndTake(mapped, 4);
     },
@@ -124,8 +127,8 @@ export default function Index() {
 
       <HeroSection firstCitySlug={firstCitySlug} />
 
-      {/* Destacadas: lo importante son los perfiles, van primero */}
-      <section className="px-4 py-16 max-w-7xl mx-auto" aria-labelledby="destacadas-heading">
+      {/* VIP: lo importante son los perfiles, van primero */}
+      <section className="px-4 py-16 max-w-7xl mx-auto" aria-labelledby="vip-heading">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -135,10 +138,10 @@ export default function Index() {
           <motion.div variants={fadeUp} className="flex items-center justify-between mb-8">
             <div>
               <h2
-                id="destacadas-heading"
+                id="vip-heading"
                 className="text-2xl md:text-3xl font-display font-bold text-foreground"
               >
-                Destacadas
+                VIP
               </h2>
               <p className="text-muted-foreground text-sm mt-1">
                 Perfiles seleccionados para ti
@@ -155,7 +158,7 @@ export default function Index() {
             variants={stagger}
             className="space-y-4"
           >
-            {destacadasProfiles.map((profile) => (
+            {vipProfiles.map((profile) => (
               <motion.div key={profile.id} variants={fadeUp}>
                 <FeaturedProfileCard
                   cardHref={`/${ACTIVE_CITY_SLUG}`}
@@ -171,6 +174,9 @@ export default function Index() {
                     description: profile.description ?? null,
                     nationality: profile.nationality ?? null,
                     galleryCount: profile.galleryCount ?? 0,
+                    gallery: profile.gallery ?? [],
+                    slug: profile.slug ?? null,
+                    vip_extras: profile.vip_extras ?? [],
                   }}
                 />
               </motion.div>

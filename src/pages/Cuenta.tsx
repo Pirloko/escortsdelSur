@@ -27,7 +27,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus, Eye } from "lucide-react";
+import { Pencil, Pause, Trash2, LogOut, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Shuffle, LayoutDashboard, User, Plus, Eye, Clock, Sparkles, TrendingUp } from "lucide-react";
 import type { EscortProfilesRow, CitiesRow, CreditTransactionsRow } from "@/types/database";
 import { TIME_SLOTS, getSubidaScheduleForDay } from "@/lib/franjas";
 import { PAISES_LATINOAMERICANOS } from "@/lib/paises-latinoamericanos";
@@ -39,6 +39,21 @@ import { generateSeoDescription } from "@/lib/seo-description-generator";
 /** Opciones para el menú Categoría. Editar manualmente. Radix no permite value="", usamos __ninguno__. */
 const CATEGORIA_NINGUNO = "__ninguno__";
 const CATEGORIA_OPCIONES = ["Escort Mujer", "Escort Trans", "Escort Hombre"];
+
+/** Claves de extras VIP (solo cuando promoción = VIP). Coste en créditos por extra. */
+const VIP_EXTRAS_KEYS = ["marco_premium", "foto_xl", "etiqueta_disponible_ahora", "incluir_galeria"] as const;
+const VIP_EXTRAS_CREDITS: Record<(typeof VIP_EXTRAS_KEYS)[number], number> = {
+  marco_premium: 50,
+  foto_xl: 30,
+  etiqueta_disponible_ahora: 20,
+  incluir_galeria: 40,
+};
+const VIP_EXTRAS_LABELS: Record<(typeof VIP_EXTRAS_KEYS)[number], string> = {
+  marco_premium: "Marco premium: borde dorado animado con movimientos y aura luminosa",
+  foto_xl: "Foto XL: aumentar el tamaño de la foto en el listado",
+  etiqueta_disponible_ahora: 'Etiqueta "Disponible ahora" (verde, destaca disponibilidad inmediata)',
+  incluir_galeria: "Añadir categoría Galería (perfil con VIP + Galería)",
+};
 
 /** Opciones de etiquetas para Servicios Incluidos y Adicionales. Editar manualmente. */
 const SERVICIOS_OPCIONES = {
@@ -128,6 +143,12 @@ export default function Cuenta() {
   const [promoDialogOpen, setPromoDialogOpen] = useState(false);
   const [promoSaving, setPromoSaving] = useState(false);
   const [promoMessage, setPromoMessage] = useState("");
+  const [vipExtras, setVipExtras] = useState<Record<string, boolean>>({
+    marco_premium: false,
+    foto_xl: false,
+    etiqueta_disponible_ahora: false,
+    incluir_galeria: false,
+  });
   const formRef = useRef<HTMLFormElement>(null);
   const [creditTransactions, setCreditTransactions] = useState<CreditTransactionsRow[]>([]);
   const [publisherCredits, setPublisherCredits] = useState(0);
@@ -221,6 +242,14 @@ export default function Cuenta() {
           setAge(String(p.age));
           setBadge(p.badge ?? "");
           setPromotion((p as { promotion?: string | null }).promotion ?? "");
+          const rawExtras = (p as { vip_extras?: string[] | null }).vip_extras;
+          const extrasArr = Array.isArray(rawExtras) ? rawExtras : [];
+          setVipExtras({
+            marco_premium: extrasArr.includes("marco_premium"),
+            foto_xl: extrasArr.includes("foto_xl"),
+            etiqueta_disponible_ahora: extrasArr.includes("etiqueta_disponible_ahora"),
+            incluir_galeria: extrasArr.includes("incluir_galeria"),
+          });
           setImage(p.image ?? "");
           setAvailable(p.available);
           setDescription(p.description ?? "");
@@ -457,14 +486,18 @@ export default function Cuenta() {
                         </Button>
                       )}
                       <Link to={`/perfil/${p.id}`} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 font-semibold border-2 border-gray-400 bg-white text-gray-900 shadow-sm hover:bg-gray-100 hover:border-gray-500 dark:border-border dark:bg-transparent dark:text-foreground dark:shadow-none dark:hover:bg-muted"
+                        >
                           Ver
                         </Button>
                       </Link>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-1 text-gold border-gold/50 hover:bg-gold/10"
+                        className="gap-1 font-semibold border-2 border-amber-600 bg-amber-50 text-amber-900 shadow-sm hover:bg-amber-100 hover:border-amber-700 dark:border-gold/50 dark:bg-transparent dark:text-gold dark:shadow-none dark:hover:bg-gold/10"
                         asChild
                       >
                         <Link to={`/cuenta/perfil/${p.id}`}>
@@ -475,7 +508,7 @@ export default function Cuenta() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-1 text-amber-300 border-amber-500/60 hover:bg-amber-500/10"
+                        className="gap-1 font-semibold border-2 border-amber-600 bg-amber-50 text-amber-900 shadow-sm hover:bg-amber-100 hover:border-amber-700 dark:border-amber-500/60 dark:bg-transparent dark:text-amber-300 dark:shadow-none dark:hover:bg-amber-500/10"
                         asChild
                       >
                         <Link to={`/cuenta/perfil/${p.id}?promo=1`}>
@@ -487,7 +520,7 @@ export default function Cuenta() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-1"
+                          className="gap-1 font-semibold border-2 border-gray-400 bg-white text-gray-900 shadow-sm hover:bg-gray-100 hover:border-gray-500 dark:border-border dark:bg-transparent dark:text-foreground dark:shadow-none dark:hover:bg-muted"
                           onClick={() => {
                             setPromoInfoProfile(p as ProfileWithCity);
                             setPromoInfoOpen(true);
@@ -500,7 +533,7 @@ export default function Cuenta() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-1 text-destructive border-destructive/50 hover:bg-destructive/10"
+                        className="gap-1 font-semibold border-2 border-red-600 bg-red-50 text-red-800 shadow-sm hover:bg-red-100 hover:border-red-700 dark:border-destructive/50 dark:bg-transparent dark:text-destructive dark:shadow-none dark:hover:bg-destructive/10"
                         onClick={() => setDeleteFromListProfile(p)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -529,48 +562,101 @@ export default function Cuenta() {
                 if (!open) setPromoInfoProfile(null);
               }}
             >
-              <DialogContent>
+              <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Promoción activa</DialogTitle>
+                  <DialogTitle className="flex items-center gap-2 text-lg">
+                    <Star className="w-5 h-5 text-amber-500 dark:text-gold" />
+                    Promoción activa
+                  </DialogTitle>
                   <DialogDescription>
                     Detalles de la promoción actual de tu perfil.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-3 text-sm">
-                  <p>
-                    <span className="font-medium">{promoInfoProfile.name}</span>, {promoInfoProfile.age}
-                  </p>
-                  <p>
-                    <span className="font-medium">Tipo:</span>{" "}
-                    {promoInfoProfile.promotion === "destacada" ? "Destacada" : "Galería"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Vigente hasta:</span>{" "}
-                    {promoInfoProfile.active_until
-                      ? new Date(promoInfoProfile.active_until).toLocaleString("es-CL")
-                      : "—"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Franjas horarias:</span>{" "}
-                    {Array.isArray((promoInfoProfile as { time_slots?: string[] }).time_slots) &&
-                    (promoInfoProfile as { time_slots?: string[] }).time_slots!.length > 0
-                      ? (promoInfoProfile as { time_slots: string[] }).time_slots
-                          .map((slot) => {
+                <div className="space-y-4 pt-1">
+                  {/* Perfil */}
+                  <div className="rounded-lg border border-border bg-muted/40 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Perfil</p>
+                    <p className="font-semibold text-foreground">
+                      {promoInfoProfile.name}, {promoInfoProfile.age}
+                    </p>
+                  </div>
+                  {/* Tipo y vigencia en una fila visual */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-border bg-muted/40 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1 flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        Tipo
+                      </p>
+                      <p className="font-semibold text-foreground">
+                        {promoInfoProfile.promotion === "destacada" ? "VIP" : "Galería"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/40 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Vigente hasta
+                      </p>
+                      <p className="font-medium text-foreground text-sm">
+                        {promoInfoProfile.active_until
+                          ? new Date(promoInfoProfile.active_until).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "short" })
+                          : "—"}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Franjas horarias */}
+                  <div className="rounded-lg border border-border bg-muted/40 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      Franjas horarias
+                    </p>
+                    <p className="text-sm text-foreground leading-snug">
+                      {Array.isArray((promoInfoProfile as { time_slots?: string[] }).time_slots) &&
+                      (promoInfoProfile as { time_slots?: string[] }).time_slots!.length > 0
+                        ? (promoInfoProfile as { time_slots: string[] }).time_slots
+                            .map((slot) => {
+                              const found = TIME_SLOTS.find((t) => t.value === slot);
+                              return found ? found.label : slot;
+                            })
+                            .join(" · ")
+                        : (() => {
+                            const slot = (promoInfoProfile as { time_slot?: string | null }).time_slot ?? null;
+                            if (!slot) return "Sin franja definida";
                             const found = TIME_SLOTS.find((t) => t.value === slot);
                             return found ? found.label : slot;
-                          })
-                          .join(", ")
-                      : (() => {
-                          const slot = (promoInfoProfile as { time_slot?: string | null }).time_slot ?? null;
-                          if (!slot) return "Sin franja definida";
-                          const found = TIME_SLOTS.find((t) => t.value === slot);
-                          return found ? found.label : slot;
-                        })()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Subidas diarias totales:</span>{" "}
-                    {(promoInfoProfile as { subidas_per_day?: number | null }).subidas_per_day ?? 0}
-                  </p>
+                          })()}
+                    </p>
+                  </div>
+                  {/* Subidas diarias */}
+                  <div className="rounded-lg border border-border bg-muted/40 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Subidas diarias totales</p>
+                    <p className="font-semibold text-foreground text-lg">
+                      {(promoInfoProfile as { subidas_per_day?: number | null }).subidas_per_day ?? 0}
+                    </p>
+                  </div>
+                  {/* Extras (solo si es VIP) */}
+                  {promoInfoProfile.promotion === "destacada" && (
+                    <div className="rounded-lg border border-amber-500/40 dark:border-gold/30 bg-amber-50/80 dark:bg-gold/5 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-gold mb-2 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Extras incluidos
+                      </p>
+                      {Array.isArray((promoInfoProfile as { vip_extras?: string[] | null }).vip_extras) &&
+                      (promoInfoProfile as { vip_extras: string[] }).vip_extras.length > 0 ? (
+                        <ul className="space-y-1.5 text-sm text-foreground">
+                          {(promoInfoProfile as { vip_extras: string[] }).vip_extras
+                            .filter((key): key is (typeof VIP_EXTRAS_KEYS)[number] => VIP_EXTRAS_KEYS.includes(key as (typeof VIP_EXTRAS_KEYS)[number]))
+                            .map((key) => (
+                              <li key={key} className="flex items-center gap-2">
+                                <span className="size-1.5 rounded-full bg-amber-500 dark:bg-gold shrink-0" />
+                                {VIP_EXTRAS_LABELS[key]}
+                              </li>
+                            ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">No incluye extras.</p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
                   <Button
@@ -669,7 +755,7 @@ export default function Cuenta() {
                       doc.setFontSize(11);
                       doc.text(`Perfil: ${p.name}, ${p.age}`, 14, 26);
                       doc.text(
-                        `Tipo: ${p.promotion === "destacada" ? "Destacada" : "Galería"}  ·  Días: ${days}  ·  Subidas/día: ${
+                        `Tipo: ${p.promotion === "destacada" ? "VIP" : "Galería"}  ·  Días: ${days}  ·  Subidas/día: ${
                           totalSubidas || slots.length * subidasPorFranja
                         }`,
                         14,
@@ -1122,10 +1208,13 @@ export default function Cuenta() {
         }
       }
 
+      const vipExtrasArr = tipoPromo === "destacada"
+        ? VIP_EXTRAS_KEYS.filter((k) => vipExtras[k])
+        : [];
       const descripcion =
         tipoPromo === "galeria"
           ? `Promoción Galería, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`
-          : `Promoción Destacada, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja`;
+          : `Promoción VIP, ${timeSlots.length} franja(s), ${subidasPorFranja} subidas/franja${vipExtrasArr.length ? `, extras: ${vipExtrasArr.join(", ")}` : ""}`;
       const { error: txErr } = await supabase
         .from("credit_transactions")
         // @ts-expect-error tipo promocion añadido en migración
@@ -1161,6 +1250,9 @@ export default function Cuenta() {
             : promotion.trim() === "destacada"
               ? "destacada"
               : null,
+        ...(promotion.trim() === "destacada"
+          ? { vip_extras: VIP_EXTRAS_KEYS.filter((k) => vipExtras[k]) }
+          : { vip_extras: null }),
         ...(tienePromo
           ? {
               active_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -1224,10 +1316,16 @@ export default function Cuenta() {
     const totalSubidas = timeSlots.length * subidasPorFranja;
     if (!tipo || (tipo !== "galeria" && tipo !== "destacada")) return null;
     if (totalSubidas === 0) return null;
-    // Regla coherente: base + por subida. Galería 30+4×N, Destacada 30+6×N (mantiene 5→50/60, 10→70/90)
-    if (tipo === "galeria") return 30 + 4 * totalSubidas;
-    if (tipo === "destacada") return 30 + 6 * totalSubidas;
-    return null;
+    // Regla coherente: base + por subida. Galería 30+4×N, VIP 30+6×N (mantiene 5→50/60, 10→70/90)
+    let base = 0;
+    if (tipo === "galeria") base = 30 + 4 * totalSubidas;
+    else if (tipo === "destacada") base = 30 + 6 * totalSubidas;
+    else return null;
+    if (tipo === "destacada") {
+      const extrasCost = VIP_EXTRAS_KEYS.reduce((sum, k) => sum + (vipExtras[k] ? VIP_EXTRAS_CREDITS[k] : 0), 0);
+      return base + extrasCost;
+    }
+    return base;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1773,11 +1871,11 @@ export default function Cuenta() {
                 <SelectContent>
                   <SelectItem value="__ninguna__">Ninguna</SelectItem>
                   <SelectItem value="galeria">Galería</SelectItem>
-                  <SelectItem value="destacada">Destacada</SelectItem>
+                  <SelectItem value="destacada">VIP</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground leading-snug">
-                Galería: carrusel en la página de tu ciudad (orden por subidas 5 o 10). Destacada: prioridad en el listado.
+                Galería: carrusel en la página de tu ciudad (orden por subidas 5 o 10). VIP: prioridad en el listado.
               </p>
             </div>
             <div className="space-y-2">
@@ -1850,6 +1948,45 @@ export default function Cuenta() {
                 </SelectContent>
               </Select>
             </div>
+            {promotion.trim() === "destacada" && (
+              <div className="space-y-3 rounded-xl border border-gold/30 bg-primary/5 p-3 sm:p-4">
+                <Label className="text-sm font-semibold text-gold">EXTRAS PARA DESTACAR</Label>
+                <p className="text-xs text-muted-foreground leading-snug">
+                  Cada extra suma créditos al costo total. Solo aplican con promoción VIP.
+                </p>
+                <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-1">
+                  <Checkbox
+                    checked={VIP_EXTRAS_KEYS.every((k) => vipExtras[k])}
+                    onCheckedChange={(checked) => {
+                      const next = !!checked;
+                      setVipExtras({
+                        marco_premium: next,
+                        foto_xl: next,
+                        etiqueta_disponible_ahora: next,
+                        incluir_galeria: next,
+                      });
+                    }}
+                    disabled={!canEditSubidas}
+                    className="h-5 w-5"
+                  />
+                  <span className="text-sm font-medium text-gold">Añadir todo</span>
+                </label>
+                {VIP_EXTRAS_KEYS.map((key) => (
+                  <label key={key} className="flex items-center gap-3 cursor-pointer min-h-[44px] py-1">
+                    <Checkbox
+                      checked={vipExtras[key] ?? false}
+                      onCheckedChange={(checked) => setVipExtras((prev) => ({ ...prev, [key]: !!checked }))}
+                      disabled={!canEditSubidas}
+                      className="h-5 w-5"
+                    />
+                    <span className="text-sm">
+                      {VIP_EXTRAS_LABELS[key]}
+                      <span className="ml-1.5 font-medium text-gold">+{VIP_EXTRAS_CREDITS[key]} cr.</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
             {(() => {
               const credits = calcularCreditosPromocion();
               const total = creditsTotalInEditView ?? 0;

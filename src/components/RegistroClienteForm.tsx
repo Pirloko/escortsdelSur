@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,19 @@ export function RegistroClienteForm({ onSuccess, compact = false }: RegistroClie
           Registro solo para clientes (Mayores de 18 años)
         </p>
       </div>
+
+      <div className="rounded-xl border border-primary/30 bg-primary/5 dark:bg-primary/10 p-4 space-y-2">
+        <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+          Totalmente discreto
+        </p>
+        <ul className="text-sm text-muted-foreground space-y-1 pl-6 list-disc">
+          <li>No guardamos tus datos personales.</li>
+          <li>No te enviaremos notificaciones por correo.</li>
+          <li>Tu registro es privado y confidencial.</li>
+        </ul>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</p>

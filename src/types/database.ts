@@ -42,7 +42,9 @@ export interface EscortProfilesRow {
   time_slots?: string[] | null;
   subidas_per_day: number | null;
   promotion: string | null;
-   credits?: number | null;
+  /** Extras VIP: marco_premium, foto_xl, etiqueta_disponible_ahora, incluir_galeria */
+  vip_extras?: string[] | null;
+  credits?: number | null;
   created_at: string;
   updated_at: string;
 }

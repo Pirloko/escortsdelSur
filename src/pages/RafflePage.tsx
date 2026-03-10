@@ -43,11 +43,11 @@ export default function RafflePage() {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, city_id, description, nationality, gallery, slug, cities(name)")
+        .select("id, name, age, badge, image, available, whatsapp, city_id, description, nationality, gallery, slug, vip_extras, cities(name)")
         .not("promotion", "is", null)
         .gt("active_until", now)
         .order("name");
-      const rows = (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; city_id: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null; cities: { name: string } | null }[];
+      const rows = (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; city_id: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null; vip_extras?: string[] | null; cities: { name: string } | null }[];
       return rows.map((p) => ({
         id: p.id,
         name: p.name,
@@ -60,7 +60,9 @@ export default function RafflePage() {
         description: p.description ?? null,
         nationality: p.nationality ?? null,
         galleryCount: Array.isArray(p.gallery) ? p.gallery.length : 0,
+        gallery: Array.isArray(p.gallery) ? p.gallery : [],
         slug: p.slug ?? null,
+        vip_extras: Array.isArray(p.vip_extras) ? p.vip_extras : [],
       }));
     },
     enabled: !!supabase,

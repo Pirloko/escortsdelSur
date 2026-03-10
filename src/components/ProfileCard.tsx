@@ -63,20 +63,20 @@ export function ProfileCard({ profile, citySlug }: ProfileProps) {
           />
           <div className="absolute inset-0 gradient-card" />
 
-          {/* Categoría (sutil, esquina superior izquierda) */}
+          {/* Categoría: fondo sólido para buena lectura en modo claro y oscuro */}
           {profile.badge && profile.badge !== "Perfil" && (
             <div className="absolute top-2.5 left-2.5">
-              <span className="px-2 py-0.5 rounded-lg bg-white/15 backdrop-blur-sm text-[10px] font-medium text-foreground/90 border border-white/10">
+              <span className="px-2.5 py-1 rounded-lg bg-black/80 text-white text-[10px] font-semibold shadow-md border border-white/20">
                 {profile.badge}
               </span>
             </div>
           )}
 
-          {/* Disponibilidad (esquina superior derecha) */}
+          {/* Disponibilidad: mismo estilo para contraste sobre cualquier foto */}
           {profile.available && (
             <div className="absolute top-2.5 right-2.5">
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/15 backdrop-blur-sm text-[10px] font-medium text-foreground/90 border border-white/10">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/80 text-white text-[10px] font-semibold shadow-md border border-white/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shadow-sm" />
                 Online
               </span>
             </div>

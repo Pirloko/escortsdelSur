@@ -836,11 +836,11 @@ const ProfilePage = () => {
           </section>
         )}
 
-        {/* Escorts recomendadas (destacadas en la ciudad) */}
+        {/* Escorts recomendadas (VIP en la ciudad) */}
         {recommendedProfiles.length > 0 && (
           <section className="mt-12 pt-8 border-t border-border/50" aria-labelledby="escorts-recomendadas-heading">
             <h2 id="escorts-recomendadas-heading" className="text-lg font-display font-bold mb-4">Escorts recomendadas</h2>
-            <p className="text-sm text-muted-foreground mb-3">Perfiles destacados en {profile.city}.</p>
+            <p className="text-sm text-muted-foreground mb-3">Perfiles VIP en {profile.city}.</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {recommendedProfiles.map((p) => (
                 <ProfileCard

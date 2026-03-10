@@ -53,7 +53,7 @@ const CityPage = () => {
   }, [citySlug]);
 
   type CityRow = { id: string; slug: string; name: string; profiles: number; image: string | null; is_active?: boolean; meta_robots?: string | null };
-  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null };
+  type EscortRow = { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; time_slot?: string | null; time_slots?: string[] | null; subidas_per_day?: number | null; promotion?: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null; vip_extras?: string[] | null };
 
   const { data: dbCity } = useQuery({
     queryKey: ["city", citySlug],
@@ -86,7 +86,7 @@ const CityPage = () => {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion, description, nationality, gallery, slug")
+        .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion, description, nationality, gallery, slug, vip_extras")
         .eq("city_id", cityId)
         .not("promotion", "is", null)
         .gt("active_until", now);
@@ -143,6 +143,7 @@ const CityPage = () => {
     galleryCount: Array.isArray((p as EscortRow).gallery) ? (p as EscortRow).gallery!.length : 0,
     gallery: Array.isArray((p as EscortRow).gallery) ? (p as EscortRow).gallery! : [],
     slug: (p as EscortRow).slug ?? null,
+    vip_extras: Array.isArray((p as EscortRow).vip_extras) ? (p as EscortRow).vip_extras! : [],
   }));
 
   const byCategory =
@@ -168,7 +169,7 @@ const CityPage = () => {
 
   const profiles = activeAge ? byCategory.filter((p) => inAgeRange(p.age)) : byCategory;
 
-  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number; gallery?: string[]; slug?: string | null };
+  type ProfileItem = { id: string; name: string; age: number; city: string; badge: string; image: string; available: boolean; whatsapp?: string | null; promotion?: string | null; description?: string | null; nationality?: string | null; galleryCount?: number; gallery?: string[]; slug?: string | null; vip_extras?: string[] };
 
   const toTelUrl = (raw: string | null | undefined): string | null => {
     if (!raw || !raw.trim()) return null;
@@ -177,9 +178,12 @@ const CityPage = () => {
     const num = digits.startsWith("56") ? "+" + digits : "+56" + digits;
     return `tel:${num}`;
   };
-  // Galería: solo promoción "galeria", orden ya viene de sortProfilesWithSubidas (subidas 5 o 10 + franja)
-  const galleryProfiles: ProfileItem[] = profiles.filter((p) => (p as ProfileItem).promotion === "galeria");
-  // Destacadas: mismo orden (subidas), pero con promoción "destacada" primero en el grid
+  // Galería: promoción "galeria" o extra VIP "incluir_galeria"
+  const galleryProfiles: ProfileItem[] = profiles.filter((p) => {
+    const item = p as ProfileItem;
+    return item.promotion === "galeria" || (Array.isArray(item.vip_extras) && item.vip_extras.includes("incluir_galeria"));
+  });
+  // VIP: mismo orden (subidas), pero con promoción "destacada" primero en el grid
   const profilesSorted =
     [...profiles].sort((a, b) => {
       const pa = (a as ProfileItem).promotion;
@@ -427,9 +431,9 @@ const CityPage = () => {
         </div>
       )}
 
-      {/* Destacadas: listado horizontal (imagen izquierda, texto derecho) */}
+      {/* VIP: listado horizontal (imagen izquierda, texto derecho) */}
       <div className="px-4 max-w-7xl mx-auto mt-6">
-        <h2 className="text-lg font-display font-bold mb-3">Destacadas</h2>
+        <h2 className="text-lg font-display font-bold mb-3">VIP</h2>
         {profilesLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -460,7 +464,9 @@ const CityPage = () => {
                     description: (profile as ProfileItem).description ?? null,
                     nationality: (profile as ProfileItem).nationality ?? null,
                     galleryCount: (profile as ProfileItem).galleryCount ?? 0,
+                    gallery: (profile as ProfileItem).gallery ?? [],
                     slug: (profile as ProfileItem).slug ?? null,
+                    vip_extras: (profile as ProfileItem).vip_extras ?? [],
                   }}
                   citySlug={citySlug ?? undefined}
                 />

@@ -21,7 +21,7 @@ export const featuredProfiles = [
   { id: "2", name: "Camila", age: 26, city: "Concepción", badge: "VIP", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80", available: true },
   { id: "3", name: "Sofía", age: 23, city: "Valdivia", badge: "Nueva", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80", available: false },
   { id: "4", name: "Isabella", age: 25, city: "Rancagua", badge: "Premium", image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&q=80", available: true },
-  { id: "5", name: "Martina", age: 22, city: "Talca", badge: "Destacada", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80", available: true },
+  { id: "5", name: "Martina", age: 22, city: "Talca", badge: "VIP", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80", available: true },
   { id: "6", name: "Antonella", age: 27, city: "Puerto Montt", badge: "VIP", image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&q=80", available: true },
   { id: "7", name: "Fernanda", age: 24, city: "Osorno", badge: "Premium", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80", available: false },
   { id: "8", name: "Catalina", age: 28, city: "Chillán", badge: "Nueva", image: "https://images.unsplash.com/photo-1464863979621-258859e62245?w=400&q=80", available: true },
