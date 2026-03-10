@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { SeoHead } from "@/components/SeoHead";
-import { ProfileCard } from "@/components/ProfileCard";
+import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { getActiveRaffle, getTotalTicketsAccumulated, getLastClosedRaffle } from "@/lib/raffleService";
 import { supabase } from "@/lib/supabase";
 import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
 import { Gift, Ticket, Calendar, Trophy } from "lucide-react";
+
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
+const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } } };
 
 const MONTHS = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -39,11 +43,11 @@ export default function RafflePage() {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("escort_profiles")
-        .select("id, name, age, badge, image, available, whatsapp, city_id, cities(name)")
+        .select("id, name, age, badge, image, available, whatsapp, city_id, description, nationality, gallery, slug, cities(name)")
         .not("promotion", "is", null)
         .gt("active_until", now)
         .order("name");
-      const rows = (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; city_id: string | null; cities: { name: string } | null }[];
+      const rows = (data ?? []) as { id: string; name: string; age: number; badge: string | null; image: string | null; available: boolean; whatsapp?: string | null; city_id: string | null; description?: string | null; nationality?: string | null; gallery?: string[] | null; slug?: string | null; cities: { name: string } | null }[];
       return rows.map((p) => ({
         id: p.id,
         name: p.name,
@@ -53,6 +57,10 @@ export default function RafflePage() {
         image: p.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
         available: p.available,
         whatsapp: p.whatsapp ?? null,
+        description: p.description ?? null,
+        nationality: p.nationality ?? null,
+        galleryCount: Array.isArray(p.gallery) ? p.gallery.length : 0,
+        slug: p.slug ?? null,
       }));
     },
     enabled: !!supabase,
@@ -66,7 +74,7 @@ export default function RafflePage() {
         canonicalPath="/rifa"
         robots="index, follow"
       />
-      <div className="max-w-lg mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center gap-2">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Inicio</Link>
         </div>
@@ -124,8 +132,8 @@ export default function RafflePage() {
           </Link>
         </div>
 
-        <section className="space-y-4" aria-labelledby="perfiles-activos-heading">
-          <div>
+        <section className="mt-8 px-0" aria-labelledby="perfiles-activos-heading">
+          <div className="mb-4">
             <h2
               id="perfiles-activos-heading"
               className="text-2xl md:text-3xl font-display font-bold text-foreground"
@@ -136,17 +144,27 @@ export default function RafflePage() {
               Perfiles con los que podrías ganar tu hora exclusiva
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <motion.div
+            className="space-y-4"
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+          >
             {activeProfiles.map((profile) => (
-              <ProfileCard key={profile.id} profile={profile} />
+              <motion.div key={profile.id} variants={fadeUp}>
+                <FeaturedProfileCard
+                  profile={profile}
+                  citySlug={ACTIVE_CITY_SLUG}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
           {activeProfiles.length > 0 && (
             <Link
               to={`/${ACTIVE_CITY_SLUG}`}
-              className="inline-block text-copper text-sm font-medium hover:underline"
+              className="inline-block mt-4 text-copper text-sm font-medium hover:underline"
             >
-              Ver todos los perfiles →
+              Ver todos los perfiles en {ACTIVE_CITY_SLUG === "rancagua" ? "Rancagua" : ACTIVE_CITY_SLUG} →
             </Link>
           )}
         </section>

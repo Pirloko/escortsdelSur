@@ -59,7 +59,7 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
           <img
             src={logoSrc}
             alt="holacachero"
-            className="h-auto w-full max-w-[340px] sm:max-w-[460px] md:max-w-[540px] object-contain"
+            className="logo-float h-auto w-full max-w-[340px] sm:max-w-[460px] md:max-w-[540px] object-contain"
             width="540"
             height="675"
           />

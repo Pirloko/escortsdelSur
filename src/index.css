@@ -225,6 +225,22 @@
     100% { background-position: -200% 0; }
   }
 
+  .logo-float {
+    animation: logo-float 4s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+
+  @keyframes logo-float {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+      filter: drop-shadow(0 18px 26px hsl(var(--copper) / 0.45));
+    }
+    50% {
+      transform: translateY(-12px) scale(1.02);
+      filter: drop-shadow(0 24px 34px hsl(var(--copper-glow, var(--copper)) / 0.6));
+    }
+  }
+
   .gradient-card {
     background: linear-gradient(180deg, transparent 0%, hsl(220 15% 0% / 0.8) 100%);
   }
