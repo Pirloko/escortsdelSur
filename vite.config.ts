@@ -64,8 +64,6 @@ export default defineConfig(({ mode }) => {
               if (id.includes("jspdf") || id.includes("html2canvas")) return "pdf";
               if (id.includes("@supabase")) return "supabase";
               if (id.includes("embla-carousel")) return "embla";
-              if (id.includes("react-dom")) return "react-dom";
-              if (id.includes("react")) return "react";
               if (id.includes("lucide-react")) return "lucide";
               if (id.includes("@radix-ui")) return "radix";
             }
