@@ -22,6 +22,8 @@ const RANKING_SLUGS = [
   "escorts-recomendadas",
 ];
 
+const INDEX_SLUGS = ["servicios", "atributos", "zonas"];
+
 const ALL_FILTER_SLUGS = [
   "escorts",
   "acompanantes",
@@ -93,6 +95,7 @@ const routes = [
   "/",
   `/${CITY_SLUG}`,
   ...RANKING_SLUGS.map((s) => `/${CITY_SLUG}/${s}`),
+  ...INDEX_SLUGS.map((s) => `/${CITY_SLUG}/${s}`),
   ...ALL_FILTER_SLUGS.map((s) => `/${CITY_SLUG}/${s}`),
   ...CATEGORY_FILTER_COMBO_SLUGS.map((s) => `/${CITY_SLUG}/${s}`),
   ...ALL_PIRAMIDAL.map((s) => `/${CITY_SLUG}/${s}`),

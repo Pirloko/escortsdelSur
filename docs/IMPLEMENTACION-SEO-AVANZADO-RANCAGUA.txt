@@ -1,0 +1,238 @@
+================================================================================
+OPTIMIZACIÓN SEO AVANZADA PARA POSICIONAR RANCAGUA - IMPLEMENTACIÓN
+================================================================================
+Proyecto: Hola Cachero (holacachero.cl)
+Fecha: 2025
+Objetivo: Eliminar riesgos SEO, maximizar posicionamiento local en Rancagua.
+================================================================================
+
+1. MÚLTIPLES PLANTILLAS SEO POR TIPO DE PÁGINA
+--------------------------------------------------------------------------------
+- Archivo nuevo: src/lib/seo-content-templates.ts
+
+  • Plantilla SERVICIOS (400-600 palabras):
+    - introServiceTemplates, contextServiceTemplates, securityServiceTemplates,
+      closingServiceTemplates.
+    - Secciones: introducción del servicio, explicación, recomendaciones de
+      seguridad, cierre invitando a explorar perfiles.
+    - Usada en URLs como: /rancagua/masajes-eroticos, /rancagua/sexo-anal,
+      /rancagua/trios.
+
+  • Plantilla ATRIBUTOS (400-600 palabras):
+    - introAttributeTemplates, contextAttributeTemplates,
+      experienceAttributeTemplates, closingAttributeTemplates.
+    - Contenido: descripción del tipo de escort, preferencias comunes,
+      experiencia de acompañamiento, invitación a explorar perfiles.
+    - Usada en: /rancagua/escort-rubia, /rancagua/escort-tetona,
+      /rancagua/escort-milf.
+
+  • Plantilla ZONAS (400-600 palabras):
+    - introZoneTemplates, contextZoneTemplates, areaZoneTemplates,
+      closingZoneTemplates.
+    - Contenido: contexto de la zona, facilidad de encuentros, hoteles/áreas
+      populares, disponibilidad de escorts.
+    - Usada en: /rancagua/escorts-centro, /rancagua/escorts-machali,
+      /rancagua/escorts-parque-koke.
+
+- Integración: src/lib/seo-filter-content.ts
+  getFilterSeoContent() ahora detecta el tipo de slug (servicio, atributo, zona)
+  con getPyramidalSegmentType() y llama a getServiceContentSections(),
+  getAttributeContentSections() o getZoneContentSections() según corresponda.
+  Las categorías siguen usando la plantilla genérica.
+
+--------------------------------------------------------------------------------
+
+2. SISTEMA DE VARIACIONES AUTOMÁTICAS
+--------------------------------------------------------------------------------
+- En src/lib/seo-content-templates.ts:
+  • Arrays de frases por tipo: intro, context, service/experience/area, closing.
+  • Función pick<T>(arr) elige aleatoriamente una frase de cada array.
+  • Cada carga de página combina frases distintas, reduciendo contenido
+    duplicado entre páginas similares.
+  • Objetivo: evitar contenido repetitivo que Google pueda penalizar.
+
+--------------------------------------------------------------------------------
+
+3. MANEJO DE PÁGINAS SIN PERFILES
+--------------------------------------------------------------------------------
+- En src/pages/CityFilterPage.tsx:
+  • Si no hay perfiles que coincidan con el filtro (servicio/atributo/zona):
+    - Se muestra el mensaje: "No encontramos [X] en Rancagua actualmente".
+    - Texto sugerente: "Pero puedes explorar escorts VIP, escorts dominantes
+      o otras categorías disponibles hoy en [ciudad]."
+    - Se muestran hasta 8 perfiles de respaldo (fallback) de la misma ciudad,
+      ordenados por subidas, para que la página no quede vacía.
+    - Debajo del listado: "Las anteriores son otras opciones en [ciudad] que
+      podrían interesarte."
+  • Así se evita thin content y se mantiene valor para el usuario.
+
+--------------------------------------------------------------------------------
+
+4. REDUCCIÓN DE CANIBALIZACIÓN SEO
+--------------------------------------------------------------------------------
+- En src/lib/seo-programmatic.ts:
+  • Nuevo objeto CANNIBALIZATION_CANONICAL:
+    - "escort-premium" → canonical a "escorts-vip"
+    - "escort-de-lujo" → canonical a "escorts-vip"
+  • Página principal elegida: /rancagua/escorts-vip.
+
+- En src/pages/CityFilterPage.tsx:
+  • canonicalPath se calcula con: CANNIBALIZATION_CANONICAL[segment] ?? segment.
+  • Las URLs /rancagua/escort-premium y /rancagua/escort-de-lujo envían
+    rel=canonical a /rancagua/escorts-vip, indicando a Google cuál es la
+    URL preferida.
+
+--------------------------------------------------------------------------------
+
+5. PÁGINAS ÍNDICE
+--------------------------------------------------------------------------------
+- Nuevas rutas:
+  • /rancagua/servicios
+  • /rancagua/atributos
+  • /rancagua/zonas
+
+- Archivo nuevo: src/lib/seo-index-content.ts
+  • getIndexPageSeoContent(type, cityName) devuelve title, description, h1 y
+    secciones de 500-800 palabras por tipo (servicios, atributos, zonas).
+  • Contenido único por tipo con H2 estructurados.
+
+- Archivo nuevo: src/pages/CityIndexPage.tsx
+  • Renderiza las tres páginas índice.
+  • Lista todos los servicios / atributos / zonas con enlaces a cada página
+    de filtro correspondiente.
+  • Enlazado interno: ciudad, Servicios, Atributos, Zonas, categorías.
+  • Breadcrumbs, H1 único, meta title y description optimizados.
+  • JSON-LD: BreadcrumbList, CollectionPage, ItemList (JsonLdIndexPage).
+
+- src/lib/seo-pyramidal.ts:
+  • getAttributeInternalLinks(citySlug)
+  • getAllServiceInternalLinks(citySlug)
+  • getAllZoneInternalLinks(citySlug)
+  para generar los enlaces del listado.
+
+- src/pages/CitySegmentRoute.tsx:
+  • Si el segmento es "servicios", "atributos" o "zonas", se renderiza
+    CityIndexPage antes de evaluar filtros o perfil.
+
+- src/lib/seo-programmatic.ts:
+  • INDEX_SLUGS = ["servicios", "atributos", "zonas"] añadido a
+    FILTER_AND_CATEGORY_SET para que no se interpreten como slug de perfil.
+
+--------------------------------------------------------------------------------
+
+6. MEJORA DEL ENLAZADO INTERNO
+--------------------------------------------------------------------------------
+- En src/pages/CityFilterPage.tsx:
+  • En la sección "Explora más en [ciudad]" se añadieron enlaces a:
+    - Ver todos los perfiles (página de ciudad)
+    - Servicios (/rancagua/servicios)
+    - Atributos (/rancagua/atributos)
+    - Zonas (/rancagua/zonas)
+    - Hasta 10 URLs de otros filtros/categorías (existente).
+
+- En src/pages/CityIndexPage.tsx:
+  • Cada página índice enlaza a ciudad, a las otras dos páginas índice
+    (Servicios, Atributos, Zonas) y a varias categorías (mejores escorts,
+    escorts nuevas, VIP, etc.).
+  • Listado completo de servicios/atributos/zonas con enlace a cada página
+    de filtro.
+
+- Objetivo: red interna fuerte entre ciudad, índices, categorías, filtros
+  y perfiles.
+
+--------------------------------------------------------------------------------
+
+7. SITEMAP
+--------------------------------------------------------------------------------
+- netlify/functions/sitemap.js:
+  • INDEX_SLUGS = ["servicios", "atributos", "zonas"].
+  • Por cada ciudad activa se añaden:
+    - /:ciudad/servicios
+    - /:ciudad/atributos
+    - /:ciudad/zonas
+  con changefreq "weekly" y priority 0.9.
+  • Incluido en el flujo normal y en los fallbacks (error Supabase o sin
+    ciudades activas).
+  • Los perfiles siguen incluyéndose con slug SEO cuando existe.
+
+--------------------------------------------------------------------------------
+
+8. PRERENDER EN PRODUCCIÓN
+--------------------------------------------------------------------------------
+- package.json:
+  • Script "build:prod": "npm run build:prerender"
+  • build:prerender ya existía: genera prerender-routes.json y ejecuta
+    Vite con PRERENDER=true para generar HTML estático de las rutas SEO.
+
+- scripts/generate-prerender-routes.mjs:
+  • INDEX_SLUGS añadido; se generan rutas /rancagua/servicios,
+    /rancagua/atributos, /rancagua/zonas para prerender.
+  • Todas las páginas SEO (ciudad, ranking, índice, filtros piramidales)
+  quedan en la lista de prerender.
+
+- Uso en producción (Netlify):
+  • En Build command configurar: npm run build:prod
+  • Requisitos: Puppeteer/Chrome en el entorno de build para que el
+    prerender funcione (ver docs/FASE-7-PRERENDER-SEO.md si hay problemas).
+
+--------------------------------------------------------------------------------
+
+9. OPTIMIZACIÓN SEO ADICIONAL POR PÁGINA
+--------------------------------------------------------------------------------
+- Cada página de filtro e índice incluye:
+  • H1 único (desde getFilterSeo / getIndexPageSeoContent).
+  • H2 estructurados en el contenido (secciones de texto).
+  • Meta title y meta description únicos por página (getFilterSeo,
+    getPyramidalSeo, getIndexPageSeoContent).
+  • rel=canonical (y canonical de consolidación para escort-premium y
+    escort-de-lujo).
+  • Schema JSON-LD:
+    - Filtros: JsonLdFilterPage (BreadcrumbList, ItemList).
+    - Índices: JsonLdIndexPage (BreadcrumbList, CollectionPage, ItemList).
+  • Las páginas de perfil ya tenían Person, AggregateRating, Review, etc.
+
+--------------------------------------------------------------------------------
+
+RESUMEN DE ARCHIVOS MODIFICADOS O CREADOS
+--------------------------------------------------------------------------------
+Nuevos:
+  - src/lib/seo-content-templates.ts   (plantillas + variaciones)
+  - src/lib/seo-index-content.ts        (contenido 500-800 palabras índices)
+  - src/pages/CityIndexPage.tsx        (páginas /servicios, /atributos, /zonas)
+  - docs/IMPLEMENTACION-SEO-AVANZADO-RANCAGUA.txt (este archivo)
+
+Modificados:
+  - src/lib/seo-filter-content.ts       (uso de plantillas por tipo)
+  - src/lib/seo-programmatic.ts        (INDEX_SLUGS, CANNIBALIZATION_CANONICAL)
+  - src/lib/seo-pyramidal.ts           (getAttributeInternalLinks,
+                                        getAllServiceInternalLinks,
+                                        getAllZoneInternalLinks)
+  - src/pages/CityFilterPage.tsx       (canonical, páginas vacías, enlaces
+                                        a servicios/atributos/zonas)
+  - src/pages/CitySegmentRoute.tsx     (rutas a CityIndexPage)
+  - src/components/JsonLd.tsx          (JsonLdIndexPage)
+  - netlify/functions/sitemap.js      (INDEX_SLUGS en sitemap)
+  - scripts/generate-prerender-routes.mjs (INDEX_SLUGS en prerender)
+  - package.json                      (script build:prod)
+
+--------------------------------------------------------------------------------
+
+RESULTADO ESPERADO
+--------------------------------------------------------------------------------
+- 150+ páginas SEO (ciudad, ranking, 3 índices, categorías, servicios,
+  atributos, zonas, perfiles).
+- Contenido único por tipo de página (servicios, atributos, zonas) con
+  variaciones automáticas.
+- Estructura clara: hub ciudad → índices → filtros → perfiles.
+- Sin thin content en páginas sin resultados (fallback de perfiles +
+  mensaje y sugerencias).
+- Canibalización reducida (canonical de escort-premium y escort-de-lujo
+  a escorts-vip).
+- Enlazado interno reforzado (ciudad, servicios, atributos, zonas,
+  categorías, filtros).
+- Sitemap y prerender incluyen las nuevas páginas índice.
+- Objetivo: posicionar búsquedas locales en Rancagua.
+
+================================================================================
+Fin del documento.
+================================================================================

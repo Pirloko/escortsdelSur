@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTheme } from "next-themes";
 
 const stagger = {
   hidden: {},
@@ -16,7 +17,14 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
+const LOGO_DARK = "/HolaCachero.png";
+const LOGO_LIGHT = "/HolaCachero01.png";
+
 export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: string }) {
+  const { theme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark" || theme === "dark";
+  const logoSrc = isDark ? LOGO_DARK : LOGO_LIGHT;
+
   return (
     <section
       className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
@@ -49,7 +57,7 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
 
         <motion.div variants={fadeUp(0.1)} className="mb-6 flex justify-center">
           <img
-            src="/HolaCachero.png"
+            src={logoSrc}
             alt="holacachero"
             className="h-auto w-full max-w-[340px] sm:max-w-[460px] md:max-w-[540px] object-contain"
             width="540"

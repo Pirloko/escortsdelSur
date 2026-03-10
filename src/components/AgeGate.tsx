@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 const STORAGE_KEY = "holacachero-age-verified";
 
@@ -12,8 +13,14 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
 };
 
+const LOGO_DARK = "/HolaCachero.png";
+const LOGO_LIGHT = "/HolaCachero01.png";
+
 export function AgeGate({ children }: { children: React.ReactNode }) {
   const [verified, setVerified] = useState<boolean | null>(null);
+  const { theme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark" || theme === "dark";
+  const logoSrc = isDark ? LOGO_DARK : LOGO_LIGHT;
 
   useEffect(() => {
     setVerified(localStorage.getItem(STORAGE_KEY) === "1");
@@ -66,7 +73,7 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
       >
         <motion.div variants={fadeIn} className="flex justify-center mb-4">
           <img
-            src="/HolaCachero.png"
+            src={logoSrc}
             alt="Hola Cachero"
             className="h-auto w-full max-w-[200px] sm:max-w-[260px] object-contain drop-shadow-lg"
             width="260"

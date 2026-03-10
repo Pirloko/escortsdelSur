@@ -15,6 +15,7 @@ import { BenefitsSection } from "@/components/BenefitsSection";
 import { RaffleSection } from "@/components/RaffleSection";
 import { SocialProofSection } from "@/components/SocialProofSection";
 import { FinalCTASection } from "@/components/FinalCTASection";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80";
 
@@ -113,6 +114,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
+      <ThemeToggle />
       <SeoHead
         title="Escorts en Rancagua y el Sur de Chile | Hola Cachero – Acompañantes y Damas de Compañía"
         description="Hola Cachero: escorts en Rancagua, acompañantes, damas de compañía y perfiles premium en el sur de Chile. Sexo en Rancagua y más ciudades. Servicio verificado y discreto."

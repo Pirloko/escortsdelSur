@@ -135,6 +135,59 @@ export function JsonLdFilterPage({
   );
 }
 
+export interface JsonLdIndexPageProps {
+  cityName: string;
+  citySlug: string;
+  indexType: "servicios" | "atributos" | "zonas";
+  itemNames: string[];
+}
+
+export function JsonLdIndexPage({ cityName, citySlug, indexType, itemNames }: JsonLdIndexPageProps) {
+  const cityUrl = `${SITE_URL}/${sanitizeForJsonLd(citySlug)}`;
+  const indexUrl = `${cityUrl}/${sanitizeForJsonLd(indexType)}`;
+  const safeCity = sanitizeForJsonLd(cityName);
+  const typeLabel = indexType === "servicios" ? "Servicios" : indexType === "atributos" ? "Atributos" : "Zonas";
+
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: SITE_URL + "/" },
+      { "@type": "ListItem", position: 2, name: safeCity, item: cityUrl },
+      { "@type": "ListItem", position: 3, name: typeLabel, item: indexUrl },
+    ],
+  };
+
+  const collectionPage = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${typeLabel} de escorts en ${safeCity} | ${SITE_NAME}`,
+    description: `Listado de ${typeLabel.toLowerCase()} para filtrar escorts y acompañantes en ${safeCity}.`,
+    url: indexUrl,
+    numberOfItems: itemNames.length,
+  };
+
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${typeLabel} en ${safeCity}`,
+    numberOfItems: itemNames.length,
+    itemListElement: itemNames.slice(0, 50).map((name, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: sanitizeForJsonLd(name),
+    })),
+  };
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPage) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
+    </>
+  );
+}
+
 /** Datos para AggregateRating (estrellas en resultados de Google). */
 export interface JsonLdAggregateRating {
   ratingValue: number;

@@ -1,9 +1,16 @@
 /**
  * Contenido SEO extenso (300-600 palabras) por página de filtro.
- * Estructura: H2 y párrafos con variaciones semánticas de keywords. Soporta pirámide SEO.
+ * Estructura: H2 y párrafos con variaciones semánticas de keywords.
+ * Usa plantillas específicas por tipo: servicios, atributos, zonas (400-600 palabras).
  */
 
 import { getAllPyramidalSlugs } from "./seo-pyramidal";
+import {
+  getPyramidalSegmentType,
+  getServiceContentSections,
+  getAttributeContentSections,
+  getZoneContentSections,
+} from "./seo-content-templates";
 
 export interface SeoSection {
   h2: string;
@@ -17,7 +24,8 @@ function section(h2: string, paragraphs: string[], h3?: string[]): SeoSection {
 
 /**
  * Genera las secciones de contenido SEO para una página de filtro.
- * Para slugs piramidales usa plantilla genérica 300-600 palabras.
+ * Servicios, atributos y zonas usan plantillas propias con variaciones (400-600 palabras).
+ * Categorías y resto usan plantilla genérica o intent/category.
  */
 export function getFilterSeoContent(
   cityName: string,
@@ -29,6 +37,27 @@ export function getFilterSeoContent(
   const isPyramidal = getAllPyramidalSlugs().map((s) => s.toLowerCase()).includes(key);
 
   if (isPyramidal) {
+    const segmentType = getPyramidalSegmentType(key);
+    if (segmentType === "service") {
+      return getServiceContentSections(cityName, labelPlural, labelShort).map((s) => ({
+        h2: s.h2,
+        paragraphs: s.paragraphs,
+      }));
+    }
+    if (segmentType === "attribute") {
+      return getAttributeContentSections(cityName, labelPlural, labelShort).map((s) => ({
+        h2: s.h2,
+        paragraphs: s.paragraphs,
+      }));
+    }
+    if (segmentType === "zone") {
+      const zoneLabel = labelShort.replace(/^Escorts en /, "").trim() || labelShort;
+      return getZoneContentSections(cityName, zoneLabel, labelPlural).map((s) => ({
+        h2: s.h2,
+        paragraphs: s.paragraphs,
+      }));
+    }
+    // categorías: plantilla genérica
     return [
       section(
         `${labelPlural} en ${cityName}`,

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import { CitySegmentRoute } from "./pages/CitySegmentRoute";
 import { BottomNav } from "./components/BottomNav";
 import { AgeGate } from "./components/AgeGate";
 import { CookieBanner } from "./components/CookieBanner";
+import { FaviconTheme } from "./components/FaviconTheme";
 
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 import NotFound from "./pages/NotFound";
@@ -47,10 +49,12 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="holacachero-theme">
+      <FaviconTheme />
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
         <Analytics />
         <BrowserRouter>
           <AgeGate>
@@ -141,6 +145,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

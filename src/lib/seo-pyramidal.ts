@@ -372,3 +372,27 @@ export function getZoneInternalLinksSample(citySlug: string, count: number = 10)
     text: humanizeSlug(slug.replace(/^escorts-/, "")),
   }));
 }
+
+/** Todos los atributos para páginas índice (servicios, atributos, zonas) */
+export function getAttributeInternalLinks(citySlug: string): { path: string; text: string }[] {
+  return PIRAMIDAL_ATTRIBUTE_SLUGS.map((slug) => ({
+    path: `/${citySlug}/${slug}`,
+    text: humanizeSlug(slug.replace(/^escort-/, "Escort ")),
+  }));
+}
+
+/** Todos los servicios para página índice */
+export function getAllServiceInternalLinks(citySlug: string): { path: string; text: string }[] {
+  return PIRAMIDAL_SERVICE_SLUGS.map((slug) => ({
+    path: `/${citySlug}/${slug}`,
+    text: humanizeSlug(slug),
+  }));
+}
+
+/** Todas las zonas para página índice */
+export function getAllZoneInternalLinks(citySlug: string): { path: string; text: string }[] {
+  return PIRAMIDAL_ZONE_SLUGS.map((slug) => ({
+    path: `/${citySlug}/${slug}`,
+    text: humanizeSlug(slug.replace(/^escorts-/, "")),
+  }));
+}

@@ -5,7 +5,9 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  /* Tema oscuro (por defecto) */
+  :root,
+  .dark {
     /* Negro azulado profundo / gris carbón */
     --background: 220 15% 6%;
     --foreground: 40 10% 90%;
@@ -71,6 +73,58 @@
     --sidebar-accent-foreground: 40 10% 90%;
     --sidebar-border: 220 10% 16%;
     --sidebar-ring: 32 60% 52%;
+  }
+
+  /* Tema claro: crema / beige */
+  .light {
+    --background: 40 28% 96%;
+    --foreground: 30 18% 14%;
+
+    --card: 38 26% 94%;
+    --card-foreground: 30 18% 14%;
+
+    --popover: 38 24% 93%;
+    --popover-foreground: 30 18% 14%;
+
+    --primary: 32 60% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 22% 90%;
+    --secondary-foreground: 30 18% 18%;
+
+    --muted: 40 20% 89%;
+    --muted-foreground: 30 12% 38%;
+
+    --accent: 350 55% 34%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 38 18% 84%;
+    --input: 38 18% 84%;
+    --ring: 32 60% 45%;
+
+    --surface: 40 26% 95%;
+    --surface-light: 40 24% 93%;
+    --surface-elevated: 38 22% 92%;
+
+    --gradient-hero: linear-gradient(180deg, hsl(40 28% 96%) 0%, hsl(38 24% 93%) 50%, hsl(40 26% 94%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(40 26% 95%) 0%, hsl(38 22% 91%) 100%);
+
+    --shadow-copper: 0 4px 20px -4px hsl(32 60% 52% / 0.2), 0 0 0 1px hsl(32 60% 52% / 0.08);
+    --shadow-copper-lg: 0 12px 40px -8px hsl(32 60% 52% / 0.25), 0 0 0 1px hsl(32 60% 52% / 0.1);
+
+    --gold: 38 45% 45%;
+    --gold-glow: 38 50% 50%;
+    --sidebar-background: 40 28% 96%;
+    --sidebar-foreground: 30 18% 14%;
+    --sidebar-primary: 32 60% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 22% 90%;
+    --sidebar-accent-foreground: 30 18% 18%;
+    --sidebar-border: 38 18% 84%;
+    --sidebar-ring: 32 60% 45%;
   }
 }
 
@@ -173,5 +227,17 @@
 
   .gradient-card {
     background: linear-gradient(180deg, transparent 0%, hsl(220 15% 0% / 0.8) 100%);
+  }
+
+  .light .glass {
+    @apply bg-black/5 border-border;
+  }
+
+  .light .glass-strong {
+    @apply bg-black/10 border-border;
+  }
+
+  .light .gradient-card {
+    background: linear-gradient(180deg, transparent 0%, hsl(220 15% 0% / 0.4) 100%);
   }
 }

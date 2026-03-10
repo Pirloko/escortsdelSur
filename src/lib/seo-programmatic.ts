@@ -91,13 +91,23 @@ export const RANKING_SLUGS = [
 
 export type RankingSlug = (typeof RANKING_SLUGS)[number];
 
+/** Páginas índice: listado de servicios, atributos y zonas. */
+export const INDEX_SLUGS = ["servicios", "atributos", "zonas"] as const;
+
 const RANKING_SET = new Set<string>(RANKING_SLUGS.map((s) => s.toLowerCase()));
+
+/** Segmentos que redirigen canonical a escorts-vip (evitar canibalización). */
+export const CANNIBALIZATION_CANONICAL: Record<string, string> = {
+  "escort-premium": "escorts-vip",
+  "escort-de-lujo": "escorts-vip",
+};
 
 /** Set de todos los segmentos que son filtro/categoría o ranking (no slug de perfil). */
 const FILTER_AND_CATEGORY_SET = new Set<string>([
   ...ALL_FILTER_SLUGS,
   ...CATEGORY_FILTER_COMBO_SLUGS,
   ...RANKING_SLUGS,
+  ...INDEX_SLUGS,
   ...getAllPyramidalSlugs().map((s) => s.toLowerCase()),
 ]);
 
