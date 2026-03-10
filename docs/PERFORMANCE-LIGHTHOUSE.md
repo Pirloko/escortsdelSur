@@ -65,8 +65,12 @@ Objetivos de rendimiento:
 ### Fase 10 — Fuentes
 - Google Fonts se cargan con `display=swap` en `index.css` para evitar bloqueo de texto visible.
 
-### Límite de perfiles iniciales (página ciudad)
-- **CityPage:** Solo se renderizan **12 perfiles** al inicio. Botón "Cargar más perfiles" carga 12 adicionales cada vez. Reduce DOM y tiempo de pintado inicial; el resto se carga bajo demanda.
+### Imágenes Supabase CDN (Image Transformations)
+- **src/lib/supabase-image.ts:** Utilidad para URLs de Supabase Storage. Convierte `object/public` → `render/image/public` con `width` y `quality`. Variantes: thumbnail (300, 70), profile (600, 75), full (1200, 80). `getSupabaseImageSrcSet()` genera srcSet 300w/600w/1200w.
+- **WatermarkedImage:** Si `src` es URL de Supabase, genera automáticamente la URL transformada y srcSet responsive. WebP lo aplica el CDN según el cliente.
+
+### Página ciudad: scroll infinito y paginación
+- **CityPage:** Primera carga **12 perfiles** (Supabase `.range(0, 11)`). Scroll infinito con **Intersection Observer**: sentinel al final de la lista; al ser visible se llama `fetchNextPage()` (sin disparar si ya está cargando). Paginación con **useInfiniteQuery** (página 0, 1, 2…). Skeleton cards mientras `isFetchingNextPage`. Orden: `promotion` asc (destacada primero), `updated_at` desc. Las primeras 12 cards están en el HTML inicial (SEO).
 
 ### Auditoría de bundle (manualChunks)
 - **vite.config.ts:** `manualChunks` para separar: `framer-motion`, `recharts`, `pdf` (jspdf + html2canvas), `supabase`, `embla`, `react`, `react-dom`, `lucide`, `radix`. Objetivo: reducir el chunk inicial y acercarlo a &lt; 200 kB (revisar con `npm run build` y el reporte de Vite).

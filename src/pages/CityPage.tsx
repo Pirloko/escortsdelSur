@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, MapPin, SlidersHorizontal, Phone } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { SeoHead } from "@/components/SeoHead";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { getCityBySlug, filterCategories, filterAges } from "@/lib/data";
 import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
 import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
@@ -15,15 +15,14 @@ import { trackProfileClickFromList } from "@/lib/analytics";
 const GalleryViewerModal = lazy(() => import("@/components/GalleryViewerModal").then((m) => ({ default: m.GalleryViewerModal })));
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { sortProfilesWithSubidas } from "@/lib/franjas";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
+import { isSupabaseStorageUrl, getSupabaseImageTransformUrl } from "@/lib/supabase-image";
 
 const ESTADOS_TIME_LABELS = ["HACE 2 MIN.", "HACE 5 MIN.", "HACE 7 MIN.", "HACE 15 MIN.", "HACE 30 MIN.", "HACE 1 HORA", "HACE UNAS HORAS"];
-const INITIAL_PROFILES_VISIBLE = 12;
-const LOAD_MORE_STEP = 12;
+const PROFILES_PAGE_SIZE = 12;
 
 function shuffleArray<T>(arr: T[], seed: number): T[] {
   const out = [...arr];
@@ -83,22 +82,40 @@ const CityPage = () => {
     enabled: !!supabase,
   });
 
-  const { data: escortProfiles = [], isLoading: profilesLoading } = useQuery({
+  const nowIso = useMemo(() => new Date().toISOString(), []);
+  const {
+    data: escortProfilesData,
+    isLoading: profilesLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
     queryKey: ["escort_profiles_by_city", cityId],
-    queryFn: async (): Promise<EscortRow[]> => {
+    queryFn: async ({ pageParam }): Promise<EscortRow[]> => {
       if (!supabase || !cityId) return [];
-      const now = new Date().toISOString();
+      const from = pageParam * PROFILES_PAGE_SIZE;
+      const to = from + PROFILES_PAGE_SIZE - 1;
       const { data } = await supabase
         .from("escort_profiles")
         .select("id, name, age, badge, image, available, whatsapp, time_slot, time_slots, subidas_per_day, promotion, description, nationality, gallery, slug, vip_extras")
         .eq("city_id", cityId)
         .not("promotion", "is", null)
-        .gt("active_until", now);
-      const rows = (data ?? []) as EscortRow[];
-      return sortProfilesWithSubidas(rows);
+        .gt("active_until", nowIso)
+        .order("promotion", { ascending: true })
+        .order("updated_at", { ascending: false })
+        .range(from, to);
+      return (data ?? []) as EscortRow[];
     },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === PROFILES_PAGE_SIZE ? allPages.length : undefined,
     enabled: !!cityId && !!supabase,
   });
+
+  const escortProfiles = useMemo(
+    () => (escortProfilesData?.pages ?? []).flat(),
+    [escortProfilesData?.pages]
+  );
 
   const { data: statusPhrases = [] } = useQuery({
     queryKey: ["status_phrases"],
@@ -207,26 +224,41 @@ const CityPage = () => {
     city?: string;
   } | null>(null);
   const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
-  const [visibleProfilesCount, setVisibleProfilesCount] = useState(INITIAL_PROFILES_VISIBLE);
-  useEffect(() => {
-    setVisibleProfilesCount(INITIAL_PROFILES_VISIBLE);
-  }, [citySlug, activeCategory, activeAge]);
+  const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const t = setInterval(() => setEstadosTimeBucket(Math.floor(Date.now() / (5 * 60 * 1000))), 60 * 1000);
     return () => clearInterval(t);
   }, []);
 
-  const profilesToShow = profilesSorted.slice(0, visibleProfilesCount);
-  const hasMoreProfiles = profilesSorted.length > visibleProfilesCount;
+  const profilesToShow = profilesSorted;
 
-  // Preload LCP: primera imagen de perfil visible (mejora LCP en página ciudad)
+  // Scroll infinito: cuando el sentinel es visible, cargar más (sin duplicar si ya está cargando)
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const el = loadMoreSentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) fetchNextPage();
+      },
+      { rootMargin: "200px", threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Preload LCP: primera imagen de perfil (URL transformada si es Supabase)
   useEffect(() => {
     const firstImage = profilesToShow[0]?.image;
     if (!firstImage || typeof firstImage !== "string") return;
+    const href = isSupabaseStorageUrl(firstImage)
+      ? getSupabaseImageTransformUrl(firstImage, { variant: "profile" })
+      : firstImage;
     const link = document.createElement("link");
     link.rel = "preload";
     link.as = "image";
-    link.href = firstImage;
+    link.href = href;
     document.head.appendChild(link);
     return () => {
       if (link.parentNode === document.head) document.head.removeChild(link);
@@ -342,7 +374,7 @@ const CityPage = () => {
           width={1200}
           height={480}
           loading="eager"
-          fetchPriority="high"
+          fetchpriority="high"
           decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 from-15% via-background/35 via-45% to-transparent" />
@@ -478,7 +510,7 @@ const CityPage = () => {
             animate="visible"
             variants={stagger}
           >
-            {profilesToShow.map((profile, index) => (
+            {profilesToShow.map((profile) => (
               <motion.div key={profile.id} variants={fadeUp}>
                 <FeaturedProfileCard
                   profile={{
@@ -501,16 +533,13 @@ const CityPage = () => {
                 />
               </motion.div>
             ))}
-            {hasMoreProfiles && (
-              <motion.div variants={fadeUp} className="flex justify-center pt-4 pb-2">
-                <button
-                  type="button"
-                  onClick={() => setVisibleProfilesCount((n) => n + LOAD_MORE_STEP)}
-                  className="px-6 py-3 rounded-xl border border-border bg-card hover:bg-muted text-foreground font-medium text-sm transition-colors"
-                >
-                  Cargar más perfiles ({profilesSorted.length - visibleProfilesCount} restantes)
-                </button>
-              </motion.div>
+            {hasNextPage && <div ref={loadMoreSentinelRef} className="h-4 w-full" aria-hidden />}
+            {isFetchingNextPage && (
+              <div className="space-y-4 pt-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={`skeleton-${i}`} className="flex rounded-2xl border border-border bg-card overflow-hidden h-40 shimmer" />
+                ))}
+              </div>
             )}
           </motion.div>
         )}

@@ -75,7 +75,7 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
           <img
             src={logoSrc}
             alt="Hola Cachero"
-            fetchPriority="high"
+            fetchpriority="high"
             loading="eager"
             decoding="async"
             className="logo-float h-auto w-full max-w-[200px] sm:max-w-[260px] object-contain"

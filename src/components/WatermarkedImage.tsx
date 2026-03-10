@@ -1,5 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import {
+  isSupabaseStorageUrl,
+  getSupabaseImageTransformUrl,
+  getSupabaseImageSrcSet,
+  type SupabaseImageVariant,
+} from "@/lib/supabase-image";
 
 const WATERMARK_SRC = "/marcadeagua.png";
 
@@ -9,7 +15,7 @@ export type WatermarkedImageVariant = "profile" | "thumbnail" | "full";
 export interface WatermarkedImageProps {
   src: string;
   alt: string;
-  /** URL de la misma imagen en WebP (opcional). Si no se pasa, se intenta derivar de src (.jpg/.png → .webp). */
+  /** URL de la misma imagen en WebP (opcional). Ignorado si src es Supabase (WebP automático). */
   webpSrc?: string | null;
   /** Clase del contenedor (relative) que envuelve imagen + overlay */
   className?: string;
@@ -17,13 +23,13 @@ export interface WatermarkedImageProps {
   imgClassName?: string;
   /** lazy por defecto; usar priority=true para la primera imagen above the fold (LCP) */
   loading?: "lazy" | "eager";
-  /** Si true: loading=eager y fetchPriority=high (para hero / primera imagen visible) */
+  /** Si true: loading=eager y fetchpriority=high (para hero / primera imagen visible) */
   priority?: boolean;
-  /** thumbnail 300px, profile 600px, full 1200px — define sizes y opcionalmente srcSet */
+  /** thumbnail 300/70, profile 600/75, full 1200/80 — Supabase CDN usa estos params */
   variant?: WatermarkedImageVariant;
   /** Placeholder borroso (URL o data URL de miniatura ~20px). Muestra blur primero y transición al cargar. */
   placeholder?: string;
-  /** srcSet para responsive (ej. "url?w=300 300w, url?w=600 600w"). Si no se pasa, se usa solo src. */
+  /** srcSet manual. Si no se pasa y src es Supabase, se genera automáticamente (300w, 600w, 1200w). */
   srcSet?: string;
   width?: number;
   height?: number;
@@ -35,9 +41,9 @@ const SIZES_MAP: Record<WatermarkedImageVariant, string> = {
   full: "(max-width: 1200px) 100vw, 1200px",
 };
 
-/** Intenta derivar URL WebP a partir de src (misma ruta con extensión .webp). */
+/** Intenta derivar URL WebP a partir de src (misma ruta con extensión .webp). Solo para URLs no-Supabase. */
 function getWebpFallbackSrc(src: string): string | null {
-  if (!src || typeof src !== "string") return null;
+  if (!src || typeof src !== "string" || isSupabaseStorageUrl(src)) return null;
   const replaced = src.replace(/\.(jpe?g|png)(\?.*)?$/i, ".webp$2");
   return replaced !== src ? replaced : null;
 }
@@ -56,15 +62,33 @@ export function WatermarkedImage({
   priority = false,
   variant = "profile",
   placeholder,
-  srcSet,
+  srcSet: srcSetProp,
   width,
   height,
 }: WatermarkedImageProps) {
   const [loaded, setLoaded] = useState(false);
   const loading = priority ? "eager" : (loadingProp ?? "lazy");
-  const fetchPriority = priority ? ("high" as const) : undefined;
+  const fetchpriority = priority ? ("high" as const) : undefined;
   const sizes = SIZES_MAP[variant];
-  const webpSrc = webpSrcProp ?? getWebpFallbackSrc(src);
+
+  const { displaySrc, displaySrcSet, webpSrc } = useMemo(() => {
+    const isSupabase = isSupabaseStorageUrl(src);
+    if (isSupabase) {
+      return {
+        displaySrc: getSupabaseImageTransformUrl(src, { variant: variant as SupabaseImageVariant }),
+        displaySrcSet: getSupabaseImageSrcSet(src, {
+          quality: variant === "thumbnail" ? 70 : variant === "profile" ? 75 : 80,
+        }),
+        webpSrc: null as string | null,
+      };
+    }
+    return {
+      displaySrc: src,
+      displaySrcSet: srcSetProp ?? undefined,
+      webpSrc: webpSrcProp ?? getWebpFallbackSrc(src),
+    };
+  }, [src, variant, webpSrcProp, srcSetProp]);
+
   const usePicture = Boolean(webpSrc);
 
   const imgCommonProps = {
@@ -77,8 +101,8 @@ export function WatermarkedImage({
     ),
     loading,
     decoding: "async" as const,
-    fetchPriority,
-    sizes: srcSet ? sizes : undefined,
+    fetchpriority,
+    sizes: (displaySrcSet || srcSetProp) ? sizes : undefined,
     ...(width != null && { width }),
     ...(height != null && { height }),
     onLoad: placeholder ? () => setLoaded(true) : undefined,
@@ -87,12 +111,12 @@ export function WatermarkedImage({
   const imageContent = usePicture ? (
     <picture>
       <source srcSet={webpSrc!} type="image/webp" sizes={sizes} />
-      <img src={src} {...imgCommonProps} />
+      <img src={displaySrc} {...imgCommonProps} />
     </picture>
   ) : (
     <img
-      src={src}
-      srcSet={srcSet || undefined}
+      src={displaySrc}
+      srcSet={displaySrcSet || undefined}
       {...imgCommonProps}
     />
   );
