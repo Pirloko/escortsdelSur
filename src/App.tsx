@@ -9,10 +9,11 @@ import { AnimatePresence } from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import { CityRoute } from "./pages/CityRoute";
-import { CitySegmentRoute } from "./pages/CitySegmentRoute";
 import { BottomNav } from "./components/BottomNav";
+
+const Index = lazy(() => import("./pages/Index").then((m) => ({ default: m.default })));
+const CityRoute = lazy(() => import("./pages/CityRoute").then((m) => ({ default: m.CityRoute })));
+const CitySegmentRoute = lazy(() => import("./pages/CitySegmentRoute").then((m) => ({ default: m.CitySegmentRoute })));
 import { AgeGate } from "./components/AgeGate";
 import { CookieBanner } from "./components/CookieBanner";
 import { FaviconTheme } from "./components/FaviconTheme";

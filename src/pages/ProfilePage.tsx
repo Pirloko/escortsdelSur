@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { SeoHead } from "@/components/SeoHead";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe, BadgeCheck } from "lucide-react";
@@ -19,9 +20,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { RegistroClienteForm } from "@/components/RegistroClienteForm";
-import { ReviewExperienceForm } from "@/components/ReviewExperienceForm";
-import { ReviewExperienceCard } from "@/components/ReviewExperienceCard";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
+
+const ReviewExperienceForm = lazy(() => import("@/components/ReviewExperienceForm").then((m) => ({ default: m.ReviewExperienceForm })));
+const ReviewExperienceCard = lazy(() => import("@/components/ReviewExperienceCard").then((m) => ({ default: m.ReviewExperienceCard })));
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -471,7 +473,8 @@ const ProfilePage = () => {
                     alt={i === 0 ? `${profile.name}, perfil en ${profile.city}` : `Galería ${profile.name} - imagen ${i + 1}`}
                     className="absolute inset-0 w-full h-full"
                     imgClassName="w-full h-full object-cover"
-                    loading={i === 0 ? "eager" : "lazy"}
+                    priority={i === 0}
+                    variant="full"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                 </div>
@@ -676,14 +679,16 @@ const ProfilePage = () => {
                   </span>
                 </div>
                 <ul className="space-y-4">
-                  {reviews.slice(0, 5).map((r) => (
-                    <li key={r.id}>
-                      <ReviewExperienceCard
-                        review={r}
-                        authorDisplayName={displayNameByReviewUserId[r.user_id] ?? "Anónimo"}
-                      />
-                    </li>
-                  ))}
+                  <Suspense fallback={<li className="p-3 rounded-xl bg-muted/30 animate-pulse h-20" />}>
+                    {reviews.slice(0, 5).map((r) => (
+                      <li key={r.id}>
+                        <ReviewExperienceCard
+                          review={r}
+                          authorDisplayName={displayNameByReviewUserId[r.user_id] ?? "Anónimo"}
+                        />
+                      </li>
+                    ))}
+                  </Suspense>
                 </ul>
                 {reviews.length > 5 && (
                   <p className="text-sm text-muted-foreground">Mostrando las 5 reseñas más recientes.</p>
@@ -926,18 +931,20 @@ const ProfilePage = () => {
             <DialogTitle>Reseña verificada de experiencia</DialogTitle>
           </DialogHeader>
           {resolvedProfileId && user?.id && (
-            <ReviewExperienceForm
-              escortProfileId={resolvedProfileId}
-              userId={user.id}
-              submitReview={submitReviewExperience}
-              onSuccess={() => {
-                setOpenReviewForm(false);
-                queryClient.invalidateQueries({ queryKey: ["review_experiences", resolvedProfileId] });
-                queryClient.invalidateQueries({ queryKey: ["review_experiences_mine_7d", resolvedProfileId, user.id] });
-                toast.success("Reseña publicada. +3 tickets.");
-              }}
-              onError={(msg) => toast.error(msg)}
-            />
+            <Suspense fallback={<div className="min-h-[200px] flex items-center justify-center text-muted-foreground">Cargando…</div>}>
+              <ReviewExperienceForm
+                escortProfileId={resolvedProfileId}
+                userId={user.id}
+                submitReview={submitReviewExperience}
+                onSuccess={() => {
+                  setOpenReviewForm(false);
+                  queryClient.invalidateQueries({ queryKey: ["review_experiences", resolvedProfileId] });
+                  queryClient.invalidateQueries({ queryKey: ["review_experiences_mine_7d", resolvedProfileId, user.id] });
+                  toast.success("Reseña publicada. +3 tickets.");
+                }}
+                onError={(msg) => toast.error(msg)}
+              />
+            </Suspense>
           )}
         </DialogContent>
       </Dialog>

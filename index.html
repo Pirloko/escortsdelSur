@@ -16,6 +16,10 @@
     <meta name="author" content="Hola Cachero" />
     <link rel="icon" type="image/png" href="/HolaCachero.png" />
 
+    <!-- Preload LCP: logo principal (hero) -->
+    <link rel="preload" as="image" href="/HolaCachero.png" />
+    <link rel="preload" as="image" href="/HolaCachero01.png" />
+
     <meta property="og:title" content="Escorts en Rancagua | Hola Cachero – Acompañantes y Damas de Compañía" />
     <meta property="og:description" content="Escorts en Rancagua, acompañantes y damas de compañía. Perfiles premium en Hola Cachero." />
     <meta property="og:type" content="website" />
@@ -25,14 +29,21 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://holacachero.cl/og-default.png" />
 
-    <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0EEB5RF8K"></script>
+    <!-- Google Analytics: cargar después del contenido crítico (defer) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', 'G-N0EEB5RF8K');
+      function loadAnalytics() {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-N0EEB5RF8K';
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('config', 'G-N0EEB5RF8K');
+      }
+      if (document.readyState === 'complete') setTimeout(loadAnalytics, 0);
+      else window.addEventListener('load', function() { setTimeout(loadAnalytics, 0); });
     </script>
   </head>
 

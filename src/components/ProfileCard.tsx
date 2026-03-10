@@ -55,6 +55,7 @@ export function ProfileCard({ profile, citySlug }: ProfileProps) {
       >
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-surface">
           <WatermarkedImage
+            variant="thumbnail"
             src={profile.image}
             alt={profile.name}
             className="absolute inset-0"

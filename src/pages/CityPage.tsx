@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, MapPin, SlidersHorizontal, Phone } from "lucide-react";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
@@ -9,8 +10,9 @@ import { ALLOWED_CITY_SLUGS } from "@/lib/site-config";
 import { getCitySeo, getSeoContentWordCount } from "@/lib/cities-seo-data";
 import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { WatermarkedImage } from "@/components/WatermarkedImage";
-import { GalleryViewerModal } from "@/components/GalleryViewerModal";
 import { trackProfileClickFromList } from "@/lib/analytics";
+
+const GalleryViewerModal = lazy(() => import("@/components/GalleryViewerModal").then((m) => ({ default: m.GalleryViewerModal })));
 import { CitySeoBlock } from "@/components/CitySeoBlock";
 import { JsonLdCity } from "@/components/JsonLd";
 import { useState, useEffect, useMemo } from "react";
@@ -20,6 +22,8 @@ import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
 
 const ESTADOS_TIME_LABELS = ["HACE 2 MIN.", "HACE 5 MIN.", "HACE 7 MIN.", "HACE 15 MIN.", "HACE 30 MIN.", "HACE 1 HORA", "HACE UNAS HORAS"];
+const INITIAL_PROFILES_VISIBLE = 12;
+const LOAD_MORE_STEP = 12;
 
 function shuffleArray<T>(arr: T[], seed: number): T[] {
   const out = [...arr];
@@ -203,10 +207,31 @@ const CityPage = () => {
     city?: string;
   } | null>(null);
   const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
+  const [visibleProfilesCount, setVisibleProfilesCount] = useState(INITIAL_PROFILES_VISIBLE);
+  useEffect(() => {
+    setVisibleProfilesCount(INITIAL_PROFILES_VISIBLE);
+  }, [citySlug, activeCategory, activeAge]);
   useEffect(() => {
     const t = setInterval(() => setEstadosTimeBucket(Math.floor(Date.now() / (5 * 60 * 1000))), 60 * 1000);
     return () => clearInterval(t);
   }, []);
+
+  const profilesToShow = profilesSorted.slice(0, visibleProfilesCount);
+  const hasMoreProfiles = profilesSorted.length > visibleProfilesCount;
+
+  // Preload LCP: primera imagen de perfil visible (mejora LCP en página ciudad)
+  useEffect(() => {
+    const firstImage = profilesToShow[0]?.image;
+    if (!firstImage || typeof firstImage !== "string") return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = firstImage;
+    document.head.appendChild(link);
+    return () => {
+      if (link.parentNode === document.head) document.head.removeChild(link);
+    };
+  }, [profilesToShow[0]?.image]);
 
   const openGalleryViewer = (profile: ProfileItem) => {
     const gallery = profile.gallery ?? [];
@@ -317,6 +342,8 @@ const CityPage = () => {
           width={1200}
           height={480}
           loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 from-15% via-background/35 via-45% to-transparent" />
 
@@ -416,17 +443,19 @@ const CityPage = () => {
             </div>
           </div>
           {galleryViewerProfile && (
-            <GalleryViewerModal
-              open={galleryViewerOpen}
-              onOpenChange={setGalleryViewerOpen}
-              profileName={galleryViewerProfile.name}
-              photos={galleryViewerProfile.photos}
-              profileHref={galleryViewerProfile.profileHref}
-              telUrl={galleryViewerProfile.telUrl}
-              whatsappUrl={galleryViewerProfile.whatsappUrl}
-              profileId={galleryViewerProfile.profileId}
-              city={galleryViewerProfile.city}
-            />
+            <Suspense fallback={null}>
+              <GalleryViewerModal
+                open={galleryViewerOpen}
+                onOpenChange={setGalleryViewerOpen}
+                profileName={galleryViewerProfile.name}
+                photos={galleryViewerProfile.photos}
+                profileHref={galleryViewerProfile.profileHref}
+                telUrl={galleryViewerProfile.telUrl}
+                whatsappUrl={galleryViewerProfile.whatsappUrl}
+                profileId={galleryViewerProfile.profileId}
+                city={galleryViewerProfile.city}
+              />
+            </Suspense>
           )}
         </div>
       )}
@@ -449,7 +478,7 @@ const CityPage = () => {
             animate="visible"
             variants={stagger}
           >
-            {profilesSorted.map((profile) => (
+            {profilesToShow.map((profile, index) => (
               <motion.div key={profile.id} variants={fadeUp}>
                 <FeaturedProfileCard
                   profile={{
@@ -472,6 +501,17 @@ const CityPage = () => {
                 />
               </motion.div>
             ))}
+            {hasMoreProfiles && (
+              <motion.div variants={fadeUp} className="flex justify-center pt-4 pb-2">
+                <button
+                  type="button"
+                  onClick={() => setVisibleProfilesCount((n) => n + LOAD_MORE_STEP)}
+                  className="px-6 py-3 rounded-xl border border-border bg-card hover:bg-muted text-foreground font-medium text-sm transition-colors"
+                >
+                  Cargar más perfiles ({profilesSorted.length - visibleProfilesCount} restantes)
+                </button>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </div>

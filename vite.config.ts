@@ -54,5 +54,26 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes("node_modules")) {
+              if (id.includes("framer-motion")) return "framer-motion";
+              if (id.includes("recharts") || id.includes("d3-")) return "recharts";
+              if (id.includes("jspdf") || id.includes("html2canvas")) return "pdf";
+              if (id.includes("@supabase")) return "supabase";
+              if (id.includes("embla-carousel")) return "embla";
+              if (id.includes("react-dom")) return "react-dom";
+              if (id.includes("react")) return "react";
+              if (id.includes("lucide-react")) return "lucide";
+              if (id.includes("@radix-ui")) return "radix";
+            }
+            return undefined;
+          },
+        },
+      },
+      chunkSizeWarningLimit: 400,
+    },
   };
 });
