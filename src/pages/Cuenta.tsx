@@ -99,7 +99,7 @@ const SERVICIOS_OPCIONES = {
   ],
 };
 
-const MAX_PERFILES = 5;
+const MAX_PERFILES = 20;
 
 type ProfileWithCity = EscortProfilesRow & { cities: CitiesRow | null };
 
