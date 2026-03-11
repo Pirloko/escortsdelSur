@@ -290,6 +290,7 @@ export default function Cuenta() {
                 .then(({ data: pr }) => {
                   const fromPublisher = (pr as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
                   setCreditsTotalInEditView(fromProfiles + fromPublisher);
+                  setPublisherCredits(fromPublisher);
                 });
             });
         });
@@ -1171,20 +1172,25 @@ export default function Cuenta() {
     let creditsToSet: number | null = null;
 
     if (tienePromo && coste != null && coste > 0) {
-      // Descontar créditos (nunca sumar): restar coste del perfil y/o publisher_credits
-      const { data: rowCredits } = await supabase
-        .from("escort_profiles")
-        .select("credits")
-        .eq("id", escortProfile.id)
-        .maybeSingle();
-      const creditsPerfil = (rowCredits as { credits?: number } | null)?.credits ?? 0;
-      const { data: rowProfile } = await supabase
-        .from("profiles")
-        .select("publisher_credits")
-        .eq("id", user.id)
-        .maybeSingle();
-      const creditsPublisher = (rowProfile as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
-      const totalDisponibles = creditsPerfil + creditsPublisher;
+      // Usar estado (mismo que la UI) para evitar discrepancia; fallback a fetch si no hay datos
+      let creditsPerfil = (escortProfile as { credits?: number })?.credits ?? 0;
+      let creditsPublisher = publisherCredits;
+      let totalDisponibles = creditsPerfil + creditsPublisher;
+      if (totalDisponibles === 0 && (creditsTotalInEditView ?? 0) > 0) {
+        const { data: rowCredits } = await supabase
+          .from("escort_profiles")
+          .select("credits")
+          .eq("id", escortProfile.id)
+          .maybeSingle();
+        creditsPerfil = (rowCredits as { credits?: number } | null)?.credits ?? 0;
+        const { data: rowProfile } = await supabase
+          .from("profiles")
+          .select("publisher_credits")
+          .eq("id", user.id)
+          .maybeSingle();
+        creditsPublisher = (rowProfile as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+        totalDisponibles = creditsPerfil + creditsPublisher;
+      }
       if (totalDisponibles < coste) {
         setPromoMessage(`Créditos insuficientes. Tienes ${totalDisponibles}, necesitas ${coste}.`);
         setPromoSaving(false);
