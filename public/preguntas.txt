@@ -1,1389 +1,1749 @@
-Banco de Preguntas (200) - Varias Categorías
-Cada pregunta incluye 4 alternativas y la respuesta correcta. Se indica nivel de dificultad: Fácil, Medio o Difícil.
+1. ¿Qué club chileno tiene más títulos de Primera División?
+A) Colo-Colo
+B) U. de Chile
+C) U. Católica
+D) Cobreloa
+Respuesta: Colo-Colo | dificultad: facil
 
-1. (Matemáticas - Fácil) ¿Cuánto es 1+1?
-A) 2
-B) 3
-C) 4
-D) 2
-Respuesta correcta: A
+2. ¿En qué estadio juega Colo-Colo de local?
+A) Monumental
+B) Nacional
+C) Santa Laura
+D) El Teniente
+Respuesta: Monumental | dificultad: facil
 
-2. (Matemáticas - Fácil) ¿Cuánto es 2+2?
-A) 4
-B) 6
-C) 8
-D) 3
-Respuesta correcta: A
+3. ¿Qué club chileno es conocido como 'Los Azules'?
+A) U. de Chile
+B) Everton
+C) Audax
+D) Palestino
+Respuesta: U. de Chile | dificultad: facil
 
-3. (Matemáticas - Fácil) ¿Cuánto es 3+3?
-A) 6
-B) 9
-C) 12
-D) 4
-Respuesta correcta: A
+4. ¿Qué club es conocido como 'Los Cruzados'?
+A) Colo-Colo
+B) U. Católica
+C) Everton
+D) Huachipato
+Respuesta: U. Católica | dificultad: facil
 
-4. (Matemáticas - Fácil) ¿Cuánto es 4+4?
-A) 8
-B) 12
-C) 16
-D) 5
-Respuesta correcta: A
+5. ¿Qué equipo de Rancagua juega en El Teniente?
+A) O'Higgins
+B) Everton
+C) Cobresal
+D) La Serena
+Respuesta: O'Higgins | dificultad: facil
 
-5. (Matemáticas - Fácil) ¿Cuánto es 5+5?
-A) 10
-B) 15
-C) 20
-D) 6
-Respuesta correcta: A
+6. ¿Quién es apodado 'El Rey Arturo'?
+A) Arturo Vidal
+B) Alexis Sánchez
+C) Gary Medel
+D) Mauricio Isla
+Respuesta: Arturo Vidal | dificultad: facil
 
-6. (Matemáticas - Fácil) ¿Cuánto es 6+6?
-A) 12
-B) 18
-C) 24
-D) 7
-Respuesta correcta: A
+7. ¿Quién es apodado 'Pitbull'?
+A) Gary Medel
+B) Vidal
+C) Alexis
+D) Aránguiz
+Respuesta: Gary Medel | dificultad: facil
 
-7. (Matemáticas - Fácil) ¿Cuánto es 7+7?
-A) 14
-B) 21
-C) 28
-D) 8
-Respuesta correcta: A
+8. ¿Qué arquero fue capitán de Chile en Copa América 2015?
+A) Claudio Bravo
+B) Herrera
+C) Toselli
+D) Cortés
+Respuesta: Claudio Bravo | dificultad: facil
 
-8. (Matemáticas - Fácil) ¿Cuánto es 8+8?
-A) 16
-B) 24
-C) 32
-D) 9
-Respuesta correcta: A
+9. ¿Qué jugador chileno jugó en Arsenal y Manchester United?
+A) Alexis Sánchez
+B) Vidal
+C) Medel
+D) Isla
+Respuesta: Alexis Sánchez | dificultad: medio
 
-9. (Matemáticas - Fácil) ¿Cuánto es 9+9?
-A) 18
-B) 27
-C) 36
-D) 10
-Respuesta correcta: A
+10. ¿Qué club chileno ganó la Copa Libertadores 1991?
+A) Colo-Colo
+B) U. Católica
+C) Cobreloa
+D) Unión Española
+Respuesta: Colo-Colo | dificultad: facil
 
-10. (Matemáticas - Fácil) ¿Cuánto es 10+10?
-A) 20
-B) 30
-C) 40
-D) 11
-Respuesta correcta: A
+11. ¿Qué club chileno es de Valparaíso?
+A) Santiago Wanderers
+B) Palestino
+C) Audax
+D) Curicó
+Respuesta: Santiago Wanderers | dificultad: facil
 
-11. (Matemáticas - Medio) ¿Cuánto es 1 x 2?
-A) 2
-B) 3
-C) 4
-D) 1
-Respuesta correcta: A
+12. ¿Qué club chileno es de Viña del Mar?
+A) Everton
+B) Wanderers
+C) Cobresal
+D) Ñublense
+Respuesta: Everton | dificultad: facil
 
-12. (Matemáticas - Medio) ¿Cuánto es 2 x 3?
-A) 6
-B) 5
-C) 9
-D) 4
-Respuesta correcta: A
+13. ¿Qué club chileno es de Calama?
+A) Cobreloa
+B) Cobresal
+C) Iquique
+D) Antofagasta
+Respuesta: Cobreloa | dificultad: facil
 
-13. (Matemáticas - Medio) ¿Cuánto es 3 x 4?
-A) 12
-B) 7
-C) 16
-D) 9
-Respuesta correcta: A
+14. ¿Qué club chileno representa a El Salvador?
+A) Cobresal
+B) Cobreloa
+C) Iquique
+D) La Serena
+Respuesta: Cobresal | dificultad: medio
 
-14. (Matemáticas - Medio) ¿Cuánto es 4 x 5?
-A) 20
-B) 9
-C) 25
-D) 16
-Respuesta correcta: A
+15. ¿Qué club chileno viste camiseta árabe?
+A) Palestino
+B) Audax
+C) Everton
+D) O'Higgins
+Respuesta: Palestino | dificultad: facil
 
-15. (Matemáticas - Medio) ¿Cuánto es 5 x 6?
-A) 30
-B) 11
-C) 36
-D) 25
-Respuesta correcta: A
+16. ¿Qué club juega en Santa Laura?
+A) Unión Española
+B) Audax
+C) Everton
+D) La Serena
+Respuesta: Unión Española | dificultad: medio
 
-16. (Matemáticas - Medio) ¿Cuánto es 6 x 7?
-A) 42
-B) 13
-C) 49
-D) 36
-Respuesta correcta: A
+17. ¿Quién fue DT de Chile campeón 2015?
+A) Sampaoli
+B) Bielsa
+C) Pizzi
+D) Rueda
+Respuesta: Sampaoli | dificultad: medio
 
-17. (Matemáticas - Medio) ¿Cuánto es 7 x 8?
-A) 56
-B) 15
-C) 64
-D) 49
-Respuesta correcta: A
+18. ¿Contra qué selección Chile ganó la final 2015?
+A) Argentina
+B) Brasil
+C) Uruguay
+D) Colombia
+Respuesta: Argentina | dificultad: facil
 
-18. (Matemáticas - Medio) ¿Cuánto es 8 x 9?
-A) 72
-B) 17
-C) 81
-D) 64
-Respuesta correcta: A
+19. ¿Qué delantero fue goleador de Copa América 2015?
+A) Eduardo Vargas
+B) Alexis
+C) Vidal
+D) Medel
+Respuesta: Eduardo Vargas | dificultad: medio
 
-19. (Matemáticas - Difícil) ¿Cuál es la derivada de x²?
-A) 2x
-B) x
-C) x³
-D) 2
-Respuesta correcta: A
+20. ¿En qué ciudad está el Estadio Nacional?
+A) Santiago
+B) Valparaíso
+C) Talca
+D) Rancagua
+Respuesta: Santiago | dificultad: facil
 
-20. (Matemáticas - Difícil) ¿Cuál es el valor de π aproximado?
-A) 3.14
-B) 2.17
-C) 4.13
-D) 3.50
-Respuesta correcta: A
+21. ¿Qué club chileno es de Talcahuano?
+A) Huachipato
+B) Audax
+C) Everton
+D) La Serena
+Respuesta: Huachipato | dificultad: medio
 
-21. (Matemáticas - Medio) ¿Cuánto es la raíz cuadrada de 144?
-A) 12
-B) 10
-C) 14
-D) 16
-Respuesta correcta: A
+22. ¿Qué club chileno es de Chillán?
+A) Ñublense
+B) Curicó
+C) Rangers
+D) Iquique
+Respuesta: Ñublense | dificultad: medio
 
-22. (Matemáticas - Fácil) ¿Cuál es el resultado de 2³?
-A) 8
-B) 6
-C) 9
-D) 4
-Respuesta correcta: A
+23. ¿Qué club chileno es de Curicó?
+A) Curicó Unido
+B) Rangers
+C) Ñublense
+D) Melipilla
+Respuesta: Curicó Unido | dificultad: medio
 
-23. (Matemáticas - Medio) ¿Qué número es primo?
-A) 13
-B) 15
-C) 21
-D) 27
-Respuesta correcta: A
+24. ¿Qué club chileno es de Talca?
+A) Rangers
+B) Curicó
+C) Ñublense
+D) Temuco
+Respuesta: Rangers | dificultad: medio
 
-24. (Música - Fácil) ¿Cuántas notas musicales básicas hay?
-A) 7
-B) 5
-C) 9
-D) 12
-Respuesta correcta: A
+25. ¿Qué club chileno es de Temuco?
+A) Deportes Temuco
+B) Rangers
+C) Puerto Montt
+D) Osorno
+Respuesta: Deportes Temuco | dificultad: medio
 
-25. (Música - Fácil) ¿Quién fue conocido como el 'Rey del Pop'?
-A) Michael Jackson
-B) Elvis Presley
-C) Prince
-D) Freddie Mercury
-Respuesta correcta: A
+26. ¿Qué club chileno es de Iquique?
+A) Deportes Iquique
+B) Antofagasta
+C) Arica
+D) Copiapó
+Respuesta: Deportes Iquique | dificultad: facil
 
-26. (Música - Fácil) ¿Qué instrumento tiene teclas blancas y negras?
-A) Piano
-B) Violín
-C) Flauta
-D) Batería
-Respuesta correcta: A
+27. ¿Qué club chileno es de Antofagasta?
+A) Deportes Antofagasta
+B) Iquique
+C) Copiapó
+D) Arica
+Respuesta: Deportes Antofagasta | dificultad: medio
 
-27. (Música - Medio) ¿Qué cantante es famoso por la canción 'Shape of You'?
-A) Ed Sheeran
-B) Drake
-C) Bruno Mars
-D) Justin Bieber
-Respuesta correcta: A
+28. ¿Qué club chileno es de Copiapó?
+A) Deportes Copiapó
+B) Iquique
+C) Arica
+D) Antofagasta
+Respuesta: Deportes Copiapó | dificultad: medio
 
-28. (Música - Medio) ¿Qué país es origen del flamenco?
-A) España
-B) Italia
-C) México
+29. ¿Qué club chileno es de Puerto Montt?
+A) Deportes Puerto Montt
+B) Temuco
+C) Osorno
+D) Valdivia
+Respuesta: Deportes Puerto Montt | dificultad: medio
+
+30. ¿Qué club chileno es de Valdivia?
+A) Deportes Valdivia
+B) Osorno
+C) Temuco
+D) Puerto Montt
+Respuesta: Deportes Valdivia | dificultad: medio
+
+31. ¿Qué club chileno es de Osorno?
+A) Provincial Osorno
+B) Valdivia
+C) Temuco
+D) Puerto Montt
+Respuesta: Provincial Osorno | dificultad: medio
+
+32. ¿Qué club chileno ganó la Sudamericana 2011?
+A) U. de Chile
+B) Colo-Colo
+C) Católica
+D) Palestino
+Respuesta: U. de Chile | dificultad: facil
+
+33. ¿Qué entrenador dirigía la U en 2011?
+A) Jorge Sampaoli
+B) Bielsa
+C) Pellegrini
+D) Borghi
+Respuesta: Jorge Sampaoli | dificultad: medio
+
+34. ¿Qué delantero brilló en la U 2011?
+A) Eduardo Vargas
+B) Alexis
+C) Canales
+D) Henríquez
+Respuesta: Eduardo Vargas | dificultad: medio
+
+35. ¿Qué arquero histórico jugó muchos años en la U?
+A) Johnny Herrera
+B) Bravo
+C) Rojas
+D) Campos
+Respuesta: Johnny Herrera | dificultad: medio
+
+36. ¿Qué técnico argentino dirigió Chile rumbo a Sudáfrica 2010?
+A) Marcelo Bielsa
+B) Sampaoli
+C) Borghi
+D) Rueda
+Respuesta: Marcelo Bielsa | dificultad: medio
+
+37. ¿Qué jugador chileno jugó en Barcelona?
+A) Arturo Vidal
+B) Alexis
+C) Isla
+D) Díaz
+Respuesta: Arturo Vidal | dificultad: medio
+
+38. ¿Qué jugador chileno jugó en Inter de Milán?
+A) Gary Medel
+B) Vidal
+C) Alexis
+D) Isla
+Respuesta: Gary Medel | dificultad: medio
+
+39. ¿Qué jugador chileno jugó en Juventus?
+A) Arturo Vidal
+B) Medel
+C) Alexis
+D) Isla
+Respuesta: Arturo Vidal | dificultad: medio
+
+40. ¿Qué jugador chileno jugó en Bayern Munich?
+A) Arturo Vidal
+B) Alexis
+C) Medel
+D) Isla
+Respuesta: Arturo Vidal | dificultad: medio
+
+41. ¿Qué jugador chileno es llamado 'Niño Maravilla'?
+A) Alexis Sánchez
+B) Vargas
+C) Vidal
+D) Medel
+Respuesta: Alexis Sánchez | dificultad: facil
+
+42. ¿En qué ciudad juega Everton?
+A) Viña del Mar
+B) Valparaíso
+C) Santiago
+D) La Serena
+Respuesta: Viña del Mar | dificultad: facil
+
+43. ¿En qué ciudad juega Cobreloa?
+A) Calama
+B) Antofagasta
+C) Iquique
+D) Copiapó
+Respuesta: Calama | dificultad: facil
+
+44. ¿En qué ciudad juega Ñublense?
+A) Chillán
+B) Talca
+C) Curicó
+D) Temuco
+Respuesta: Chillán | dificultad: facil
+
+45. ¿En qué ciudad juega Rangers?
+A) Talca
+B) Curicó
+C) Temuco
+D) Valdivia
+Respuesta: Talca | dificultad: facil
+
+46. ¿En qué ciudad juega Deportes Iquique?
+A) Iquique
+B) Arica
+C) Antofagasta
+D) Copiapó
+Respuesta: Iquique | dificultad: facil
+
+47. ¿En qué ciudad juega Huachipato?
+A) Talcahuano
+B) Concepción
+C) Temuco
+D) Valdivia
+Respuesta: Talcahuano | dificultad: facil
+
+48. ¿En qué ciudad juega Palestino?
+A) Santiago
+B) La Serena
+C) Copiapó
+D) Talca
+Respuesta: Santiago | dificultad: medio
+
+49. ¿En qué ciudad juega Audax Italiano?
+A) La Florida
+B) Maipú
+C) Ñuñoa
+D) Puente Alto
+Respuesta: La Florida | dificultad: medio
+
+50. ¿En qué ciudad juega Unión Española?
+A) Santiago
+B) Valparaíso
+C) Rancagua
+D) Talca
+Respuesta: Santiago | dificultad: medio
+
+51. ¿Qué país ganó el Mundial 2022?
+A) Argentina
+B) Francia
+C) Brasil
+D) Alemania
+Respuesta: Argentina | dificultad: facil
+
+52. ¿Qué país ganó el Mundial 2018?
+A) Francia
+B) Croacia
+C) Brasil
+D) Alemania
+Respuesta: Francia | dificultad: facil
+
+53. ¿Qué país ganó el Mundial 2014?
+A) Alemania
+B) Brasil
+C) Argentina
+D) España
+Respuesta: Alemania | dificultad: facil
+
+54. ¿Qué selección tiene más Mundiales?
+A) Brasil
+B) Alemania
+C) Italia
 D) Argentina
-Respuesta correcta: A
+Respuesta: Brasil | dificultad: facil
 
-29. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
+55. ¿Quién es conocido como CR7?
+A) Cristiano Ronaldo
+B) Messi
+C) Neymar
+D) Mbappé
+Respuesta: Cristiano Ronaldo | dificultad: facil
 
-30. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
+56. ¿En qué club se hizo famoso Messi?
+A) Barcelona
+B) PSG
+C) Inter
+D) Milan
+Respuesta: Barcelona | dificultad: facil
 
-31. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
+57. ¿Quién ganó el Mundial 2006?
+A) Italia
+B) Francia
+C) Brasil
+D) Alemania
+Respuesta: Italia | dificultad: medio
 
-32. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-33. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-34. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-35. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-36. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-37. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-38. (Música - Fácil) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-39. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-40. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-41. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-42. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-43. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-44. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-45. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-46. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-47. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-48. (Música - Medio) ¿Qué instrumento pertenece a la familia de cuerdas?
-A) Guitarra
-B) Trompeta
-C) Clarinete
-D) Trombón
-Respuesta correcta: A
-
-49. (Fútbol - Fácil) ¿Cuántos jugadores hay por equipo en cancha?
-A) 11
-B) 10
-C) 9
-D) 12
-Respuesta correcta: A
-
-50. (Fútbol - Medio) ¿Qué país ganó el Mundial 2018?
+58. ¿Quién ganó el Mundial 1998?
 A) Francia
 B) Brasil
+C) Italia
+D) Alemania
+Respuesta: Francia | dificultad: medio
+
+59. ¿Qué jugador brasileño es leyenda mundial?
+A) Pelé
+B) Romario
+C) Rivaldo
+D) Ronaldinho
+Respuesta: Pelé | dificultad: facil
+
+60. ¿Quién es máximo goleador de mundiales?
+A) Klose
+B) Ronaldo
+C) Müller
+D) Pelé
+Respuesta: Klose | dificultad: dificil
+
+61. ¿Qué club juega en el Santiago Bernabéu?
+A) Real Madrid
+B) Barcelona
+C) Atlético
+D) Sevilla
+Respuesta: Real Madrid | dificultad: facil
+
+62. ¿Qué club es conocido como The Reds?
+A) Liverpool
+B) Chelsea
+C) Arsenal
+D) Tottenham
+Respuesta: Liverpool | dificultad: medio
+
+63. ¿Qué club es rival clásico del Barcelona?
+A) Real Madrid
+B) Valencia
+C) Sevilla
+D) Betis
+Respuesta: Real Madrid | dificultad: facil
+
+64. ¿Qué país organizó Mundial 2010?
+A) Sudáfrica
+B) Brasil
+C) Rusia
+D) Alemania
+Respuesta: Sudáfrica | dificultad: medio
+
+65. ¿Qué país organizó Mundial 2014?
+A) Brasil
+B) Sudáfrica
 C) Alemania
-D) Argentina
-Respuesta correcta: A
+D) Rusia
+Respuesta: Brasil | dificultad: facil
 
-51. (Fútbol - Fácil) ¿Qué jugador argentino ganó el Mundial 2022?
-A) Lionel Messi
-B) Maradona
-C) Agüero
-D) Di María
-Respuesta correcta: A
+66. ¿Qué país organizó Mundial 2018?
+A) Rusia
+B) Alemania
+C) Brasil
+D) Qatar
+Respuesta: Rusia | dificultad: facil
 
-52. (Fútbol - Fácil) ¿Cada cuántos años se juega el Mundial?
-A) 4
-B) 2
-C) 3
-D) 5
-Respuesta correcta: A
+67. ¿Qué país organizó Mundial 2022?
+A) Qatar
+B) EAU
+C) Arabia
+D) Turquía
+Respuesta: Qatar | dificultad: facil
 
-53. (Fútbol - Fácil) ¿Qué tarjeta significa expulsión?
+68. ¿Quién ganó Balón de Oro 2023?
+A) Messi
+B) Haaland
+C) Mbappé
+D) Modric
+Respuesta: Messi | dificultad: medio
+
+69. ¿Qué club inglés juega en Old Trafford?
+A) Manchester United
+B) City
+C) Liverpool
+D) Chelsea
+Respuesta: Manchester United | dificultad: facil
+
+70. ¿Qué club juega en Anfield?
+A) Liverpool
+B) Everton
+C) Arsenal
+D) Chelsea
+Respuesta: Liverpool | dificultad: facil
+
+71. ¿Qué club juega en Camp Nou?
+A) Barcelona
+B) Real Madrid
+C) Sevilla
+D) Valencia
+Respuesta: Barcelona | dificultad: facil
+
+72. ¿Qué club juega en Allianz Arena?
+A) Bayern Munich
+B) Dortmund
+C) Leipzig
+D) Stuttgart
+Respuesta: Bayern Munich | dificultad: medio
+
+73. ¿Qué selección ganó Euro 2016?
+A) Portugal
+B) Francia
+C) España
+D) Italia
+Respuesta: Portugal | dificultad: medio
+
+74. ¿Qué selección ganó Euro 2012?
+A) España
+B) Italia
+C) Alemania
+D) Francia
+Respuesta: España | dificultad: medio
+
+75. ¿Qué selección ganó Euro 2008?
+A) España
+B) Alemania
+C) Italia
+D) Francia
+Respuesta: España | dificultad: medio
+
+76. ¿Qué jugador portugués ganó Euro 2016?
+A) Cristiano Ronaldo
+B) Figo
+C) Pepe
+D) Nani
+Respuesta: Cristiano Ronaldo | dificultad: medio
+
+77. ¿Qué jugador francés ganó Mundial 2018?
+A) Mbappé
+B) Benzema
+C) Griezmann
+D) Giroud
+Respuesta: Mbappé | dificultad: medio
+
+78. ¿Qué club italiano es de Turín?
+A) Juventus
+B) Milan
+C) Inter
+D) Roma
+Respuesta: Juventus | dificultad: facil
+
+79. ¿Qué club italiano es de Milán?
+A) Inter
+B) Napoli
+C) Roma
+D) Lazio
+Respuesta: Inter | dificultad: facil
+
+80. ¿Qué club italiano es de Roma?
+A) Roma
+B) Juventus
+C) Inter
+D) Napoli
+Respuesta: Roma | dificultad: facil
+
+81. ¿Qué club español es de Madrid además del Real?
+A) Atlético Madrid
+B) Sevilla
+C) Valencia
+D) Betis
+Respuesta: Atlético Madrid | dificultad: facil
+
+82. ¿Qué club alemán rivaliza con Bayern?
+A) Borussia Dortmund
+B) Leipzig
+C) Stuttgart
+D) Frankfurt
+Respuesta: Borussia Dortmund | dificultad: medio
+
+83. ¿Qué club francés domina Ligue 1 reciente?
+A) PSG
+B) Lyon
+C) Marseille
+D) Monaco
+Respuesta: PSG | dificultad: facil
+
+84. ¿Qué club argentino es rival de Boca?
+A) River Plate
+B) Racing
+C) San Lorenzo
+D) Independiente
+Respuesta: River Plate | dificultad: facil
+
+85. ¿Qué club brasileño famoso es de Río?
+A) Flamengo
+B) Santos
+C) Palmeiras
+D) Cruzeiro
+Respuesta: Flamengo | dificultad: facil
+
+86. ¿Cuántos jugadores hay en cancha por equipo?
+A) 9
+B) 10
+C) 11
+D) 12
+Respuesta: 11 | dificultad: facil
+
+87. ¿Cuánto dura un partido reglamentario?
+A) 80
+B) 90
+C) 100
+D) 120
+Respuesta: 90 | dificultad: facil
+
+88. ¿Qué tarjeta expulsa a un jugador?
 A) Roja
-B) Azul
-C) Amarilla
+B) Amarilla
+C) Azul
 D) Verde
-Respuesta correcta: A
+Respuesta: Roja | dificultad: facil
 
-54. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
+89. ¿Cuántos minutos dura cada tiempo?
+A) 40
+B) 45
+C) 50
+D) 60
+Respuesta: 45 | dificultad: facil
+
+90. ¿Qué significa VAR?
+A) Video Assistant Referee
+B) Virtual Referee
+C) Video Replay
+D) Vision Referee
+Respuesta: Video Assistant Referee | dificultad: medio
+
+91. ¿Cuántos cambios permite FIFA actualmente?
+A) 5
+B) 3
+C) 4
+D) 6
+Respuesta: 5 | dificultad: medio
+
+92. ¿Cuánto mide el arco aproximadamente?
+A) 7.32 m
+B) 6 m
+C) 8 m
+D) 10 m
+Respuesta: 7.32 m | dificultad: dificil
+
+93. ¿Cuántos árbitros asistentes hay?
+A) 2
+B) 1
+C) 3
+D) 4
+Respuesta: 2 | dificultad: medio
+
+94. ¿Cuántos jugadores mínimo para iniciar?
+A) 7
+B) 8
+C) 6
+D) 9
+Respuesta: 7 | dificultad: dificil
+
+95. ¿Qué parte del cuerpo no puede usar el arquero fuera del área?
 A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+B) Piernas
+C) Cabeza
+D) Pecho
+Respuesta: Manos | dificultad: facil
 
-55. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+96. ¿Qué jugador inicia el partido?
+A) El del saque inicial
+B) El arquero
+C) El árbitro
+D) El capitán
+Respuesta: El del saque inicial | dificultad: facil
 
-56. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+97. ¿Qué pasa si hay empate en eliminatorias?
+A) Alargue
+B) Penales
+C) Ambos
+D) Ninguno
+Respuesta: Alargue | dificultad: medio
 
-57. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+98. ¿Cuántos minutos dura el alargue?
+A) 30
+B) 20
+C) 40
+D) 15
+Respuesta: 30 | dificultad: medio
 
-58. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+99. ¿Cuántos penales por equipo en tanda inicial?
+A) 5
+B) 3
+C) 7
+D) 6
+Respuesta: 5 | dificultad: facil
 
-59. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+100. ¿Qué se cobra si un defensor toca balón con mano ilegal?
+A) Penal
+B) Tiro libre
+C) Corner
+D) Saque banda
+Respuesta: Penal | dificultad: facil
 
-60. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+101. ¿En qué ciudad nació Daniella Chávez?
+A) Santiago
+B) Rancagua
+C) Valparaíso
+D) Concepción
+Respuesta: Rancagua | dificultad: medio
 
-61. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+102. ¿Qué modelo chilena apareció en Playboy México en 2015?
+A) Daniella Chávez
+B) Adriana Barrientos
+C) Faloon Larraguibel
+D) Camila Recabarren
+Respuesta: Daniella Chávez | dificultad: medio
 
-62. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+103. ¿Qué programa hizo famosa a Adriana Barrientos?
+A) Morandé con Compañía
+B) Rojo
+C) Yingo
+D) Calle 7
+Respuesta: Morandé con Compañía | dificultad: medio
 
-63. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+104. ¿Qué influencer chilena es hija de Raquel Argandoña?
+A) Kel Calderón
+B) Steffi Méndez
+C) Laura Prieto
+D) Ignacia Michelson
+Respuesta: Kel Calderón | dificultad: medio
 
-64. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+105. ¿Qué modelo cubana se hizo famosa en realities chilenos?
+A) Lisandra Silva
+B) Adriana Barrientos
+C) Faloon Larraguibel
+D) Daniella Chávez
+Respuesta: Lisandra Silva | dificultad: medio
 
-65. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+106. ¿Qué programa juvenil lanzó a Faloon Larraguibel?
+A) Yingo
+B) Mekano
+C) Rojo
+D) Calle 7
+Respuesta: Yingo | dificultad: medio
 
-66. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+107. ¿Qué figura chilena es conocida como “La Fiera”?
+A) Pamela Díaz
+B) Kenita Larraín
+C) Tonka Tomicic
+D) Adriana Barrientos
+Respuesta: Pamela Díaz | dificultad: medio
 
-67. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+108. ¿Qué influencer chilena es hija de DJ Méndez?
+A) Steffi Méndez
+B) Kel Calderón
+C) Laura Prieto
+D) Ignacia Michelson
+Respuesta: Steffi Méndez | dificultad: medio
 
-68. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+109. ¿Quién animó el Festival de Viña 2018?
+A) Tonka Tomicic
+B) Karen Doggenweiler
+C) Diana Bolocco
+D) Eva Gómez
+Respuesta: Tonka Tomicic | dificultad: medio
 
-69. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+110. ¿Qué modelo chilena participó en Miss Chile 2012?
+A) Camila Recabarren
+B) Daniella Chávez
+C) Adriana Barrientos
+D) Faloon Larraguibel
+Respuesta: Camila Recabarren | dificultad: medio
 
-70. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+111. ¿Qué actriz chilena ganó un Óscar por “Una mujer fantástica”?
+A) Daniela Vega
+B) Leonor Varela
+C) Antonia Zegers
+D) Cote de Pablo
+Respuesta: Daniela Vega | dificultad: medio
 
-71. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+112. ¿Qué actriz chilena participó en CSI?
+A) Cote de Pablo
+B) Daniela Vega
+C) Mane Swett
+D) Leonor Varela
+Respuesta: Cote de Pablo | dificultad: medio
 
-72. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+113. ¿Qué actriz chilena participó en la película Gloria?
+A) Paulina García
+B) Antonia Zegers
+C) Daniela Vega
+D) Mane Swett
+Respuesta: Paulina García | dificultad: medio
 
-73. (Fútbol - Fácil) ¿Qué parte del cuerpo no puede usar un jugador (excepto el arquero)?
-A) Manos
-B) Cabeza
-C) Pecho
-D) Piernas
-Respuesta correcta: A
+114. ¿Qué modelo fue reina del Festival de Viña 2018?
+A) Betsy Camino
+B) Daniella Chávez
+C) Adriana Barrientos
+D) Faloon Larraguibel
+Respuesta: Betsy Camino | dificultad: medio
 
-74. (Sexualidad - Medio) El Kamasutra es principalmente:
-A) Un texto antiguo sobre relaciones y amor
-B) Un libro de medicina
-C) Una novela moderna
-D) Un libro de cocina
-Respuesta correcta: A
+115. ¿Qué modelo es conocida como “La Leona”?
+A) Adriana Barrientos
+B) Pamela Díaz
+C) Tonka Tomicic
+D) Daniella Chávez
+Respuesta: Adriana Barrientos | dificultad: medio
 
-75. (Sexualidad - Medio) ¿En qué país se originó el Kamasutra?
-A) India
-B) China
-C) Japón
-D) Grecia
-Respuesta correcta: A
+116. ¿Qué animadora conduce Mucho Gusto?
+A) Karen Doggenweiler
+B) Tonka Tomicic
+C) Diana Bolocco
+D) Eva Gómez
+Respuesta: Karen Doggenweiler | dificultad: medio
 
-76. (Sexualidad - Fácil) La educación sexual ayuda principalmente a:
-A) Comprender el cuerpo y relaciones sanas
-B) Aprender matemáticas
-C) Aprender idiomas
-D) Aprender deportes
-Respuesta correcta: A
+117. ¿Qué chica reality es conocida como “Nachita”?
+A) Ignacia Michelson
+B) Kel Calderón
+C) Laura Prieto
+D) Faloon Larraguibel
+Respuesta: Ignacia Michelson | dificultad: medio
 
-77. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+118. ¿Qué modelo participó en el reality Doble Tentación?
+A) Lisandra Silva
+B) Pamela Díaz
+C) Daniella Chávez
+D) Adriana Barrientos
+Respuesta: Lisandra Silva | dificultad: medio
 
-78. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+119. ¿Quién fue Miss Universo Chile 2021?
+A) Antonia Figueroa
+B) Daniela Nicolás
+C) Camila Recabarren
+D) Daniella Chávez
+Respuesta: Antonia Figueroa | dificultad: medio
 
-79. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+120. ¿Qué modelo participó en Volverías con tu ex?
+A) Camila Recabarren
+B) Adriana Barrientos
+C) Lisandra Silva
+D) Tonka Tomicic
+Respuesta: Camila Recabarren | dificultad: medio
 
-80. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+121. ¿Quién conduce Podemos Hablar?
+A) Diana Bolocco
+B) Tonka Tomicic
+C) Karen Doggenweiler
+D) Eva Gómez
+Respuesta: Diana Bolocco | dificultad: medio
 
-81. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+122. ¿Qué actriz participó en la serie Los 80?
+A) Tamara Acosta
+B) Daniela Vega
+C) Mane Swett
+D) Leonor Varela
+Respuesta: Tamara Acosta | dificultad: medio
 
-82. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+123. ¿Qué influencer chilena estudió derecho?
+A) Kel Calderón
+B) Daniella Chávez
+C) Ignacia Michelson
+D) Adriana Barrientos
+Respuesta: Kel Calderón | dificultad: medio
 
-83. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+124. ¿Qué modelo es famosa por Instagram fitness?
+A) Daniella Chávez
+B) Pamela Díaz
+C) Adriana Barrientos
+D) Faloon Larraguibel
+Respuesta: Daniella Chávez | dificultad: medio
 
-84. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+125. ¿Qué actriz participó en Pacto de Sangre?
+A) Loreto Aravena
+B) Daniela Vega
+C) Mane Swett
+D) Ingrid Cruz
+Respuesta: Loreto Aravena | dificultad: medio
 
-85. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+126. ¿Quién fue panelista en Zona de Estrellas?
+A) Adriana Barrientos
+B) Tonka Tomicic
+C) Diana Bolocco
+D) Karen Doggenweiler
+Respuesta: Adriana Barrientos | dificultad: medio
 
-86. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+127. ¿Qué modelo es famosa por contenido digital para adultos?
+A) Daniella Chávez
+B) Kel Calderón
+C) Tonka Tomicic
+D) Diana Bolocco
+Respuesta: Daniella Chávez | dificultad: medio
 
-87. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+128. ¿Qué influencer tiene millones de seguidores en Instagram?
+A) Kel Calderón
+B) Pamela Díaz
+C) Adriana Barrientos
+D) Faloon Larraguibel
+Respuesta: Kel Calderón | dificultad: medio
 
-88. (Sexualidad - Fácil) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+129. ¿Quién fue jurado en Yo Soy?
+A) Fran García-Huidobro
+B) Tonka Tomicic
+C) Pamela Díaz
+D) Diana Bolocco
+Respuesta: Fran García-Huidobro | dificultad: medio
 
-89. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+130. ¿Qué modelo participó en Pelotón?
+A) Faloon Larraguibel
+B) Daniella Chávez
+C) Adriana Barrientos
+D) Pamela Díaz
+Respuesta: Faloon Larraguibel | dificultad: medio
 
-90. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+131. ¿Qué actriz participó en Machos?
+A) Javiera Díaz de Valdés
+B) Daniela Vega
+C) Mane Swett
+D) Antonia Zegers
+Respuesta: Javiera Díaz de Valdés | dificultad: medio
 
-91. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+132. ¿Qué actriz participó en La Jauría?
+A) Antonia Zegers
+B) Leonor Varela
+C) Daniela Vega
+D) Ingrid Cruz
+Respuesta: Antonia Zegers | dificultad: medio
 
-92. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+133. ¿Qué actriz participó en Verdades Ocultas?
+A) Camila Hirane
+B) Daniela Vega
+C) Leonor Varela
+D) Mane Swett
+Respuesta: Camila Hirane | dificultad: medio
 
-93. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+134. ¿Qué presentadora trabajó en Canal 13?
+A) Tonka Tomicic
+B) Karen Doggenweiler
+C) Diana Bolocco
+D) Eva Gómez
+Respuesta: Tonka Tomicic | dificultad: medio
 
-94. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+135. ¿Qué modelo participó en Mundos Opuestos?
+A) Faloon Larraguibel
+B) Daniella Chávez
+C) Adriana Barrientos
+D) Pamela Díaz
+Respuesta: Faloon Larraguibel | dificultad: medio
 
-95. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+136. ¿Qué actriz participó en Soltera Otra Vez?
+A) Paz Bascuñán
+B) Daniela Vega
+C) Mane Swett
+D) Antonia Zegers
+Respuesta: Paz Bascuñán | dificultad: medio
 
-96. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+137. ¿Qué actriz chilena apareció en Narcos?
+A) Leonor Varela
+B) Daniela Vega
+C) Mane Swett
+D) Tamara Acosta
+Respuesta: Leonor Varela | dificultad: medio
 
-97. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+138. ¿Qué actriz chilena participó en teleseries de Mega?
+A) Ingrid Cruz
+B) Daniela Vega
+C) Leonor Varela
+D) Mane Swett
+Respuesta: Ingrid Cruz | dificultad: medio
 
-98. (Sexualidad - Medio) ¿Qué es importante en relaciones saludables?
-A) Respeto y consentimiento
-B) Competencia
-C) Secreto
-D) Indiferencia
-Respuesta correcta: A
+139. ¿Qué influencer es popular en TikTok Chile?
+A) Ignacia Michelson
+B) Diana Bolocco
+C) Tonka Tomicic
+D) Karen Doggenweiler
+Respuesta: Ignacia Michelson | dificultad: medio
 
-99. (Autos - Fácil) ¿Qué marca fabrica el Corolla?
+140. ¿Qué modelo es conocida como “La Fiera de la TV”?
+A) Pamela Díaz
+B) Adriana Barrientos
+C) Daniella Chávez
+D) Tonka Tomicic
+Respuesta: Pamela Díaz | dificultad: medio
+
+141. ¿Cuántos minutos dura en promedio una relación sexual según estudios?
+A) 5-7
+B) 10-12
+C) 20-25
+D) 30-40
+Respuesta: 5-7 | dificultad: medio
+
+142. ¿Qué hormona se relaciona con el deseo sexual?
+A) Testosterona
+B) Insulina
+C) Melatonina
+D) Adrenalina
+Respuesta: Testosterona | dificultad: medio
+
+143. ¿Qué factor puede reducir el deseo sexual?
+A) Estrés
+B) Ejercicio
+C) Hidratación
+D) Descanso
+Respuesta: Estrés | dificultad: medio
+
+144. ¿Qué especialista trata problemas sexuales?
+A) Sexólogo
+B) Cardiólogo
+C) Dermatólogo
+D) Traumatólogo
+Respuesta: Sexólogo | dificultad: medio
+
+145. ¿Qué hábito mejora la salud sexual?
+A) Ejercicio
+B) Fumar
+C) Dormir poco
+D) Sedentarismo
+Respuesta: Ejercicio | dificultad: medio
+
+146. ¿Qué órgano bombea sangre en el cuerpo?
+A) Corazón
+B) Pulmón
+C) Hígado
+D) Riñón
+Respuesta: Corazón | dificultad: medio
+
+147. ¿Qué actividad mejora la circulación sanguínea?
+A) Caminar
+B) Dormir
+C) Comer dulces
+D) Ver TV
+Respuesta: Caminar | dificultad: medio
+
+148. ¿Qué vitamina ayuda al metabolismo energético?
+A) Vitamina B
+B) Vitamina C
+C) Vitamina D
+D) Vitamina K
+Respuesta: Vitamina B | dificultad: medio
+
+149. ¿Qué factor psicológico mejora la vida sexual?
+A) Comunicación
+B) Celos
+C) Estrés
+D) Falta de sueño
+Respuesta: Comunicación | dificultad: medio
+
+150. ¿Qué edad aparece en estudios como inicio promedio de vida sexual?
+A) 16-20
+B) 10-12
+C) 25-30
+D) 40+
+Respuesta: 16-20 | dificultad: medio
+
+151. ¿Qué factor ayuda a la intimidad en pareja?
+A) Confianza
+B) Celos
+C) Discusiones
+D) Estrés
+Respuesta: Confianza | dificultad: medio
+
+152. ¿Qué actividad física mejora la salud sexual?
+A) Ejercicio
+B) Sedentarismo
+C) Dormir poco
+D) Fumar
+Respuesta: Ejercicio | dificultad: medio
+
+153. ¿Qué hormona aumenta con el enamoramiento?
+A) Oxitocina
+B) Insulina
+C) Cortisol
+D) Melatonina
+Respuesta: Oxitocina | dificultad: medio
+
+154. ¿Qué factor afecta negativamente la libido?
+A) Estrés
+B) Comunicación
+C) Ejercicio
+D) Descanso
+Respuesta: Estrés | dificultad: medio
+
+155. ¿Qué hábito mejora el bienestar general?
+A) Dormir bien
+B) Dormir poco
+C) Fumar
+D) Comer mal
+Respuesta: Dormir bien | dificultad: medio
+
+156. ¿Qué actividad fortalece la relación de pareja?
+A) Comunicación
+B) Ignorar
+C) Celos
+D) Distancia
+Respuesta: Comunicación | dificultad: medio
+
+157. ¿Qué vitamina ayuda a la energía corporal?
+A) Vitamina B12
+B) Vitamina C
+C) Vitamina A
+D) Vitamina K
+Respuesta: Vitamina B12 | dificultad: medio
+
+158. ¿Qué factor aumenta la confianza en pareja?
+A) Honestidad
+B) Mentiras
+C) Celos
+D) Control
+Respuesta: Honestidad | dificultad: medio
+
+159. ¿Qué actividad reduce el estrés?
+A) Ejercicio
+B) Sedentarismo
+C) Fumar
+D) Dormir poco
+Respuesta: Ejercicio | dificultad: medio
+
+160. ¿Qué hormona se libera con el afecto?
+A) Oxitocina
+B) Cortisol
+C) Insulina
+D) Melatonina
+Respuesta: Oxitocina | dificultad: medio
+
+161. ¿Qué hábito mejora la salud mental?
+A) Dormir bien
+B) Dormir poco
+C) Fumar
+D) Estrés
+Respuesta: Dormir bien | dificultad: medio
+
+162. ¿Qué factor fortalece una relación?
+A) Comunicación
+B) Celos
+C) Mentiras
+D) Estrés
+Respuesta: Comunicación | dificultad: medio
+
+163. ¿Qué actividad mejora la circulación?
+A) Caminar
+B) Sedentarismo
+C) Dormir poco
+D) Fumar
+Respuesta: Caminar | dificultad: medio
+
+164. ¿Qué factor mejora la intimidad?
+A) Confianza
+B) Celos
+C) Estrés
+D) Discusiones
+Respuesta: Confianza | dificultad: medio
+
+165. ¿Qué hormona se asocia al placer?
+A) Dopamina
+B) Insulina
+C) Melatonina
+D) Cortisol
+Respuesta: Dopamina | dificultad: medio
+
+166. ¿Qué hábito mejora el bienestar físico?
+A) Ejercicio
+B) Sedentarismo
+C) Fumar
+D) Dormir poco
+Respuesta: Ejercicio | dificultad: medio
+
+167. ¿Qué factor mejora la relación de pareja?
+A) Respeto
+B) Celos
+C) Control
+D) Estrés
+Respuesta: Respeto | dificultad: medio
+
+168. ¿Qué actividad mejora la salud cardiovascular?
+A) Caminar
+B) Sedentarismo
+C) Dormir poco
+D) Fumar
+Respuesta: Caminar | dificultad: medio
+
+169. ¿Qué hábito mejora la energía diaria?
+A) Dormir bien
+B) Dormir poco
+C) Fumar
+D) Comer mal
+Respuesta: Dormir bien | dificultad: medio
+
+170. ¿Qué factor mejora la vida sexual?
+A) Comunicación
+B) Estrés
+C) Celos
+D) Discusiones
+Respuesta: Comunicación | dificultad: medio
+
+171. ¿Qué marca fabrica la Hilux?
 A) Toyota
 B) Ford
-C) BMW
-D) Kia
-Respuesta correcta: A
+C) Chevrolet
+D) Nissan
+Respuesta: Toyota | dificultad: medio
 
-100. (Autos - Medio) ¿Qué marca alemana tiene el logo de cuatro anillos?
-A) Audi
-B) BMW
+172. ¿Qué marca tiene logo azul y blanco?
+A) BMW
+B) Audi
 C) Mercedes
 D) Volkswagen
-Respuesta correcta: A
+Respuesta: BMW | dificultad: medio
 
-101. (Autos - Fácil) ¿Qué marca fabrica el Mustang?
+173. ¿Qué marca produce el Mustang?
 A) Ford
 B) Chevrolet
+C) Dodge
+D) Toyota
+Respuesta: Ford | dificultad: medio
+
+174. ¿Qué marca fabrica el Corolla?
+A) Toyota
+B) Honda
+C) Mazda
+D) Kia
+Respuesta: Toyota | dificultad: medio
+
+175. ¿Qué marca fabrica motos deportivas populares?
+A) Yamaha
+B) Sony
+C) Apple
+D) Dell
+Respuesta: Yamaha | dificultad: medio
+
+176. ¿Qué marca tiene el logo de cuatro aros?
+A) Audi
+B) BMW
+C) Opel
+D) Fiat
+Respuesta: Audi | dificultad: medio
+
+177. ¿Qué marca fabrica el Civic?
+A) Honda
+B) Toyota
+C) Nissan
+D) Mazda
+Respuesta: Honda | dificultad: medio
+
+178. ¿De qué país es Ferrari?
+A) Italia
+B) Alemania
+C) Francia
+D) España
+Respuesta: Italia | dificultad: medio
+
+179. ¿Qué marca fabrica el Camaro?
+A) Chevrolet
+B) Ford
 C) Toyota
 D) Honda
-Respuesta correcta: A
+Respuesta: Chevrolet | dificultad: medio
 
-102. (Autos - Fácil) ¿Qué marca es japonesa?
+180. ¿Qué marca produce el GT-R?
+A) Nissan
+B) Toyota
+C) Mazda
+D) Subaru
+Respuesta: Nissan | dificultad: medio
+
+181. ¿Qué marca fabrica el Golf?
+A) Volkswagen
+B) Audi
+C) BMW
+D) Ford
+Respuesta: Volkswagen | dificultad: medio
+
+182. ¿Qué marca fabrica el Supra?
+A) Toyota
+B) Honda
+C) Mazda
+D) Nissan
+Respuesta: Toyota | dificultad: medio
+
+183. ¿Qué marca fabrica la moto Ninja?
+A) Kawasaki
+B) Yamaha
+C) Honda
+D) Suzuki
+Respuesta: Kawasaki | dificultad: medio
+
+184. ¿Qué marca fabrica la Ranger?
+A) Ford
+B) Toyota
+C) Nissan
+D) Chevrolet
+Respuesta: Ford | dificultad: medio
+
+185. ¿Qué marca fabrica el Civic Type R?
 A) Honda
+B) Toyota
+C) Mazda
+D) Subaru
+Respuesta: Honda | dificultad: medio
+
+186. ¿Qué marca produce el modelo Focus?
+A) Ford
+B) Toyota
+C) Honda
+D) Kia
+Respuesta: Ford | dificultad: medio
+
+187. ¿Qué marca fabrica el modelo Yaris?
+A) Toyota
+B) Honda
+C) Mazda
+D) Nissan
+Respuesta: Toyota | dificultad: medio
+
+188. ¿Qué marca fabrica el modelo Swift?
+A) Suzuki
+B) Toyota
+C) Honda
+D) Mazda
+Respuesta: Suzuki | dificultad: medio
+
+189. ¿Qué marca produce el modelo CX-5?
+A) Mazda
+B) Toyota
+C) Honda
+D) Nissan
+Respuesta: Mazda | dificultad: medio
+
+190. ¿Qué marca fabrica el modelo Outlander?
+A) Mitsubishi
+B) Toyota
+C) Honda
+D) Nissan
+Respuesta: Mitsubishi | dificultad: medio
+
+191. ¿Qué marca produce el modelo Tucson?
+A) Hyundai
+B) Kia
+C) Toyota
+D) Honda
+Respuesta: Hyundai | dificultad: medio
+
+192. ¿Qué marca fabrica el modelo Sportage?
+A) Kia
+B) Hyundai
+C) Toyota
+D) Nissan
+Respuesta: Kia | dificultad: medio
+
+193. ¿Qué marca fabrica el modelo Impreza?
+A) Subaru
+B) Toyota
+C) Mazda
+D) Honda
+Respuesta: Subaru | dificultad: medio
+
+194. ¿Qué marca produce el modelo Wrangler?
+A) Jeep
+B) Ford
+C) Toyota
+D) Nissan
+Respuesta: Jeep | dificultad: medio
+
+195. ¿Qué marca fabrica el modelo 911?
+A) Porsche
+B) BMW
+C) Audi
+D) Mercedes
+Respuesta: Porsche | dificultad: medio
+
+196. ¿Qué marca produce el modelo Model 3?
+A) Tesla
+B) Toyota
+C) BMW
+D) Ford
+Respuesta: Tesla | dificultad: medio
+
+197. ¿Qué marca fabrica el modelo Sandero?
+A) Dacia
+B) Renault
+C) Fiat
+D) Peugeot
+Respuesta: Dacia | dificultad: medio
+
+198. ¿Qué marca produce el modelo Clio?
+A) Renault
 B) Peugeot
 C) Fiat
-D) Renault
-Respuesta correcta: A
+D) Toyota
+Respuesta: Renault | dificultad: medio
 
-103. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
+199. ¿Qué marca fabrica el modelo 208?
+A) Peugeot
+B) Renault
 C) Fiat
-D) Renault
-Respuesta correcta: A
+D) Toyota
+Respuesta: Peugeot | dificultad: medio
 
-104. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
+200. ¿Qué marca fabrica el modelo Panda?
+A) Fiat
+B) Renault
+C) Peugeot
+D) Toyota
+Respuesta: Fiat | dificultad: medio
 
-105. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
+201. ¿Cuál es la capital de la Región de O'Higgins?
+A) Rancagua
+B) San Fernando
+C) Santa Cruz
+D) Machalí
+Respuesta: Rancagua | dificultad: medio
 
-106. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-107. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-108. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-109. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-110. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-111. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-112. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-113. (Autos - Fácil) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-114. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-115. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-116. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-117. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-118. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-119. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-120. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-121. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-122. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-123. (Autos - Medio) ¿Qué marca es japonesa?
-A) Honda
-B) Peugeot
-C) Fiat
-D) Renault
-Respuesta correcta: A
-
-124. (Animales - Medio) ¿Cuál es el animal terrestre más rápido?
-A) Guepardo
-B) León
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-125. (Animales - Fácil) ¿Qué animal es conocido como el rey de la selva?
-A) León
-B) Tigre
-C) Elefante
-D) Jaguar
-Respuesta correcta: A
-
-126. (Animales - Medio) ¿Cuál es el mamífero más grande?
-A) Ballena azul
-B) Elefante
-C) Jirafa
-D) Hipopótamo
-Respuesta correcta: A
-
-127. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-128. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-129. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-130. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-131. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-132. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-133. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-134. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-135. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-136. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-137. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-138. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-139. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-140. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-141. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-142. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-143. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-144. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-145. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-146. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-147. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-148. (Animales - Fácil) ¿Qué animal puede volar?
-A) Águila
-B) Elefante
-C) Tigre
-D) Caballo
-Respuesta correcta: A
-
-149. (Chile - Fácil) ¿Cuál es la capital de Chile?
+202. ¿Cuál es la capital de Chile?
 A) Santiago
 B) Valparaíso
 C) Concepción
 D) La Serena
-Respuesta correcta: A
+Respuesta: Santiago | dificultad: medio
 
-150. (Chile - Fácil) ¿Cuál es la moneda de Chile?
-A) Peso chileno
-B) Sol
-C) Peso argentino
-D) Dólar
-Respuesta correcta: A
+203. ¿En qué año Chile ganó su primera Copa América?
+A) 2015
+B) 2016
+C) 2007
+D) 1998
+Respuesta: 2015 | dificultad: medio
 
-151. (Chile - Fácil) ¿Qué cordillera atraviesa Chile?
-A) Los Andes
+204. ¿Qué poeta chileno ganó el Premio Nobel de Literatura en 1971?
+A) Pablo Neruda
+B) Gabriela Mistral
+C) Vicente Huidobro
+D) Nicanor Parra
+Respuesta: Pablo Neruda | dificultad: medio
+
+205. ¿Qué poeta chilena ganó el Nobel en 1945?
+A) Gabriela Mistral
+B) Violeta Parra
+C) Isabel Allende
+D) Marta Brunet
+Respuesta: Gabriela Mistral | dificultad: medio
+
+206. ¿Cuál es el baile nacional de Chile?
+A) Cueca
+B) Tango
+C) Cumbia
+D) Salsa
+Respuesta: Cueca | dificultad: medio
+
+207. ¿Qué desierto está en el norte de Chile?
+A) Atacama
+B) Sahara
+C) Mojave
+D) Sonora
+Respuesta: Atacama | dificultad: medio
+
+208. ¿Qué isla famosa pertenece a Chile en el Pacífico?
+A) Isla de Pascua
+B) Isla Galápagos
+C) Isla Fiji
+D) Isla Bora Bora
+Respuesta: Isla de Pascua | dificultad: medio
+
+209. ¿Cuál es el plato típico chileno hecho con carne y cebolla?
+A) Empanada
+B) Sushi
+C) Pizza
+D) Pasta
+Respuesta: Empanada | dificultad: medio
+
+210. ¿Qué ciudad es conocida como “La Perla del Pacífico”?
+A) Valparaíso
+B) Viña del Mar
+C) Iquique
+D) Antofagasta
+Respuesta: Valparaíso | dificultad: medio
+
+211. ¿Qué cordillera recorre Chile?
+A) Andes
 B) Alpes
 C) Himalaya
 D) Pirineos
-Respuesta correcta: A
+Respuesta: Andes | dificultad: medio
 
-152. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
+212. ¿Qué bebida alcohólica es típica de Chile?
+A) Pisco
+B) Tequila
+C) Vodka
+D) Whisky
+Respuesta: Pisco | dificultad: medio
 
-153. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
+213. ¿Qué fiesta nacional se celebra el 18 de septiembre?
+A) Fiestas Patrias
+B) Año Nuevo
+C) Navidad
+D) Pascua
+Respuesta: Fiestas Patrias | dificultad: medio
 
-154. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
+214. ¿Qué ciudad es famosa por el Festival de la Canción?
+A) Viña del Mar
+B) Santiago
+C) Concepción
+D) Iquique
+Respuesta: Viña del Mar | dificultad: medio
 
-155. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
+215. ¿Qué animal aparece en el escudo nacional?
+A) Cóndor
+B) Águila
+C) Puma
+D) León
+Respuesta: Cóndor | dificultad: medio
 
-156. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-157. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-158. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-159. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-160. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-161. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-162. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-163. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-164. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-165. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-166. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-167. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-168. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-169. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-170. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-171. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-172. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-173. (Chile - Fácil) Chile se encuentra en qué continente?
-A) América del Sur
-B) Europa
-C) Asia
-D) África
-Respuesta correcta: A
-
-174. (Minería - Medio) ¿Cuál es la mina subterránea más grande del mundo cerca de Rancagua?
-A) El Teniente
-B) Chuquicamata
-C) Escondida
-D) Collahuasi
-Respuesta correcta: A
-
-175. (Minería - Medio) ¿Qué empresa estatal chilena administra El Teniente?
-A) Codelco
-B) BHP
-C) Anglo American
-D) Antofagasta Minerals
-Respuesta correcta: A
-
-176. (Minería - Fácil) ¿Qué mineral se extrae principalmente en El Teniente?
+216. ¿Qué mineral es el principal recurso de exportación de Chile?
 A) Cobre
 B) Oro
 C) Plata
-D) Litio
-Respuesta correcta: A
+D) Hierro
+Respuesta: Cobre | dificultad: medio
 
-177. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+217. ¿Qué ciudad es capital de la Región del Biobío?
+A) Concepción
+B) Chillán
+C) Los Ángeles
+D) Talcahuano
+Respuesta: Concepción | dificultad: medio
 
-178. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+218. ¿Qué escritor chileno escribió “La casa de los espíritus”?
+A) Isabel Allende
+B) Pablo Neruda
+C) Roberto Bolaño
+D) Gabriela Mistral
+Respuesta: Isabel Allende | dificultad: medio
 
-179. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+219. ¿Qué volcán famoso está cerca de Pucón?
+A) Villarrica
+B) Osorno
+C) Llaima
+D) Calbuco
+Respuesta: Villarrica | dificultad: medio
 
-180. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+220. ¿Qué mar baña las costas de Chile?
+A) Pacífico
+B) Atlántico
+C) Índico
+D) Ártico
+Respuesta: Pacífico | dificultad: medio
 
-181. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+221. ¿Qué ciudad es conocida como la capital minera de Chile?
+A) Calama
+B) Iquique
+C) Copiapó
+D) Antofagasta
+Respuesta: Calama | dificultad: medio
 
-182. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+222. ¿Qué región es famosa por el vino chileno?
+A) Valle Central
+B) Patagonia
+C) Atacama
+D) Altiplano
+Respuesta: Valle Central | dificultad: medio
 
-183. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+223. ¿Qué isla chilena es famosa por sus moáis?
+A) Isla de Pascua
+B) Chiloé
+C) Juan Fernández
+D) Wellington
+Respuesta: Isla de Pascua | dificultad: medio
 
-184. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+224. ¿Qué instrumento usa la música folclórica chilena?
+A) Charango
+B) Violín
+C) Trompeta
+D) Saxofón
+Respuesta: Charango | dificultad: medio
 
-185. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+225. ¿Qué animal es símbolo de la Patagonia chilena?
+A) Huemul
+B) Jaguar
+C) Tigre
+D) León
+Respuesta: Huemul | dificultad: medio
 
-186. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+226. ¿Qué ciudad es capital de la Región del Maule?
+A) Talca
+B) Curicó
+C) Linares
+D) Constitución
+Respuesta: Talca | dificultad: medio
 
-187. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+227. ¿Qué parque nacional es famoso por las Torres del Paine?
+A) Torres del Paine
+B) Conguillío
+C) Lauca
+D) Nahuelbuta
+Respuesta: Torres del Paine | dificultad: medio
 
-188. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+228. ¿Qué isla grande está en el sur de Chile?
+A) Chiloé
+B) Pascua
+C) Juan Fernández
+D) Guam
+Respuesta: Chiloé | dificultad: medio
 
-189. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+229. ¿Qué ciudad es conocida por su puerto histórico?
+A) Valparaíso
+B) Santiago
+C) Temuco
+D) Rancagua
+Respuesta: Valparaíso | dificultad: medio
 
-190. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+230. ¿Qué ciudad es capital de la Región de Coquimbo?
+A) La Serena
+B) Ovalle
+C) Coquimbo
+D) Illapel
+Respuesta: La Serena | dificultad: medio
 
-191. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+231. ¿Qué cordillera separa Chile de Argentina?
+A) Andes
+B) Alpes
+C) Himalaya
+D) Urales
+Respuesta: Andes | dificultad: medio
 
-192. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+232. ¿Qué ciudad es capital de la Región de Los Lagos?
+A) Puerto Montt
+B) Osorno
+C) Castro
+D) Ancud
+Respuesta: Puerto Montt | dificultad: medio
 
-193. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+233. ¿Qué río es uno de los más largos de Chile?
+A) Biobío
+B) Amazonas
+C) Paraná
+D) Mississippi
+Respuesta: Biobío | dificultad: medio
 
-194. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+234. ¿Qué ciudad es capital de la Región de la Araucanía?
+A) Temuco
+B) Angol
+C) Villarrica
+D) Lautaro
+Respuesta: Temuco | dificultad: medio
 
-195. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+235. ¿Qué bebida chilena mezcla vino tinto con helado de piña?
+A) Navegado
+B) Terremoto
+C) Borgoña
+D) Pisco Sour
+Respuesta: Terremoto | dificultad: medio
 
-196. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+236. ¿Qué animal es típico de los Andes chilenos?
+A) Llama
+B) Elefante
+C) Tigre
+D) Canguro
+Respuesta: Llama | dificultad: medio
 
-197. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+237. ¿Qué ciudad es capital de la Región de Atacama?
+A) Copiapó
+B) Vallenar
+C) Caldera
+D) Chañaral
+Respuesta: Copiapó | dificultad: medio
 
-198. (Minería - Fácil) La minería en la zona de Rancagua es importante principalmente por:
-A) Producción de cobre
-B) Producción de carbón
-C) Producción de diamantes
-D) Producción de petróleo
-Respuesta correcta: A
+238. ¿Qué archipiélago está al sur de Chile?
+A) Chiloé
+B) Pascua
+C) Galápagos
+D) Malvinas
+Respuesta: Chiloé | dificultad: medio
 
+239. ¿Qué ciudad es capital de Magallanes?
+A) Punta Arenas
+B) Puerto Natales
+C) Porvenir
+D) Coyhaique
+Respuesta: Punta Arenas | dificultad: medio
+
+240. ¿Qué escritor chileno escribió “2666”?
+A) Roberto Bolaño
+B) Neruda
+C) Huidobro
+D) Mistral
+Respuesta: Roberto Bolaño | dificultad: medio
+
+241. ¿Qué animal vive en la cordillera chilena?
+A) Cóndor
+B) Águila
+C) Halcón
+D) Búho
+Respuesta: Cóndor | dificultad: medio
+
+242. ¿Qué ciudad es capital de la Región de Antofagasta?
+A) Antofagasta
+B) Calama
+C) Tocopilla
+D) Mejillones
+Respuesta: Antofagasta | dificultad: medio
+
+243. ¿Qué región produce gran parte del vino chileno?
+A) O’Higgins
+B) Atacama
+C) Arica
+D) Magallanes
+Respuesta: O’Higgins | dificultad: medio
+
+244. ¿Qué ciudad es capital de la Región de Los Ríos?
+A) Valdivia
+B) Osorno
+C) La Unión
+D) Río Bueno
+Respuesta: Valdivia | dificultad: medio
+
+245. ¿Qué plato chileno lleva papas, zapallo y choclo?
+A) Pastel de choclo
+B) Cazuela
+C) Curanto
+D) Empanada
+Respuesta: Pastel de choclo | dificultad: medio
+
+246. ¿Qué ciudad es capital de Aysén?
+A) Coyhaique
+B) Puerto Aysén
+C) Chile Chico
+D) Cochrane
+Respuesta: Coyhaique | dificultad: medio
+
+247. ¿Qué lago famoso está en la Región de la Araucanía?
+A) Villarrica
+B) Llanquihue
+C) Todos los Santos
+D) General Carrera
+Respuesta: Villarrica | dificultad: medio
+
+248. ¿Qué ciudad es capital de Arica y Parinacota?
+A) Arica
+B) Putre
+C) Camarones
+D) Iquique
+Respuesta: Arica | dificultad: medio
+
+249. ¿Qué ciudad es capital de Tarapacá?
+A) Iquique
+B) Alto Hospicio
+C) Pozo Almonte
+D) Pica
+Respuesta: Iquique | dificultad: medio
+
+250. ¿Qué montaña es la más alta de América?
+A) Aconcagua
+B) Everest
+C) K2
+D) Denali
+Respuesta: Aconcagua | dificultad: medio
