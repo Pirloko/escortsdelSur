@@ -1172,23 +1172,12 @@ export default function Cuenta() {
     let creditsToSet: number | null = null;
 
     if (tienePromo && coste != null && coste > 0) {
-      // Usar estado (mismo que la UI) para evitar discrepancia; fallback a fetch si no hay datos
-      let creditsPerfil = (escortProfile as { credits?: number })?.credits ?? 0;
-      let creditsPublisher = publisherCredits;
-      let totalDisponibles = creditsPerfil + creditsPublisher;
-      if (totalDisponibles === 0 && (creditsTotalInEditView ?? 0) > 0) {
-        const { data: rowCredits } = await supabase
-          .from("escort_profiles")
-          .select("credits")
-          .eq("id", escortProfile.id)
-          .maybeSingle();
-        creditsPerfil = (rowCredits as { credits?: number } | null)?.credits ?? 0;
-        const { data: rowProfile } = await supabase
-          .from("profiles")
-          .select("publisher_credits")
-          .eq("id", user.id)
-          .maybeSingle();
-        creditsPublisher = (rowProfile as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+      // Validación: usar el mismo total que muestra la UI (creditsTotalInEditView) para evitar "Tienes 0" cuando la UI muestra saldo
+      const totalDesdeUI = creditsTotalInEditView ?? 0;
+      let totalDisponibles = totalDesdeUI;
+      if (totalDesdeUI === 0) {
+        const creditsPerfil = (escortProfile as { credits?: number })?.credits ?? 0;
+        const creditsPublisher = publisherCredits;
         totalDisponibles = creditsPerfil + creditsPublisher;
       }
       if (totalDisponibles < coste) {
@@ -1196,19 +1185,70 @@ export default function Cuenta() {
         setPromoSaving(false);
         return;
       }
-      const restarDePerfil = Math.min(creditsPerfil, coste);
-      const restarDePublisher = coste - restarDePerfil;
-      creditsToSet = Math.max(0, creditsPerfil - restarDePerfil);
 
-      if (restarDePublisher > 0) {
-        const nuevosCreditsPublisher = Math.max(0, creditsPublisher - restarDePublisher);
+      // Deducción: obtener créditos de todos los perfiles y publisher para descontar (perfil actual primero, luego publisher, luego otros)
+      const { data: allProfiles } = await supabase
+        .from("escort_profiles")
+        .select("id, credits")
+        .eq("user_id", user.id);
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("publisher_credits")
+        .eq("id", user.id)
+        .maybeSingle();
+      const creditsByProfile = (allProfiles ?? []) as { id: string; credits?: number }[];
+      const publisherCreditsNow = (profileRow as { publisher_credits?: number } | null)?.publisher_credits ?? 0;
+
+      let restante = coste;
+      const updates: { id: string; newCredits: number }[] = [];
+      const currentId = escortProfile.id;
+
+      // Descontar primero del perfil actual
+      const currentCredits = creditsByProfile.find((r) => r.id === currentId)?.credits ?? 0;
+      const restarActual = Math.min(currentCredits, restante);
+      restante -= restarActual;
+      creditsToSet = Math.max(0, currentCredits - restarActual);
+      if (restarActual > 0) updates.push({ id: currentId, newCredits: creditsToSet });
+
+      // Luego de publisher_credits
+      let nuevosPublisherCredits = publisherCreditsNow;
+      if (restante > 0 && publisherCreditsNow > 0) {
+        const restarPub = Math.min(publisherCreditsNow, restante);
+        restante -= restarPub;
+        nuevosPublisherCredits = Math.max(0, publisherCreditsNow - restarPub);
+      }
+      if (nuevosPublisherCredits !== publisherCreditsNow) {
         const { error: updatePublisherErr } = await supabase
           .from("profiles")
           // @ts-expect-error publisher_credits en schema
-          .update({ publisher_credits: nuevosCreditsPublisher, updated_at: new Date().toISOString() })
+          .update({ publisher_credits: nuevosPublisherCredits, updated_at: new Date().toISOString() })
           .eq("id", user.id);
         if (updatePublisherErr) {
           setPromoMessage(updatePublisherErr.message);
+          setPromoSaving(false);
+          return;
+        }
+      }
+
+      // Si sigue faltando, descontar de otros perfiles
+      const otros = creditsByProfile.filter((r) => r.id !== currentId);
+      for (const row of otros) {
+        if (restante <= 0) break;
+        const cr = row.credits ?? 0;
+        if (cr <= 0) continue;
+        const restar = Math.min(cr, restante);
+        restante -= restar;
+        updates.push({ id: row.id, newCredits: Math.max(0, cr - restar) });
+      }
+      for (const u of updates) {
+        if (u.id === currentId) continue; // ya lo aplicamos en creditsToSet
+        const { error: err } = await supabase
+          .from("escort_profiles")
+          // @ts-expect-error credits en schema
+          .update({ credits: u.newCredits, updated_at: new Date().toISOString() })
+          .eq("id", u.id);
+        if (err) {
+          setPromoMessage(err.message);
           setPromoSaving(false);
           return;
         }

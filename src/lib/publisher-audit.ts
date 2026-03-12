@@ -16,6 +16,7 @@ export type PublisherAuditEventType =
  * Registra un evento de auditoría para un usuario publicador.
  * Solo se usa cuando el usuario actual es el publicador (auth.uid() = user_id).
  * RLS permite INSERT solo si auth.uid() = user_id.
+ * Si no hay sesión válida (token expirado, etc.) no se hace la petición para evitar 401.
  */
 export async function recordPublisherAudit(
   userId: string,
@@ -23,6 +24,10 @@ export async function recordPublisherAudit(
   options?: { escortProfileId?: string | null; details?: Record<string, unknown> }
 ): Promise<void> {
   if (!supabase) return;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user || session.user.id !== userId) return;
+  const expiresAt = session.expires_at;
+  if (typeof expiresAt === "number" && expiresAt * 1000 < Date.now()) return;
   const { escortProfileId = null, details = null } = options ?? {};
   await supabase.from("publisher_audit_log").insert({
     user_id: userId,
