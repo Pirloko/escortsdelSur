@@ -155,7 +155,7 @@ const CityPage = () => {
     age: p.age,
     city: city.name,
     badge: p.badge ?? "Perfil",
-    image: p.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+    image: p.image ?? "/marcadeagua.png",
     available: p.available,
     whatsapp: (p as EscortRow).whatsapp ?? null,
     promotion: (p as EscortRow).promotion ?? null,
@@ -374,7 +374,7 @@ const CityPage = () => {
           width={1200}
           height={480}
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
           decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 from-15% via-background/35 via-45% to-transparent" />

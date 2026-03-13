@@ -407,7 +407,7 @@ export default function MiPerfil() {
       age: f.escort_profiles!.age,
       city: f.escort_profiles!.cities?.name ?? "",
       badge: f.escort_profiles!.badge ?? "Perfil",
-      image: f.escort_profiles!.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+      image: f.escort_profiles!.image ?? "/marcadeagua.png",
       available: f.escort_profiles!.available,
     }));
 
@@ -648,7 +648,7 @@ export default function MiPerfil() {
                   age: v.escort_profiles!.age,
                   city: v.escort_profiles!.cities?.name ?? "",
                   badge: v.escort_profiles!.badge ?? "Perfil",
-                  image: v.escort_profiles!.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+                  image: v.escort_profiles!.image ?? "/marcadeagua.png",
                   available: v.escort_profiles!.available,
                 }))
                 .map((p) => (

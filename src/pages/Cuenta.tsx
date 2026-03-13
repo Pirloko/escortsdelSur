@@ -438,12 +438,12 @@ export default function Cuenta() {
             </p>
             <div className="space-y-3">
               {profilesList.map((p) => {
-                const isExpired = p.active_until ? new Date(p.active_until) < new Date() : false;
-                const thumb =
-                  p.image ||
-                  (Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery[0] : null) ||
-                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80";
-                return (
+              const isExpired = p.active_until ? new Date(p.active_until) < new Date() : false;
+              const thumb =
+                p.image ||
+                (Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery[0] : null) ||
+                "/marcadeagua.png";
+              return (
                   <div
                     key={p.id}
                     className="p-4 rounded-xl border border-border bg-card flex flex-wrap items-center justify-between gap-3"
@@ -1112,17 +1112,17 @@ export default function Cuenta() {
   const canEditSubidas = isProfileExpired || !hasActivePromotionInDb;
 
   const handleActivar7Dias = async () => {
-    if (!supabase || !profile?.id) return;
+    if (!supabase || !profileData?.id) return;
     setActivating(true);
     const newActiveUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const { error } = await supabase
       .from("escort_profiles")
       // @ts-expect-error Supabase generated types pueden no incluir active_until todavía
       .update({ active_until: newActiveUntil, available: true, updated_at: new Date().toISOString() })
-      .eq("id", profile.id);
+      .eq("id", profileData.id);
     setActivating(false);
     if (!error) {
-      recordPublisherAudit(user.id, "activate_7d", { escortProfileId: profile.id }).catch(() => {});
+      recordPublisherAudit(user.id, "activate_7d", { escortProfileId: profileData.id }).catch(() => {});
       setActiveUntil(newActiveUntil);
       setAvailable(true);
       setMessage("Perfil visible 7 días más.");
@@ -1130,17 +1130,17 @@ export default function Cuenta() {
   };
 
   const handlePausarPerfil = async () => {
-    if (!supabase || !profile?.id) return;
+    if (!supabase || !profileData?.id) return;
     setPausing(true);
     const nowIso = new Date().toISOString();
     const { error } = await supabase
       .from("escort_profiles")
       // @ts-expect-error Supabase generated types pueden no incluir active_until todavía
       .update({ active_until: nowIso, available: false, updated_at: nowIso })
-      .eq("id", profile.id);
+      .eq("id", profileData.id);
     setPausing(false);
     if (!error) {
-      recordPublisherAudit(user.id, "pause_profile", { escortProfileId: profile.id }).catch(() => {});
+      recordPublisherAudit(user.id, "pause_profile", { escortProfileId: profileData.id }).catch(() => {});
       setActiveUntil(nowIso);
       setAvailable(false);
       setMessage("Perfil pausado. Ya no apareces en los listados.");
@@ -1317,6 +1317,8 @@ export default function Cuenta() {
         details: { type: promotion.trim(), tienePromo },
       }).catch(() => {});
       setPromoMessage("Promoción guardada.");
+      setPromoDialogOpen(false);
+      navigate("/cuenta", { replace: true });
       if (tienePromo && coste != null && coste > 0) {
         setCreditsTotalInEditView((prev) => (prev != null ? prev - coste : null));
         // Refrescar total de créditos desde el servidor para que coincida con el descuento aplicado
@@ -1377,6 +1379,11 @@ export default function Cuenta() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supabase) return;
+    const escortId = profileData?.id;
+    if (!escortId) {
+      setMessage("Perfil no cargado. Vuelve al listado e intenta de nuevo.");
+      return;
+    }
     if (servicesIncluded.length < 3) {
       setMessage("Selecciona al menos 3 etiquetas en Servicios incluidos.");
       return;
@@ -1406,44 +1413,45 @@ export default function Cuenta() {
         services_extra: servicesExtra,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", profile.id);
+      .eq("id", escortId);
     setSaving(false);
     if (error) setMessage(error.message);
     else {
-      recordPublisherAudit(user.id, "edit_profile", { escortProfileId: profile.id }).catch(() => {});
+      recordPublisherAudit(user.id, "edit_profile", { escortProfileId: escortId }).catch(() => {});
       setMessage("Guardado.");
       setShowEditForm(false);
     }
   };
 
   const handlePausar = async () => {
-    if (!supabase) return;
+    if (!supabase || !profileData?.id) return;
     setSaving(true);
     const newAvailable = !available;
     const { error } = await supabase
       .from("escort_profiles")
       // @ts-expect-error Supabase generated types pueden quedarse desfasados frente al schema real
       .update({ available: newAvailable, updated_at: new Date().toISOString() })
-      .eq("id", profile.id);
+      .eq("id", profileData.id);
     setSaving(false);
     if (!error) {
-      recordPublisherAudit(user.id, newAvailable ? "unpause_profile" : "pause_profile", { escortProfileId: profile.id }).catch(() => {});
+      recordPublisherAudit(user.id, newAvailable ? "unpause_profile" : "pause_profile", { escortProfileId: profileData.id }).catch(() => {});
       setAvailable(newAvailable);
       setMessage(newAvailable ? "Perfil activado." : "Perfil pausado.");
     } else setMessage(error.message);
   };
 
   const handleEliminar = async () => {
-    if (!supabase || !user?.id) return;
+    if (!supabase || !user?.id || !profileData?.id) return;
     setDeleting(true);
-    const { error } = await supabase.from("escort_profiles").delete().eq("id", profile.id);
+    const escortId = profileData.id;
+    const { error } = await supabase.from("escort_profiles").delete().eq("id", escortId);
     setDeleting(false);
     setDeleteDialogOpen(false);
     if (error) {
       setMessage(error.message);
       return;
     }
-    recordPublisherAudit(user.id, "delete_profile", { escortProfileId: profile.id }).catch(() => {});
+    recordPublisherAudit(user.id, "delete_profile", { escortProfileId: escortId }).catch(() => {});
     const { data: remaining } = await supabase.from("escort_profiles").select("id").eq("user_id", user.id);
     if (!remaining || remaining.length === 0) {
       // @ts-expect-error Supabase generated types pueden quedarse desfasados frente al schema real
@@ -1456,7 +1464,7 @@ export default function Cuenta() {
   };
 
   const previewImage = image || (gallery.length > 0 ? gallery[0] : null);
-  const displayImage = previewImage || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80";
+  const displayImage = previewImage || "/marcadeagua.png";
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -1474,7 +1482,7 @@ export default function Cuenta() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
           </div>
           <Link
-            to={`/perfil/${profile.id}`}
+            to={profileData ? `/perfil/${profileData.id}` : "/cuenta"}
             className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 text-foreground"
           >
             <span className="text-xs font-medium">Ver</span>

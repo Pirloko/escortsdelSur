@@ -54,7 +54,7 @@ export default function RafflePage() {
         age: p.age,
         city: p.cities?.name ?? "",
         badge: p.badge ?? "Perfil",
-        image: p.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+        image: p.image ?? "/marcadeagua.png",
         available: p.available,
         whatsapp: p.whatsapp ?? null,
         description: p.description ?? null,

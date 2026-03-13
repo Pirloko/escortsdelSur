@@ -17,7 +17,7 @@ import { SocialProofSection } from "@/components/SocialProofSection";
 import { FinalCTASection } from "@/components/FinalCTASection";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80";
+const DEFAULT_IMAGE = "/marcadeagua.png";
 
 /** Baraja un array (Fisher-Yates) y devuelve hasta `take` elementos. */
 function shuffleAndTake<T>(arr: T[], take: number): T[] {

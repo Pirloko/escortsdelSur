@@ -131,7 +131,7 @@ export default function AdminEscortsRegistrados() {
               >
                 <div className="relative aspect-[3/4] bg-surface">
                   <img
-                    src={e.image ?? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80"}
+                    src={e.image ?? "/marcadeagua.png"}
                     alt={e.name}
                     className="w-full h-full object-cover"
                   />
