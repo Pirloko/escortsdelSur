@@ -13,14 +13,13 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
 };
 
-const LOGO_DARK = "/HolaCachero.png";
-const LOGO_LIGHT = "/HolaCachero01.png";
+const LOGO_MAIN = "/HolaCachero.png";
 
 export function AgeGate({ children }: { children: React.ReactNode }) {
   const [verified, setVerified] = useState<boolean | null>(null);
   const { theme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark" || theme === "dark";
-  const logoSrc = isDark ? LOGO_DARK : LOGO_LIGHT;
+  const logoSrc = LOGO_MAIN;
 
   useEffect(() => {
     setVerified(localStorage.getItem(STORAGE_KEY) === "1");
@@ -75,7 +74,7 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
           <img
             src={logoSrc}
             alt="Hola Cachero"
-            fetchpriority="high"
+            fetchPriority="high"
             loading="eager"
             decoding="async"
             className="logo-float h-auto w-full max-w-[200px] sm:max-w-[260px] object-contain"

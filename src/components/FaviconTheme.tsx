@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useTheme } from "next-themes";
 
-const FAVICON_DARK = "/HolaCachero.png";
-const FAVICON_LIGHT = "/HolaCachero01.png";
+const FAVICON_MAIN = "/HolaCachero.png";
 
 /** Actualiza el favicon del documento según el tema (claro/oscuro). */
 export function FaviconTheme() {
@@ -10,7 +9,7 @@ export function FaviconTheme() {
 
   useEffect(() => {
     const isDark = resolvedTheme === "dark" || theme === "dark";
-    const href = isDark ? FAVICON_DARK : FAVICON_LIGHT;
+    const href = FAVICON_MAIN;
     const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (link) link.href = href;
   }, [theme, resolvedTheme]);

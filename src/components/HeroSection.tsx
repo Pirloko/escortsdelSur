@@ -17,13 +17,12 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
-const LOGO_DARK = "/HolaCachero.png";
-const LOGO_LIGHT = "/HolaCachero01.png";
+const LOGO_MAIN = "/HolaCachero.png";
 
 export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: string }) {
   const { theme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark" || theme === "dark";
-  const logoSrc = isDark ? LOGO_DARK : LOGO_LIGHT;
+  const logoSrc = LOGO_MAIN;
 
   return (
     <section
@@ -58,7 +57,7 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
         <motion.div variants={fadeUp(0.1)} className="mb-6 flex justify-center">
           <img
             src={logoSrc}
-            fetchpriority="high"
+            fetchPriority="high"
             loading="eager"
             decoding="async"
             alt="holacachero"
