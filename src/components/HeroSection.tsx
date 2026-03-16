@@ -57,7 +57,7 @@ export function HeroSection({ firstCitySlug = "rancagua" }: { firstCitySlug?: st
         <motion.div variants={fadeUp(0.1)} className="mb-6 flex justify-center">
           <img
             src={logoSrc}
-            fetchPriority="high"
+            fetchpriority="high"
             loading="eager"
             decoding="async"
             alt="holacachero"

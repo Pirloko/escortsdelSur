@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { ProfileCommentsRow, ReviewExperiencesRow } from "@/types/database";
 import { trackViewProfile, trackWhatsAppClick, trackPhoneClick, trackProfileEngagement } from "@/lib/analytics";
+import { checkAndAwardWeeklyBadges } from "@/lib/weeklyBadges";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 15 },
@@ -350,12 +351,14 @@ const ProfilePage = () => {
     queryClient.invalidateQueries({ queryKey: ["profile_comments", resolvedProfileId] });
     queryClient.invalidateQueries({ queryKey: ["profile_comments_mine_today", resolvedProfileId, user.id, todayKey] });
     toast.success("Comentario publicado. +1 ticket.");
+    checkAndAwardWeeklyBadges(user.id).then(() => {});
   };
 
   const submitReviewExperience = async (payload: Record<string, unknown>) => {
     if (!supabase) return { error: new Error("Sin conexión") };
     // @ts-expect-error - review_experiences Insert type may not be in generated client
     const { error } = await supabase.from("review_experiences").insert(payload);
+    if (!error && user?.id) checkAndAwardWeeklyBadges(user.id).then(() => {});
     return { error: error ? new Error(error.message) : null };
   };
 
@@ -368,7 +371,10 @@ const ProfilePage = () => {
     } else {
       const { error } = await supabase.from("favorites").insert({ user_id: user.id, escort_profile_id: resolvedProfileId });
       if (error) toast.error(error.message);
-      else toast.success("Añadido a favoritos");
+      else {
+        toast.success("Añadido a favoritos");
+        checkAndAwardWeeklyBadges(user.id).then(() => {});
+      }
     }
     queryClient.invalidateQueries({ queryKey: ["favorites", user.id] });
     setFavoriteToggling(false);

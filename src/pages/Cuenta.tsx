@@ -1722,12 +1722,28 @@ export default function Cuenta() {
               {image && (
                 <div className="mt-2">
                   <p className="text-xs text-muted-foreground mb-1">Vista previa:</p>
-                  <img
-                    src={image}
-                    alt="Vista previa"
-                    className="rounded-lg border border-border object-cover max-h-40 w-auto"
-                    onError={() => setUploadImageError("No se pudo cargar la imagen. Sube otra desde tu dispositivo.")}
-                  />
+                  <div className="relative inline-block">
+                    <img
+                      src={image}
+                      alt="Vista previa"
+                      className="rounded-lg border border-border object-cover max-h-40 w-auto"
+                      onError={() => setUploadImageError("No se pudo cargar la imagen. Sube otra desde tu dispositivo.")}
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2 h-8 w-8 rounded-full p-0 opacity-90 hover:opacity-100 shadow"
+                      aria-label="Eliminar vista previa"
+                      onClick={() => {
+                        setImage("");
+                        setUploadImageError("");
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Puedes eliminarla o subir otra para reemplazarla.</p>
                 </div>
               )}
             </div>
@@ -1740,7 +1756,7 @@ export default function Cuenta() {
             {galleryError && <p className="text-sm text-destructive">{galleryError}</p>}
             <div className="flex flex-wrap gap-2">
               {gallery.map((url, index) => (
-                <div key={url} className="relative group">
+                <div key={`${url}-${index}`} className="relative group">
                   <img
                     src={url}
                     alt="Foto de galería"
@@ -1753,6 +1769,18 @@ export default function Cuenta() {
                     aria-label="Quitar foto"
                   >
                     ×
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImage(url);
+                      setGallery((prev) => prev.filter((_, i) => i !== index));
+                      setUploadImageError("");
+                    }}
+                    className="absolute bottom-0 left-0 right-0 py-0.5 bg-gold/90 text-primary-foreground text-[10px] font-medium rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Usar como vista previa"
+                  >
+                    Vista previa
                   </button>
                 </div>
               ))}

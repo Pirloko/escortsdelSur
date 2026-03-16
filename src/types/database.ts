@@ -226,6 +226,15 @@ export interface RafflePrizesRow {
   created_at: string;
 }
 
+export interface UserWeeklyBadgeCompletionsRow {
+  id: string;
+  user_id: string;
+  week_key: string;
+  badge_key: string;
+  tickets_awarded: number;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -331,6 +340,11 @@ export interface Database {
         Row: PublisherAuditLogRow;
         Insert: Omit<PublisherAuditLogRow, "id" | "created_at"> & { id?: string; created_at?: string };
         Update: Partial<Omit<PublisherAuditLogRow, "id">>;
+      };
+      user_weekly_badge_completions: {
+        Row: UserWeeklyBadgeCompletionsRow;
+        Insert: Omit<UserWeeklyBadgeCompletionsRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<UserWeeklyBadgeCompletionsRow, "id">>;
       };
     };
   };

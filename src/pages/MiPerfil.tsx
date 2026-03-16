@@ -31,8 +31,9 @@ import { useActiveQuizzes, useQuizDayForUser } from "@/hooks/useQuizDay";
 import { getMyRafflePrize } from "@/lib/raffleService";
 import { getRaffleClaimWhatsAppUrl } from "@/lib/raffleConfig";
 import { addWatermarkToImageFileAsFile } from "@/lib/watermark";
+import { getWeeklyBadgeProgress, checkAndAwardWeeklyBadges, getWeekKey, WEEKLY_BADGE_DEFINITIONS } from "@/lib/weeklyBadges";
 import type { UserProgress, UserBadge } from "@/types/gamification";
-import { LogOut, Trash2, Heart, MessageSquare, Eye, Pencil, Gift, ExternalLink } from "lucide-react";
+import { LogOut, Trash2, Heart, MessageSquare, Eye, Pencil, Gift, ExternalLink, Ticket, Check, Lock } from "lucide-react";
 
 /** Dado un array de ISO dates (completed_at), devuelve la racha máxima y la fecha en que se alcanzaron 7 días seguidos. */
 function computeStreakSeven(completedAts: string[]): { maxStreak: number; firstSevenAt: string | null } {
@@ -61,9 +62,10 @@ function computeLevel(
   pepitas: number,
   tickets: number,
   commentsCount: number,
-  completedQuizCount: number
+  completedQuizCount: number,
+  completedWeeklyBadgesCount = 0
 ): { level: number; levelLabel: string; points: number; pointsInLevel: number; pointsToNextLevel: number } {
-  const points = pepitas + tickets * 2 + commentsCount * 5 + completedQuizCount * 20;
+  const points = pepitas + tickets * 2 + commentsCount * 5 + completedQuizCount * 20 + completedWeeklyBadgesCount * 15;
   const level = Math.min(5, 1 + Math.floor(points / 50));
   const pointsInLevel = points % 50;
   const pointsToNextLevel = level >= 5 ? 0 : 50 - pointsInLevel;
@@ -137,6 +139,7 @@ export default function MiPerfil() {
   });
 
   const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
@@ -151,6 +154,7 @@ export default function MiPerfil() {
   const [deleting, setDeleting] = useState(false);
 
   const [profileEconomy, setProfileEconomy] = useState<{ pepitas_cobre: number; tickets_rifa: number } | null>(null);
+  const [weeklyBadgeProgress, setWeeklyBadgeProgress] = useState<Awaited<ReturnType<typeof getWeeklyBadgeProgress>>>([]);
   const [quizCompletedAt, setQuizCompletedAt] = useState<string | null>(null);
   const [streakSevenUnlockedAt, setStreakSevenUnlockedAt] = useState<string | null>(null);
   const [completedQuizCount, setCompletedQuizCount] = useState(0);
@@ -193,11 +197,13 @@ export default function MiPerfil() {
         return { ...def, unlocked: streakSevenUnlockedAt != null, unlockedAt: streakSevenUnlockedAt };
       }
       if (def.key === "level_five") {
+        const completedWeekly = weeklyBadgeProgress.filter((p) => p.completed).length;
         const lvl = computeLevel(
           profileEconomy?.pepitas_cobre ?? 0,
           profileEconomy?.tickets_rifa ?? 0,
           comments.length,
-          completedQuizCount
+          completedQuizCount,
+          completedWeekly
         );
         return { ...def, unlocked: lvl.level >= 5, unlockedAt: null };
       }
@@ -208,10 +214,11 @@ export default function MiPerfil() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name ?? "");
+      setEmail((profile as { email?: string | null }).email ?? user?.email ?? "");
       setAge(profile.age != null ? String(profile.age) : "");
       setAvatarUrl(profile.avatar_url ?? "");
     }
-  }, [profile]);
+  }, [profile, user?.email]);
 
   useEffect(() => {
     if (!supabase || !user?.id || role !== "visitor") return;
@@ -221,6 +228,18 @@ export default function MiPerfil() {
       .eq("id", user.id)
       .single()
       .then(({ data }) => setProfileEconomy(data as { pepitas_cobre: number; tickets_rifa: number } | null));
+  }, [user?.id, role]);
+
+  useEffect(() => {
+    if (!user?.id || role !== "visitor") return;
+    checkAndAwardWeeklyBadges(user.id).then(({ awarded }) => {
+      getWeeklyBadgeProgress(user.id).then(setWeeklyBadgeProgress);
+      if (awarded.length > 0 && supabase) {
+        supabase.from("profiles").select("pepitas_cobre, tickets_rifa").eq("id", user.id).single().then(({ data }) => {
+          if (data) setProfileEconomy(data as { pepitas_cobre: number; tickets_rifa: number });
+        });
+      }
+    });
   }, [user?.id, role]);
 
   useEffect(() => {
@@ -338,6 +357,7 @@ export default function MiPerfil() {
     const { error } = await (supabase.from("profiles") as any)
       .update({
         display_name: displayName.trim() || null,
+        email: email.trim() || null,
         age: age.trim() ? parseInt(age, 10) : null,
         avatar_url: avatarUrl.trim() || null,
         updated_at: new Date().toISOString(),
@@ -394,7 +414,8 @@ export default function MiPerfil() {
 
   const pepitas = profileEconomy?.pepitas_cobre ?? progress.stats.pepitas;
   const ticketsRifa = profileEconomy?.tickets_rifa ?? progress.stats.ticketsRifa;
-  const levelInfo = computeLevel(pepitas, ticketsRifa, comments.length, completedQuizCount);
+  const completedWeeklyCount = weeklyBadgeProgress.filter((p) => p.completed).length;
+  const levelInfo = computeLevel(pepitas, ticketsRifa, comments.length, completedQuizCount, completedWeeklyCount);
   const quizLevel = quizState.progress ? Math.min(quizState.currentQuestionIndex, 10) : 1;
   const quizCompletedToday = quizState.isCompleted ?? false;
   const quizTicketsEarnedToday = quizState.ticketsEarnedToday ?? 0;
@@ -505,6 +526,17 @@ export default function MiPerfil() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="ejemplo@correo.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-surface border-border"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="age">Edad</Label>
                 <Input
                   id="age"
@@ -529,6 +561,10 @@ export default function MiPerfil() {
               <div>
                 <p className="text-xs text-muted-foreground">Nombre de usuario</p>
                 <p className="text-base font-medium">{displayName || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="text-base font-medium">{email || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Edad</p>
@@ -565,6 +601,62 @@ export default function MiPerfil() {
             <StreakCard streakDays={progressWithEconomy.stats.streakDays} />
           </div>
           <BadgesGrid badges={progressWithEconomy.badges} />
+
+          {role === "visitor" && weeklyBadgeProgress.length > 0 && (
+            <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-3">
+              <h3 className="text-base font-display font-bold flex items-center gap-2">
+                <Gift className="w-4 h-4 text-copper" />
+                Insignias de la semana
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Semana del {new Date(getWeekKey() + "T12:00:00Z").toLocaleDateString("es-CL", { day: "numeric", month: "short", year: "numeric" })}. Completa retos y gana tickets (1 vez por semana cada uno).
+              </p>
+              <ul className="space-y-2">
+                {weeklyBadgeProgress.map((p) => {
+                  const def = WEEKLY_BADGE_DEFINITIONS.find((d) => d.key === p.key);
+                  const name = def?.name ?? p.key;
+                  const desc = def?.description ?? "";
+                  const done = p.completed;
+                  const pct = p.required > 0 ? Math.min(100, (p.current / p.required) * 100) : 0;
+                  return (
+                    <li
+                      key={p.key}
+                      className={`rounded-xl border p-3 transition-colors ${done ? "border-copper/50 bg-copper/10" : "border-border bg-background"}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm flex items-center gap-1.5">
+                            {done ? <Check className="w-4 h-4 text-copper shrink-0" /> : <Lock className="w-4 h-4 text-muted-foreground shrink-0" />}
+                            {name}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                          {!done && (
+                            <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full rounded-full bg-copper transition-all" style={{ width: `${pct}%` }} />
+                            </div>
+                          )}
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            {done ? (
+                              <span className="text-copper font-medium flex items-center gap-1">
+                                <Ticket className="w-3.5 h-3.5" /> +{p.ticketsAwarded} tickets
+                              </span>
+                            ) : (
+                              <span>{p.current}/{p.required}</span>
+                            )}
+                          </p>
+                        </div>
+                        {done && (
+                          <span className="shrink-0 text-xs font-medium text-copper flex items-center gap-1">
+                            <Ticket className="w-3.5 h-3.5" /> +{p.ticketsAwarded}
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </section>
 
         <section>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Ban, Mail, Trash2, UserCheck } from "lucide-react";
+import { Ban, Mail, Trash2, UserCheck, Ticket } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +30,24 @@ export default function AdminVisitantes() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as ProfilesRow[];
+    },
+    enabled: !!supabase,
+  });
+
+  const { data: lifetimeByUser = {} } = useQuery({
+    queryKey: ["admin_raffle_snapshot_lifetime"],
+    queryFn: async (): Promise<Record<string, number>> => {
+      if (!supabase) return {};
+      const { data, error } = await supabase
+        .from("raffle_participants_snapshot")
+        .select("user_id, tickets_used");
+      if (error) throw error;
+      const rows = (data ?? []) as { user_id: string; tickets_used: number }[];
+      const map: Record<string, number> = {};
+      for (const r of rows) {
+        map[r.user_id] = (map[r.user_id] ?? 0) + (r.tickets_used ?? 0);
+      }
+      return map;
     },
     enabled: !!supabase,
   });
@@ -110,9 +128,18 @@ export default function AdminVisitantes() {
                 <p className="text-xs text-muted-foreground mb-2 truncate" title={v.email ?? undefined}>
                   {v.email ? v.email : "Sin email"}
                 </p>
-                <p className="text-xs text-muted-foreground mb-4">
+                <p className="text-xs text-muted-foreground mb-2">
                   Registro: {v.created_at ? new Date(v.created_at).toLocaleDateString("es-CL") : "—"}
                 </p>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
+                  <span className="flex items-center gap-1.5" title="Tickets actuales (se reinician cada sorteo)">
+                    <Ticket className="w-3.5 h-3.5 text-copper" />
+                    Actuales: <strong className="text-foreground">{v.tickets_rifa ?? 0}</strong>
+                  </span>
+                  <span className="flex items-center gap-1.5" title="Total de tickets en toda su trayectoria">
+                    Histórico: <strong className="text-foreground">{(v.tickets_rifa ?? 0) + (lifetimeByUser[v.id] ?? 0)}</strong>
+                  </span>
+                </div>
                 <div className="mt-auto flex flex-wrap gap-2">
                   <Button
                     variant="outline"

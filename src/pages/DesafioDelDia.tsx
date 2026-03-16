@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveQuizzes, useQuizDayForUser } from "@/hooks/useQuizDay";
 import { QuizContainer } from "@/components/quiz";
 import { getProgressForQuizzes, resetQuizProgress } from "@/lib/quizService";
+import { checkAndAwardWeeklyBadges } from "@/lib/weeklyBadges";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle, Heart, Gamepad2, Gift, Ticket, ImageIcon, CircleDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,10 @@ function DesafioGame({ quizId }: { quizId: string }) {
   const gameOver = lives <= 0;
   const challengeTitle = quiz?.title?.trim() || "Desafío";
   const ticketsOnComplete = quiz?.tickets_on_complete ?? 10;
+
+  useEffect(() => {
+    if (user?.id && isCompleted) checkAndAwardWeeklyBadges(user.id).then(() => {});
+  }, [user?.id, isCompleted]);
 
   if (isLoading && !quiz) {
     return (

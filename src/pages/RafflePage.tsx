@@ -6,7 +6,8 @@ import { FeaturedProfileCard } from "@/components/FeaturedProfileCard";
 import { getActiveRaffle, getTotalTicketsAccumulated, getLastClosedRaffle } from "@/lib/raffleService";
 import { supabase } from "@/lib/supabase";
 import { ACTIVE_CITY_SLUG } from "@/lib/site-config";
-import { Gift, Ticket, Calendar, Trophy } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Gift, Ticket, Calendar, Trophy, Medal } from "lucide-react";
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } } };
@@ -20,7 +21,11 @@ function anonymizeWinnerId(userId: string): string {
   return `Usuario #${num.toString().padStart(4, "0")}`;
 }
 
+type RankingRow = { id: string; display_name: string | null; tickets_rifa: number | null };
+
 export default function RafflePage() {
+  const { user, role } = useAuth();
+
   const { data: activeRaffle } = useQuery({
     queryKey: ["raffle-active-public"],
     queryFn: getActiveRaffle,
@@ -30,6 +35,25 @@ export default function RafflePage() {
     queryKey: ["raffle-total-tickets-public"],
     queryFn: getTotalTicketsAccumulated,
   });
+
+  const { data: ranking = [] } = useQuery({
+    queryKey: ["raffle-ranking", user?.id],
+    queryFn: async (): Promise<RankingRow[]> => {
+      if (!supabase || !user?.id || role !== "visitor") return [];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, tickets_rifa")
+        .eq("role", "visitor")
+        .order("tickets_rifa", { ascending: false });
+      if (error) return [];
+      return (data ?? []) as RankingRow[];
+    },
+    enabled: !!supabase && !!user?.id && role === "visitor",
+  });
+
+  const myTickets = user?.id && role === "visitor"
+    ? (ranking.find((r) => r.id === user.id)?.tickets_rifa ?? 0)
+    : null;
 
   const { data: lastClosed } = useQuery({
     queryKey: ["raffle-last-closed"],
@@ -101,7 +125,9 @@ export default function RafflePage() {
             </p>
             <div className="flex items-center gap-2 pt-2">
               <Ticket className="w-5 h-5 text-copper" />
-              <span className="font-medium text-copper">Total tickets acumulados: {totalTickets}</span>
+              <span className="font-medium text-copper">
+                {myTickets !== null ? `Tus tickets: ${myTickets}` : `Total tickets acumulados: ${totalTickets}`}
+              </span>
             </div>
           </div>
         ) : (
@@ -133,6 +159,35 @@ export default function RafflePage() {
             Términos del Sorteo →
           </Link>
         </div>
+
+        {role === "visitor" && ranking.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h2 className="font-semibold text-lg flex items-center gap-2 mb-3">
+              <Medal className="w-5 h-5 text-copper" />
+              Ranking por tickets
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Usuarios ordenados por cantidad de tickets para el sorteo.
+            </p>
+            <ul className="space-y-2">
+              {ranking.map((row, index) => (
+                <li
+                  key={row.id}
+                  className={`flex items-center justify-between py-2 px-3 rounded-lg ${
+                    row.id === user?.id ? "bg-copper/15 border border-copper/40" : "bg-muted/50"
+                  }`}
+                >
+                  <span className="font-medium text-foreground truncate">
+                    {row.display_name?.trim() || "Sin nombre"}
+                  </span>
+                  <span className="text-copper font-semibold shrink-0 ml-2">
+                    {row.tickets_rifa ?? 0} tickets
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <section className="mt-8 px-0" aria-labelledby="perfiles-activos-heading">
           <div className="mb-4">

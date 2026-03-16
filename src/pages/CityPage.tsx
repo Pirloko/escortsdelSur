@@ -374,7 +374,7 @@ const CityPage = () => {
           width={1200}
           height={480}
           loading="eager"
-          fetchPriority="high"
+          fetchpriority="high"
           decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 from-15% via-background/35 via-45% to-transparent" />

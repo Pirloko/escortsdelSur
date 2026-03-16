@@ -115,6 +115,7 @@ const App = () => (
                 }
               >
                 <Route index element={<AdminDashboard />} />
+                <Route path="cambiar-contrasena" element={<CambiarContrasena />} />
                 <Route path="publicadores" element={<AdminPublicadores />} />
                 <Route path="perfiles" element={<AdminUsuarios />} />
                 <Route path="visitantes" element={<AdminVisitantes />} />
