@@ -12,6 +12,8 @@ export interface QuizContainerProps {
   onSubmitAnswer: (selectedOption: CorrectOption, question: DailyQuizQuestion) => Promise<{ correct: boolean }>;
   onAdvance: () => void;
   header?: React.ReactNode;
+  /** Indica si la pregunta actual es la última del desafío (para el texto del botón). */
+  isLastQuestion: boolean;
 }
 
 export function QuizContainer({
@@ -22,6 +24,7 @@ export function QuizContainer({
   onSubmitAnswer,
   onAdvance,
   header,
+  isLastQuestion,
 }: QuizContainerProps) {
   const currentQuestion = useMemo(
     () => questions.find((q) => q.order_number === currentQuestionIndex) ?? null,
@@ -89,6 +92,7 @@ export function QuizContainer({
           onNext={handleNext}
           state={state}
           isSubmitting={isSubmitting}
+          isLastQuestion={isLastQuestion}
         />
       </div>
     </div>

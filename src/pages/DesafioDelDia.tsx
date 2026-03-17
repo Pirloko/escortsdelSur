@@ -183,6 +183,7 @@ function DesafioGame({ quizId }: { quizId: string }) {
   const gameOver = lives <= 0;
   const challengeTitle = quiz?.title?.trim() || "Desafío";
   const ticketsOnComplete = quiz?.tickets_on_complete ?? 10;
+  const isLastQuestion = !isGuest && currentQuestionIndex >= MAX_QUESTIONS;
 
   useEffect(() => {
     if (user?.id && isCompleted) checkAndAwardWeeklyBadges(user.id).then(() => {});
@@ -426,6 +427,7 @@ function DesafioGame({ quizId }: { quizId: string }) {
         onSubmitAnswer={handleSubmitAnswer}
         onAdvance={handleAdvance}
         header={header}
+        isLastQuestion={isLastQuestion}
       />
     </div>
   );

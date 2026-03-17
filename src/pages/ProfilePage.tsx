@@ -2,7 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { SeoHead } from "@/components/SeoHead";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe, BadgeCheck } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Shield, Star, MessageCircle, Calendar, Phone, Heart, Globe, BadgeCheck, Share2 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import type { ProfileCommentsRow, ReviewExperiencesRow } from "@/types/database";
 import { trackViewProfile, trackWhatsAppClick, trackPhoneClick, trackProfileEngagement } from "@/lib/analytics";
 import { checkAndAwardWeeklyBadges } from "@/lib/weeklyBadges";
+import { recordWhatsAppClickForBadge } from "@/lib/recordWhatsAppClick";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 15 },
@@ -879,10 +880,35 @@ const ProfilePage = () => {
         )}
       </div>
 
-      {/* Sticky CTA: Llamar y WhatsApp */}
+      {/* Sticky CTA: Llamar, WhatsApp y Compartir */}
       <div className="fixed bottom-20 md:bottom-0 left-0 right-0 z-40 px-4 pt-8 pb-4 bg-gradient-to-t from-background via-background to-transparent">
         <div className="max-w-3xl mx-auto">
-          <div className="flex gap-4">
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="h-12 w-12 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-muted/80 active:scale-[0.97]"
+              onClick={async () => {
+                const slugPart = profileSlug && citySlug ? `/${citySlug}/${profileSlug}` : `/perfil/${profile.id}`;
+                const url = window.location.origin + slugPart;
+                const title = `${profile.name} en ${profile.city} | Hola Cachero`;
+                const text = `Mira este perfil en Hola Cachero: ${profile.name} en ${profile.city}`;
+                try {
+                  if (navigator.share) {
+                    await navigator.share({ title, text, url });
+                  } else if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(url);
+                    toast.success("Enlace del perfil copiado.");
+                  } else {
+                    void Promise.resolve(url);
+                  }
+                } catch {
+                  // usuario canceló el compartir; no hacemos nada
+                }
+              }}
+              aria-label="Compartir perfil"
+            >
+              <Share2 className="w-5 h-5" />
+            </button>
             {profile.whatsapp ? (
               <>
                 <a
@@ -898,7 +924,10 @@ const ProfilePage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 h-12 rounded-2xl bg-[#25D366] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-[0.98]"
-                  onClick={() => trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
+                  onClick={() => {
+                    trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city });
+                    if (user?.id && role === "visitor") recordWhatsAppClickForBadge(user.id, profile.id);
+                  }}
                 >
                   <MessageCircle className="w-4 h-4" />
                   WhatsApp

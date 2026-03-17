@@ -22,6 +22,7 @@ export const WEEKLY_BADGE_KEYS = [
   "explorador",
   "desafio_completado",
   "comunidad",
+  "el_cachero",
 ] as const;
 
 export type WeeklyBadgeKey = (typeof WEEKLY_BADGE_KEYS)[number];
@@ -41,6 +42,7 @@ export const WEEKLY_BADGE_DEFINITIONS: WeeklyBadgeDefinition[] = [
   { key: "explorador", name: "Explorador", description: "Visita 5 perfiles diferentes", ticketsAwarded: 3, requirement: 5 },
   { key: "desafio_completado", name: "Desafío completado", description: "Completa un desafío del día (10 preguntas)", ticketsAwarded: 5, requirement: 1 },
   { key: "comunidad", name: "Comunidad", description: "Deja 3 comentarios en 3 perfiles distintos", ticketsAwarded: 4, requirement: 3 },
+  { key: "el_cachero", name: "El Cachero", description: "Escribe o abre WhatsApp con 5 perfiles diferentes", ticketsAwarded: 4, requirement: 5 },
 ];
 
 /** Completados por el usuario esta semana (desde BD). */
@@ -78,7 +80,7 @@ export async function awardWeeklyBadge(
 
   if (existing) return { awarded: false };
 
-  const { error: insertErr } = await supabase
+  const { error: insertErr } = await (supabase as any)
     .from("user_weekly_badge_completions")
     .insert({
       user_id: userId,
@@ -122,7 +124,7 @@ export async function checkAndAwardWeeklyBadges(userId: string): Promise<{ award
   const awarded: WeeklyBadgeKey[] = [];
   if (!supabase) return { awarded };
 
-  const [completions, favoritesCount, viewsCount, reviewsThisWeek, quizCompletedThisWeek, commentsByProfile] = await Promise.all([
+  const [completions, favoritesCount, viewsCount, reviewsThisWeek, quizCompletedThisWeek, commentsByProfile, whatsappClicksThisWeek] = await Promise.all([
     getWeeklyCompletions(userId),
     supabase.from("favorites").select("id", { count: "exact", head: true }).eq("user_id", userId).then((r) => r.count ?? 0),
     supabase.from("profile_views").select("escort_profile_id").eq("user_id", userId).then((r) => {
@@ -158,6 +160,16 @@ export async function checkAndAwardWeeklyBadges(userId: string): Promise<{ award
         const rows = (r.data ?? []) as { escort_profile_id: string }[];
         return new Set(rows.map((x) => x.escort_profile_id)).size;
       }),
+    (() => {
+      const { start, end } = getWeekBounds();
+      return supabase
+        .from("profile_whatsapp_clicks")
+        .select("id")
+        .eq("user_id", userId)
+        .gte("created_at", start)
+        .lt("created_at", end)
+        .then((r) => (r.data ?? []).length);
+    })(),
   ]);
 
   const completedKeys = new Set(completions.map((c) => c.badge_key as WeeklyBadgeKey));
@@ -182,6 +194,10 @@ export async function checkAndAwardWeeklyBadges(userId: string): Promise<{ award
     const r = await awardWeeklyBadge(userId, "comunidad");
     if (r.awarded) awarded.push("comunidad");
   }
+  if (!completedKeys.has("el_cachero") && whatsappClicksThisWeek >= 5) {
+    const r = await awardWeeklyBadge(userId, "el_cachero");
+    if (r.awarded) awarded.push("el_cachero");
+  }
 
   return { awarded };
 }
@@ -204,7 +220,7 @@ export async function getWeeklyBadgeProgress(userId: string): Promise<WeeklyBadg
     ticketsAwarded: d.ticketsAwarded,
   }));
 
-  const [completions, favoritesCount, viewsCount, reviewsThisWeek, quizCompletedThisWeek, commentsByProfile] = await Promise.all([
+  const [completions, favoritesCount, viewsCount, reviewsThisWeek, quizCompletedThisWeek, commentsByProfile, whatsappClicksThisWeek] = await Promise.all([
     getWeeklyCompletions(userId),
     supabase.from("favorites").select("id", { count: "exact", head: true }).eq("user_id", userId).then((r) => r.count ?? 0),
     supabase.from("profile_views").select("escort_profile_id").eq("user_id", userId).then((r) => {
@@ -223,6 +239,16 @@ export async function getWeeklyBadgeProgress(userId: string): Promise<WeeklyBadg
       const rows = (r.data ?? []) as { escort_profile_id: string }[];
       return new Set(rows.map((x) => x.escort_profile_id)).size;
     }),
+    (() => {
+      const { start, end } = getWeekBounds();
+      return supabase
+        .from("profile_whatsapp_clicks")
+        .select("id")
+        .eq("user_id", userId)
+        .gte("created_at", start)
+        .lt("created_at", end)
+        .then((r) => (r.data ?? []).length);
+    })(),
   ]);
 
   const completedSet = new Set(completions.map((c) => c.badge_key));
@@ -233,6 +259,7 @@ export async function getWeeklyBadgeProgress(userId: string): Promise<WeeklyBadg
     explorador: viewsCount,
     desafio_completado: quizCompletedThisWeek,
     comunidad: commentsByProfile,
+    el_cachero: whatsappClicksThisWeek,
   };
 
   return WEEKLY_BADGE_DEFINITIONS.map((d) => ({

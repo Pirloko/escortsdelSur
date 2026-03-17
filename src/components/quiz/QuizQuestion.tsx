@@ -12,6 +12,8 @@ export interface QuizQuestionProps {
   onNext: () => void;
   state: "idle" | "correct" | "incorrect" | "revealing";
   isSubmitting: boolean;
+  /** Si es la última pregunta del desafío (para cambiar el texto del botón). */
+  isLastQuestion: boolean;
 }
 
 export function QuizQuestion({
@@ -23,6 +25,7 @@ export function QuizQuestion({
   onNext,
   state,
   isSubmitting,
+  isLastQuestion,
 }: QuizQuestionProps) {
   const showResult = state === "correct" || state === "incorrect";
   const canSubmit = selectedOption !== null && !isSubmitting;
@@ -73,7 +76,7 @@ export function QuizQuestion({
             onClick={onNext}
             className="flex-1 h-12 rounded-xl bg-copper text-primary-foreground font-medium hover:bg-copper/90 transition-colors"
           >
-            Siguiente
+            {isLastQuestion ? "Finalizar" : "Siguiente"}
           </button>
         )}
       </div>

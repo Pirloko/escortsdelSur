@@ -5,6 +5,8 @@ import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
 import { trackWhatsAppClick, trackPhoneClick, trackProfileClickFromList } from "@/lib/analytics";
+import { useAuth } from "@/contexts/AuthContext";
+import { recordWhatsAppClickForBadge } from "@/lib/recordWhatsAppClick";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -30,6 +32,7 @@ interface ProfileProps {
 
 export function ProfileCard({ profile, citySlug }: ProfileProps) {
   const navigate = useNavigate();
+  const { user, role } = useAuth();
   const profilePath = getProfileUrl(profile, citySlug);
   const waUrl = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city);
   const telUrl = toTelUrl(profile.whatsapp);
@@ -114,7 +117,10 @@ export function ProfileCard({ profile, citySlug }: ProfileProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 rounded-full flex items-center justify-center bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors shadow-sm"
-                    onClick={() => trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
+                    onClick={() => {
+                      trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city });
+                      if (user?.id && role === "visitor") recordWhatsAppClickForBadge(user.id, profile.id);
+                    }}
                     aria-label="WhatsApp"
                   >
                     <IconWhatsApp size={18} className="text-white" />

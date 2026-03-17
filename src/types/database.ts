@@ -235,6 +235,13 @@ export interface UserWeeklyBadgeCompletionsRow {
   created_at: string;
 }
 
+export interface ProfileWhatsappClicksRow {
+  id: string;
+  user_id: string;
+  escort_profile_id: string;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -345,6 +352,11 @@ export interface Database {
         Row: UserWeeklyBadgeCompletionsRow;
         Insert: Omit<UserWeeklyBadgeCompletionsRow, "id" | "created_at"> & { id?: string; created_at?: string };
         Update: Partial<Omit<UserWeeklyBadgeCompletionsRow, "id">>;
+      };
+      profile_whatsapp_clicks: {
+        Row: ProfileWhatsappClicksRow;
+        Insert: Omit<ProfileWhatsappClicksRow, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<ProfileWhatsappClicksRow, "id">>;
       };
     };
   };

@@ -13,6 +13,8 @@ import {
 import { WatermarkedImage } from "@/components/WatermarkedImage";
 import { IconWhatsApp } from "@/components/IconWhatsApp";
 import { trackWhatsAppClick, trackPhoneClick } from "@/lib/analytics";
+import { useAuth } from "@/contexts/AuthContext";
+import { recordWhatsAppClickForBadge } from "@/lib/recordWhatsAppClick";
 
 export interface GalleryViewerModalProps {
   open: boolean;
@@ -43,6 +45,7 @@ export function GalleryViewerModal({
   profileId,
   city,
 }: GalleryViewerModalProps) {
+  const { user, role } = useAuth();
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
@@ -169,6 +172,7 @@ export function GalleryViewerModal({
                 className="inline-flex items-center justify-center gap-2 rounded-xl min-h-[48px] px-5 bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors touch-manipulation font-medium text-sm"
                 onClick={() => {
                   if (profileId && city) trackWhatsAppClick({ profile_id: profileId, profile_name: profileName, city });
+                  if (user?.id && role === "visitor" && profileId) recordWhatsAppClickForBadge(user.id, profileId);
                 }}
                 aria-label="WhatsApp"
               >

@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { getWhatsAppProfileUrl } from "@/lib/whatsapp";
 import { getProfileUrl } from "@/lib/seo-programmatic";
 import { trackWhatsAppClick, trackPhoneClick, trackProfileClickFromList } from "@/lib/analytics";
+import { useAuth } from "@/contexts/AuthContext";
+import { recordWhatsAppClickForBadge } from "@/lib/recordWhatsAppClick";
 function toTelUrl(raw: string | null | undefined): string | null {
   if (!raw || !raw.trim()) return null;
   const digits = raw.replace(/\D/g, "");
@@ -52,6 +54,7 @@ function getDescriptionSnippet(description: string | null | undefined): string {
 
 export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: FeaturedProfileCardProps) {
   const navigate = useNavigate();
+  const { user, role } = useAuth();
   const waUrl = getWhatsAppProfileUrl(profile.whatsapp, profile.id, profile.city);
   const telUrl = toTelUrl(profile.whatsapp);
   const snippet = getDescriptionSnippet(profile.description);
@@ -331,7 +334,10 @@ export function FeaturedProfileCard({ profile, cardHref, citySlug, className }: 
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn("flex-1 min-w-0 inline-flex items-center justify-center gap-2 rounded-xl px-4 bg-[#25D366] text-white hover:bg-[#20BD5A] transition-colors touch-manipulation", useSpaciousLayout ? "min-h-[48px]" : "min-h-[42px]")}
-                    onClick={() => trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city })}
+                    onClick={() => {
+                      trackWhatsAppClick({ profile_id: profile.id, profile_name: profile.name, city: profile.city });
+                      if (user?.id && role === "visitor") recordWhatsAppClickForBadge(user.id, profile.id);
+                    }}
                     aria-label="WhatsApp"
                   >
                     <IconWhatsApp size={22} className="shrink-0" />
