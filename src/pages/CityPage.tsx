@@ -204,6 +204,11 @@ const CityPage = () => {
     const item = p as ProfileItem;
     return item.promotion === "galeria" || (Array.isArray(item.vip_extras) && item.vip_extras.includes("incluir_galeria"));
   });
+  // Para efecto de carrusel infinito: duplicamos la lista (A + A) para que parezca una rueda continua
+  const galleryLoopProfiles: ProfileItem[] = useMemo(
+    () => (galleryProfiles.length ? [...galleryProfiles, ...galleryProfiles] : []),
+    [galleryProfiles]
+  );
   // VIP: mismo orden (subidas), pero con promoción "destacada" primero en el grid
   const profilesSorted =
     [...profiles].sort((a, b) => {
@@ -225,11 +230,35 @@ const CityPage = () => {
   } | null>(null);
   const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
   const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+  const galleryScrollRef = useRef<HTMLDivElement>(null);
+  const [galleryAutoScrollPaused, setGalleryAutoScrollPaused] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setEstadosTimeBucket(Math.floor(Date.now() / (5 * 60 * 1000))), 60 * 1000);
     return () => clearInterval(t);
   }, []);
+
+  // Auto-scroll suave de la galería tipo carrusel
+  useEffect(() => {
+    if (!galleryLoopProfiles.length) return;
+    const container = galleryScrollRef.current;
+    if (!container) return;
+    const step = 1; // píxeles por tick (más lento)
+    const intervalMs = 40;
+    const id = window.setInterval(() => {
+      if (!container || galleryAutoScrollPaused) return;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (maxScroll <= 0) return;
+      // Usamos la mitad del scroll para que A + A parezca rueda infinita
+      const loopLimit = maxScroll / 2;
+      if (container.scrollLeft >= loopLimit - 1) {
+        container.scrollLeft = 0;
+      } else {
+        container.scrollLeft += step;
+      }
+    }, intervalMs);
+    return () => window.clearInterval(id);
+  }, [galleryLoopProfiles.length, galleryAutoScrollPaused]);
 
   const profilesToShow = profilesSorted;
 
@@ -374,7 +403,7 @@ const CityPage = () => {
           width={1200}
           height={480}
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
           decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 from-15% via-background/35 via-45% to-transparent" />
@@ -442,23 +471,38 @@ const CityPage = () => {
       {!profilesLoading && galleryProfiles.length > 0 && (
         <div className="w-full mt-2">
           <h2 className="text-lg font-display font-bold mb-3 px-4">Galería</h2>
-          <div className="overflow-x-auto overflow-y-hidden pb-2">
+          <div
+            className="overflow-x-auto overflow-y-hidden pb-2"
+            ref={galleryScrollRef}
+            onMouseEnter={() => setGalleryAutoScrollPaused(true)}
+            onMouseLeave={() => setGalleryAutoScrollPaused(false)}
+            onTouchStart={() => setGalleryAutoScrollPaused(true)}
+            onTouchEnd={() => setGalleryAutoScrollPaused(false)}
+          >
             <div className="flex gap-8 px-4 min-w-0" style={{ width: "max-content" }}>
-              {galleryProfiles.map((profile) => {
+              {galleryLoopProfiles.map((profile, idx) => {
                 const photos = profile.image
                   ? [profile.image, ...(profile.gallery ?? [])]
                   : profile.gallery ?? [];
                 const hasPhotos = photos.length > 0;
+                const extras = (profile as ProfileItem).vip_extras ?? [];
+                const hasMarcoPremium = Array.isArray(extras) && extras.includes("marco_premium");
                 return (
                   <button
-                    key={profile.id}
+                    key={`${profile.id}-${idx}`}
                     type="button"
                     onClick={() => hasPhotos && openGalleryViewer(profile as ProfileItem)}
                     disabled={!hasPhotos}
                     className="flex flex-col items-center gap-2 shrink-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full"
                     aria-label={hasPhotos ? `Ver galería de ${profile.name}` : `${profile.name} (sin fotos)`}
                   >
-                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-white overflow-hidden bg-muted shrink-0 group-hover:border-gold/80 transition-colors">
+                    <div
+                      className={`relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 overflow-hidden bg-muted shrink-0 transition-all ${
+                        hasMarcoPremium
+                          ? "border-gold shadow-[0_0_25px_rgba(219,180,99,0.8)] animate-[pulse_3s_ease-in-out_infinite]"
+                          : "border-white group-hover:border-gold/80"
+                      }`}
+                    >
                       <WatermarkedImage
                         src={profile.image}
                         alt={profile.name}
