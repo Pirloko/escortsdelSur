@@ -101,16 +101,28 @@ export default function RafflePage() {
         robots="index, follow"
       />
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Inicio</Link>
+        {/* Hero: imagen de fondo con título y texto encima */}
+        <div
+          className="relative rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[320px] flex flex-col justify-end p-6 -mx-4 sm:mx-0"
+          style={{
+            backgroundImage: "url(/rifas.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent pointer-events-none" aria-hidden />
+          <div className="relative z-10 space-y-2">
+            <Link to="/" className="text-sm text-white/90 hover:text-white inline-block">← Inicio</Link>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold flex items-center gap-2 text-white drop-shadow-lg">
+              <Gift className="w-7 h-7 text-copper shrink-0" />
+              Rifa mensual
+            </h1>
+            <p className="text-white/95 text-sm sm:text-base max-w-xl drop-shadow-md">
+              Acumula tickets con el Desafío del Día y otras actividades. Cada ticket es una papeleta. Más tickets, más probabilidad de ganar.
+            </p>
+          </div>
         </div>
-        <h1 className="text-2xl font-display font-bold flex items-center gap-2">
-          <Gift className="w-7 h-7 text-copper" />
-          Rifa mensual
-        </h1>
-        <p className="text-muted-foreground">
-          Acumula tickets con el Desafío del Día y otras actividades. Cada ticket es una papeleta. Más tickets, más probabilidad de ganar.
-        </p>
 
         {activeRaffle ? (
           <div className="rounded-2xl border border-copper/30 bg-card p-6 space-y-4">
