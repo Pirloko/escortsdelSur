@@ -204,11 +204,6 @@ const CityPage = () => {
     const item = p as ProfileItem;
     return item.promotion === "galeria" || (Array.isArray(item.vip_extras) && item.vip_extras.includes("incluir_galeria"));
   });
-  // Para efecto de carrusel infinito: duplicamos la lista (A + A) para que parezca una rueda continua
-  const galleryLoopProfiles: ProfileItem[] = useMemo(
-    () => (galleryProfiles.length ? [...galleryProfiles, ...galleryProfiles] : []),
-    [galleryProfiles]
-  );
   // VIP: mismo orden (subidas), pero con promoción "destacada" primero en el grid
   const profilesSorted =
     [...profiles].sort((a, b) => {
@@ -231,34 +226,46 @@ const CityPage = () => {
   const [estadosTimeBucket, setEstadosTimeBucket] = useState(() => Math.floor(Date.now() / (5 * 60 * 1000)));
   const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
   const galleryScrollRef = useRef<HTMLDivElement>(null);
+  const galleryScrollDirRef = useRef<1 | -1>(1);
   const [galleryAutoScrollPaused, setGalleryAutoScrollPaused] = useState(false);
+  const galleryStripIdsKey = galleryProfiles.map((p) => p.id).join("|");
 
   useEffect(() => {
     const t = setInterval(() => setEstadosTimeBucket(Math.floor(Date.now() / (5 * 60 * 1000))), 60 * 1000);
     return () => clearInterval(t);
   }, []);
 
-  // Auto-scroll suave de la galería tipo carrusel
+  // Al cambiar la tira de galería, volver al inicio y dirección →
   useEffect(() => {
-    if (!galleryLoopProfiles.length) return;
+    galleryScrollDirRef.current = 1;
+    const c = galleryScrollRef.current;
+    if (c) c.scrollLeft = 0;
+  }, [citySlug, galleryStripIdsKey]);
+
+  // Auto-scroll en vaivén (sin duplicar perfiles en el DOM)
+  useEffect(() => {
+    if (!galleryProfiles.length) return;
     const container = galleryScrollRef.current;
     if (!container) return;
-    const step = 1; // píxeles por tick (más lento)
+    const step = 0.85;
     const intervalMs = 40;
     const id = window.setInterval(() => {
       if (!container || galleryAutoScrollPaused) return;
       const maxScroll = container.scrollWidth - container.clientWidth;
       if (maxScroll <= 0) return;
-      // Usamos la mitad del scroll para que A + A parezca rueda infinita
-      const loopLimit = maxScroll / 2;
-      if (container.scrollLeft >= loopLimit - 1) {
-        container.scrollLeft = 0;
-      } else {
-        container.scrollLeft += step;
+      const dir = galleryScrollDirRef.current;
+      let next = container.scrollLeft + dir * step;
+      if (next >= maxScroll - 0.5) {
+        next = maxScroll;
+        galleryScrollDirRef.current = -1;
+      } else if (next <= 0.5) {
+        next = 0;
+        galleryScrollDirRef.current = 1;
       }
+      container.scrollLeft = next;
     }, intervalMs);
     return () => window.clearInterval(id);
-  }, [galleryLoopProfiles.length, galleryAutoScrollPaused]);
+  }, [galleryProfiles.length, galleryAutoScrollPaused, galleryStripIdsKey]);
 
   const profilesToShow = profilesSorted;
 
@@ -480,7 +487,7 @@ const CityPage = () => {
             onTouchEnd={() => setGalleryAutoScrollPaused(false)}
           >
             <div className="flex gap-8 px-4 min-w-0" style={{ width: "max-content" }}>
-              {galleryLoopProfiles.map((profile, idx) => {
+              {galleryProfiles.map((profile) => {
                 const photos = profile.image
                   ? [profile.image, ...(profile.gallery ?? [])]
                   : profile.gallery ?? [];
@@ -489,7 +496,7 @@ const CityPage = () => {
                 const hasMarcoPremium = Array.isArray(extras) && extras.includes("marco_premium");
                 return (
                   <button
-                    key={`${profile.id}-${idx}`}
+                    key={profile.id}
                     type="button"
                     onClick={() => hasPhotos && openGalleryViewer(profile as ProfileItem)}
                     disabled={!hasPhotos}
